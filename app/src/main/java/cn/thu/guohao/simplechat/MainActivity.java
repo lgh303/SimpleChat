@@ -1,9 +1,13 @@
 package cn.thu.guohao.simplechat;
 
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewConfiguration;
+
+import java.lang.reflect.Field;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -12,6 +16,10 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+//        setOverflowButtonAlways();
+        ActionBar bar = getSupportActionBar();
+        if (bar != null)
+            bar.setDisplayShowHomeEnabled(false);
     }
 
     @Override
@@ -29,10 +37,23 @@ public class MainActivity extends ActionBarActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void setOverflowButtonAlways() {
+        ViewConfiguration config = ViewConfiguration.get(this);
+        try {
+            Field menuKey = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
+            menuKey.setAccessible(true);
+            menuKey.setBoolean(config, false);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 }

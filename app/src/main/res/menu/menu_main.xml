@@ -6,24 +6,34 @@
         android:icon="@drawable/action_search"
         android:title="@string/action_search"
         android:actionViewClass="android.widget.SearchView"
-        app:showAsAction="ifRoom|collapseActionView" />
-
+        app:showAsAction="ifRoom|collapseActionView"/>
     <item
-        android:id="@+id/menu_group_chat"
-        android:icon="@drawable/menu_group_chat"
-        android:title="@string/menu_group_chat"/>
-    <item
-        android:id="@+id/menu_add_friend"
-        android:icon="@drawable/menu_add_friends"
-        android:title="@string/menu_add_friends"/>
-    <item
-        android:id="@+id/menu_scan"
-        android:icon="@drawable/menu_scan"
-        android:title="@string/menu_scan"/>
-    <item
-        android:id="@+id/menu_feedback"
-        android:icon="@drawable/menu_feedback"
-        android:title="@string/menu_feedback"/>
-
+        android:id="@+id/action_more"
+        android:icon="@drawable/action_more"
+        android:title="@string/action_more"
+        app:showAsAction="always">
+        <menu>
+            <item
+                android:id="@+id/menu_group_chat"
+                android:icon="@drawable/menu_group_chat"
+                android:title="@string/menu_group_chat"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/menu_add_friend"
+                android:icon="@drawable/menu_add_friends"
+                android:title="@string/menu_add_friends"
+                app:showAsAction="never"/>
+            <item
+                android:id="@+id/menu_scan"
+                android:icon="@drawable/menu_scan"
+                android:title="@string/menu_scan"
+                app:showAsAction="never"/>
+            <item
+                android:id="@+id/menu_feedback"
+                android:icon="@drawable/menu_feedback"
+                android:title="@string/menu_feedback"
+                app:showAsAction="never"/>
+        </menu>
+    </item>
 
 </menu>

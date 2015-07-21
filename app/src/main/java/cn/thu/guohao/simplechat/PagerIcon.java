@@ -2,13 +2,16 @@ package cn.thu.guohao.simplechat;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 
@@ -23,12 +26,10 @@ public class PagerIcon extends View {
     private float mTextSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
             12, getResources().getDisplayMetrics());
     private Drawable mIcon = getResources().getDrawable(R.drawable.tab_chats);
-
+    private Bitmap mBitmap;
     private Paint mTextPaint;
-    private Rect mTextRect;
     private Rect mIconRect;
-    float mTextWidth;
-    float mTextHeight;
+    private Rect mTextRect;
 
     public PagerIcon(Context context) {
         super(context);
@@ -63,131 +64,61 @@ public class PagerIcon extends View {
 
         mIcon = a.getDrawable(
                 R.styleable.PagerIcon_pi_icon);
+        BitmapDrawable bd = (BitmapDrawable)mIcon;
+        if (bd != null)
+            mBitmap = bd.getBitmap();
 
         a.recycle();
 
+        mTextRect = new Rect();
+        mIconRect = new Rect();
         // Set up a default TextPaint object
         mTextPaint = new TextPaint();
+
         mTextPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
         mTextPaint.setTextAlign(Paint.Align.CENTER);
+        mTextPaint.setTextSize(mTextSize);
         mTextPaint.setColor(Color.parseColor("#ff666666"));
-
-        // Update TextPaint and text measurements from attributes
-        invalidateTextPaintAndMeasurements();
+        mTextPaint.getTextBounds(mText, 0, mText.length(), mTextRect);
     }
 
-    private void invalidateTextPaintAndMeasurements() {
-        mTextPaint.setTextSize(mTextSize);
-        mTextPaint.setColor(mColor);
-        mTextWidth = mTextPaint.measureText(mText);
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
-        mTextHeight = fontMetrics.bottom;
+        int paddingLeft = getPaddingLeft();
+        int paddingTop = getPaddingTop();
+        int paddingRight = getPaddingRight();
+        int paddingBottom = getPaddingBottom();
+
+        int iconLength = Math.min(getMeasuredWidth() - paddingLeft - paddingRight,
+                getMeasuredHeight() - paddingTop - paddingBottom - mTextRect.height());
+        int left = (getMeasuredWidth() - iconLength) / 2;
+        int top = (getMeasuredHeight() - iconLength - mTextRect.height()) / 2;
+        mIconRect.set(left, top, left + iconLength, top + iconLength);
+        Log.i("lgh", "measuredWidth" + getMeasuredWidth());
+        Log.i("lgh", "measuredHeight" + getMeasuredHeight());
+        Log.i("lgh", "iconLength: " + iconLength);
+        Log.i("lgh", "iconLeft: " + left);
+        Log.i("lgh", "iconTop: " + top);
+        Log.i("lgh", "textHeight: " + mTextRect.height());
+        Log.i("lgh", "textWidth: " + mTextRect.width());
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        // allocations per draw cycle.
-        int paddingLeft = getPaddingLeft();
-        int paddingTop = getPaddingTop();
-        int paddingRight = getPaddingRight();
-        int paddingBottom = getPaddingBottom();
+        Log.i("lgh", ((Boolean)(mBitmap != null)).toString());
+        Log.i("lgh", mIconRect.toString());
 
-        int contentWidth = getWidth() - paddingLeft - paddingRight;
-        int contentHeight = getHeight() - paddingTop - paddingBottom;
-
-        // Draw the text.
-        canvas.drawText(mText,
-                paddingLeft + (contentWidth - mTextWidth) / 2,
-                paddingTop + (contentHeight + mTextHeight) / 2,
-                mTextPaint);
-
-        // Draw the example drawable on top of the text.
-        if (mIcon != null) {
-            mIcon.setBounds(paddingLeft, paddingTop,
-                    paddingLeft + contentWidth, paddingTop + contentHeight);
-            mIcon.draw(canvas);
-        }
+        canvas.drawBitmap(mBitmap, null, mIconRect, null);
+        int x = getMeasuredWidth() / 2;
+        int y = mIconRect.bottom + mTextRect.height();
+        Log.i("lgh", "textMW" + getMeasuredWidth());
+        Log.i("lgh", "textX" + x);
+        Log.i("lgh", "textY" + y);
+        canvas.drawText(mText, x, y, mTextPaint);
     }
 
-    /**
-     * Gets the example string attribute value.
-     *
-     * @return The example string attribute value.
-     */
-    public String getText() {
-        return mText;
-    }
-
-    /**
-     * Sets the view's example string attribute value. In the example view, this string
-     * is the text to draw.
-     *
-     * @param Text The example string attribute value to use.
-     */
-    public void setText(String Text) {
-        mText = Text;
-        invalidateTextPaintAndMeasurements();
-    }
-
-    /**
-     * Gets the example color attribute value.
-     *
-     * @return The example color attribute value.
-     */
-    public int getColor() {
-        return mColor;
-    }
-
-    /**
-     * Sets the view's example color attribute value. In the example view, this color
-     * is the font color.
-     *
-     * @param Color The example color attribute value to use.
-     */
-    public void setColor(int Color) {
-        mColor = Color;
-        invalidateTextPaintAndMeasurements();
-    }
-
-    /**
-     * Gets the example dimension attribute value.
-     *
-     * @return The example dimension attribute value.
-     */
-    public float getTextSize() {
-        return mTextSize;
-    }
-
-    /**
-     * Sets the view's example dimension attribute value. In the example view, this dimension
-     * is the font size.
-     *
-     * @param TextSize The example dimension attribute value to use.
-     */
-    public void setTextSize(float TextSize) {
-        mTextSize = TextSize;
-        invalidateTextPaintAndMeasurements();
-    }
-
-    /**
-     * Gets the example drawable attribute value.
-     *
-     * @return The example drawable attribute value.
-     */
-    public Drawable getIcon() {
-        return mIcon;
-    }
-
-    /**
-     * Sets the view's example drawable attribute value. In the example view, this drawable is
-     * drawn above the text.
-     *
-     * @param Icon The example drawable attribute value to use.
-     */
-    public void setIcon(Drawable Icon) {
-        mIcon = Icon;
-    }
 }

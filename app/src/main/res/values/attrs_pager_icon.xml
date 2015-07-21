@@ -1,0 +1,8 @@
+<resources>
+    <declare-styleable name="PagerIcon">
+        <attr name="pi_text" format="string" />
+        <attr name="pi_text_size" format="dimension" />
+        <attr name="pi_color" format="color" />
+        <attr name="pi_icon" format="reference" />
+    </declare-styleable>
+</resources>

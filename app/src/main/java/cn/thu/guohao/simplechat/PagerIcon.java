@@ -11,7 +11,9 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.os.Looper;
+import android.os.Parcelable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -23,6 +25,10 @@ import android.view.View;
  * Can change color.
  */
 public class PagerIcon extends View {
+
+    final static private String SUPER_KEY = "PagerIcon.Super.Key";
+    final static private String ALPHA_KEY = "PagerIcon.Alpha.Key";
+
     private String mText = getResources().getString(R.string.tab_default);
     private int mColor = Color.RED;
     private float mTextSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
@@ -94,6 +100,24 @@ public class PagerIcon extends View {
         mIconPaint.setDither(true);
 
         mAlphaPaint = new Paint();
+    }
+
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(SUPER_KEY, super.onSaveInstanceState());
+        bundle.putFloat(ALPHA_KEY, mAlpha);
+        return bundle;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        if (state instanceof Bundle) {
+            mAlpha = ((Bundle) state).getFloat(ALPHA_KEY);
+            super.onRestoreInstanceState(((Bundle) state).getParcelable(SUPER_KEY));
+            return;
+        }
+        super.onRestoreInstanceState(state);
     }
 
     @Override

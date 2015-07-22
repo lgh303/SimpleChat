@@ -1,6 +1,5 @@
 package cn.thu.guohao.simplechat;
 
-import android.content.DialogInterface;
 import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;

@@ -31,12 +31,14 @@ public class PagerIcon extends View {
     private Rect mIconRect;
     private Rect mTextRect;
 
-    private float mAlpha = 1.0f;
+    private float mAlpha = 0.0f;
     private Bitmap mColorBitmap;
     private Canvas mColorCanvas;
+    private Paint mAlphaPaint;
     private Paint mIconPaint;
     final static private PorterDuffXfermode XFERMODE = new PorterDuffXfermode(
             PorterDuff.Mode.DST_IN);
+    final static private int DEFAULT_TEXT_COLOR = 0xff555555;
 
     public PagerIcon(Context context) {
         super(context);
@@ -79,19 +81,20 @@ public class PagerIcon extends View {
 
         mTextRect = new Rect();
         mIconRect = new Rect();
-        // Set up a default TextPaint object
-        mTextPaint = new TextPaint();
 
+        mTextPaint = new TextPaint();
         mTextPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
         mTextPaint.setTextAlign(Paint.Align.CENTER);
         mTextPaint.setTextSize(mTextSize);
-        mTextPaint.setColor(Color.parseColor("#ff666666"));
+        mTextPaint.setColor(DEFAULT_TEXT_COLOR);
         mTextPaint.getTextBounds(mText, 0, mText.length(), mTextRect);
 
         mIconPaint = new Paint();
         mIconPaint.setColor(mColor);
         mIconPaint.setAntiAlias(true);
         mIconPaint.setDither(true);
+
+        mAlphaPaint = new Paint();
     }
 
     @Override
@@ -115,6 +118,7 @@ public class PagerIcon extends View {
         super.onDraw(canvas);
 
         int alpha = (int) Math.ceil(mAlpha * 255);
+
         if (mColorBitmap == null) {
             mColorBitmap = Bitmap.createBitmap(getMeasuredWidth(), getMeasuredHeight(),
                     Bitmap.Config.ARGB_8888);
@@ -122,20 +126,27 @@ public class PagerIcon extends View {
         }
 
         //DST
-        mIconPaint.setAlpha(alpha);
+        mIconPaint.setColor(mColor);
+        mIconPaint.setAlpha(255);
         mColorCanvas.drawRect(mIconRect, mIconPaint);
         //SRC
         mIconPaint.setXfermode(XFERMODE); // DST_IN
-        mIconPaint.setAlpha(255);
         mColorCanvas.drawBitmap(mLineBitmap, null, mIconRect, mIconPaint);
 
         // color
-        canvas.drawBitmap(mColorBitmap, 0, 0, null);
+        mAlphaPaint.setAlpha(alpha);
+        canvas.drawBitmap(mColorBitmap, 0, 0, mAlphaPaint);
         // bounder
-        canvas.drawBitmap(mLineBitmap, null, mIconRect, null);
+        mAlphaPaint.setAlpha(255 - alpha);
+        canvas.drawBitmap(mLineBitmap, null, mIconRect, mAlphaPaint);
         // text
         int x = getMeasuredWidth() / 2;
         int y = mIconRect.bottom + mTextRect.height();
+        mTextPaint.setColor(mColor);
+        mTextPaint.setAlpha(alpha);
+        canvas.drawText(mText, x, y, mTextPaint);
+        mTextPaint.setColor(DEFAULT_TEXT_COLOR);
+        mTextPaint.setAlpha(255 - alpha);
         canvas.drawText(mText, x, y, mTextPaint);
     }
 

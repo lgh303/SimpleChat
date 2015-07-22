@@ -1,5 +1,6 @@
 package cn.thu.guohao.simplechat;
 
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -8,13 +9,15 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity
-        implements ChatsFragment.OnFragmentInteractionListener{
+        implements ChatsFragment.OnFragmentInteractionListener,
+        View.OnClickListener {
 
     public ViewPager mViewPager;
     private FragmentPagerAdapter mPagerAdapter;
@@ -26,24 +29,29 @@ public class MainActivity extends ActionBarActivity
             "Me",
     };
 
+    private List<PagerIcon> mPagerIcons = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
-        initData();
-        mViewPager.setAdapter(mPagerAdapter);
+        initEvent();
     }
 
-    private void initView() {
-        mViewPager = (ViewPager) findViewById(R.id.id_viewpager);
-    }
+    private void initView()
+    {
+        mPagerIcons.add((PagerIcon) findViewById(R.id.id_pi_chats));
+        mPagerIcons.add((PagerIcon) findViewById(R.id.id_pi_contacts));
+        mPagerIcons.add((PagerIcon) findViewById(R.id.id_pi_discover));
+        mPagerIcons.add((PagerIcon) findViewById(R.id.id_pi_me));
+        mPagerIcons.get(0).setIconAlpha(1.0f);
 
-    private void initData() {
         for (String title : mTitles) {
             ChatsFragment frag = ChatsFragment.newInstance(title);
             mTabs.add(frag);
         }
+
         mPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int i) {
@@ -55,8 +63,16 @@ public class MainActivity extends ActionBarActivity
                 return mTabs.size();
             }
         };
+
+        mViewPager = (ViewPager) findViewById(R.id.id_viewpager);
+        mViewPager.setAdapter(mPagerAdapter);
     }
 
+    private void initEvent() {
+        for (PagerIcon pi : mPagerIcons) {
+            pi.setOnClickListener(this);
+        }
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -82,5 +98,30 @@ public class MainActivity extends ActionBarActivity
     @Override
     public void onFragmentInteraction(Uri uri) {
 
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.id_pi_chats:
+                switchToPagerIcon(0);
+                break;
+            case R.id.id_pi_contacts:
+                switchToPagerIcon(1);
+                break;
+            case R.id.id_pi_discover:
+                switchToPagerIcon(2);
+                break;
+            case R.id.id_pi_me:
+                switchToPagerIcon(3);
+                break;
+        }
+    }
+
+    private void switchToPagerIcon(int i) {
+        for (PagerIcon pi: mPagerIcons)
+            pi.setIconAlpha(0);
+        mPagerIcons.get(i).setIconAlpha(1.0f);
+        mViewPager.setCurrentItem(i, false);
     }
 }

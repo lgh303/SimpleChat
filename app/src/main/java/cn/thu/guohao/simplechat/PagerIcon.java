@@ -11,6 +11,7 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Looper;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -65,8 +66,6 @@ public class PagerIcon extends View {
         mColor = a.getColor(
                 R.styleable.PagerIcon_pi_color,
                 mColor);
-        // Use getDimensionPixelSize or getDimensionPixelOffset when dealing with
-        // values that should fall on pixel boundaries.
         mTextSize = a.getDimension(
                 R.styleable.PagerIcon_pi_text_size,
                 mTextSize);
@@ -123,15 +122,14 @@ public class PagerIcon extends View {
             mColorBitmap = Bitmap.createBitmap(getMeasuredWidth(), getMeasuredHeight(),
                     Bitmap.Config.ARGB_8888);
             mColorCanvas = new Canvas(mColorBitmap);
+            //DST
+            mIconPaint.setColor(mColor);
+            mIconPaint.setAlpha(255);
+            mColorCanvas.drawRect(mIconRect, mIconPaint);
+            //SRC
+            mIconPaint.setXfermode(XFERMODE); // DST_IN
+            mColorCanvas.drawBitmap(mLineBitmap, null, mIconRect, mIconPaint);
         }
-
-        //DST
-        mIconPaint.setColor(mColor);
-        mIconPaint.setAlpha(255);
-        mColorCanvas.drawRect(mIconRect, mIconPaint);
-        //SRC
-        mIconPaint.setXfermode(XFERMODE); // DST_IN
-        mColorCanvas.drawBitmap(mLineBitmap, null, mIconRect, mIconPaint);
 
         // color
         mAlphaPaint.setAlpha(alpha);
@@ -150,4 +148,15 @@ public class PagerIcon extends View {
         canvas.drawText(mText, x, y, mTextPaint);
     }
 
+    public void setIconAlpha(float alpha) {
+        mAlpha = alpha;
+        invalidateView();
+    }
+
+    public void invalidateView() {
+        if (Looper.getMainLooper() == Looper.myLooper())
+            invalidate();
+        else
+            postInvalidate();
+    }
 }

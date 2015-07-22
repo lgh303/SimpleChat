@@ -19,6 +19,7 @@
         android:layout_height="54dp"
         android:orientation="horizontal">
         <cn.thu.guohao.simplechat.PagerIcon
+            android:id="@+id/id_pi_chats"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -29,6 +30,7 @@
             lgh:pi_text_size="12sp"
             lgh:pi_icon="@drawable/tab_chats"/>
         <cn.thu.guohao.simplechat.PagerIcon
+            android:id="@+id/id_pi_contacts"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -39,6 +41,7 @@
             lgh:pi_text_size="12sp"
             lgh:pi_icon="@drawable/tab_contacts"/>
         <cn.thu.guohao.simplechat.PagerIcon
+            android:id="@+id/id_pi_discover"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -49,6 +52,7 @@
             lgh:pi_text_size="12sp"
             lgh:pi_icon="@drawable/tab_discover"/>
         <cn.thu.guohao.simplechat.PagerIcon
+            android:id="@+id/id_pi_me"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"

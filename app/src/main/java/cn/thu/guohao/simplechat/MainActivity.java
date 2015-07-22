@@ -17,7 +17,8 @@ import java.util.List;
 
 public class MainActivity extends ActionBarActivity
         implements ChatsFragment.OnFragmentInteractionListener,
-        View.OnClickListener {
+        View.OnClickListener,
+        ViewPager.OnPageChangeListener {
 
     public ViewPager mViewPager;
     private FragmentPagerAdapter mPagerAdapter;
@@ -72,6 +73,7 @@ public class MainActivity extends ActionBarActivity
         for (PagerIcon pi : mPagerIcons) {
             pi.setOnClickListener(this);
         }
+        mViewPager.addOnPageChangeListener(this);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -123,5 +125,23 @@ public class MainActivity extends ActionBarActivity
             pi.setIconAlpha(0);
         mPagerIcons.get(i).setIconAlpha(1.0f);
         mViewPager.setCurrentItem(i, false);
+    }
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+        if (positionOffset > 0) {
+            mPagerIcons.get(position).setIconAlpha(1 - positionOffset);
+            mPagerIcons.get(position + 1).setIconAlpha(positionOffset);
+        }
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
     }
 }

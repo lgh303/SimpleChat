@@ -16,18 +16,18 @@ import java.util.List;
 
 public class MainActivity extends ActionBarActivity
         implements ChatsFragment.OnFragmentInteractionListener,
+        ContactsFragment.OnFragmentInteractionListener,
+        DiscoverFragment.OnFragmentInteractionListener,
+        MeFragment.OnFragmentInteractionListener,
         View.OnClickListener,
         ViewPager.OnPageChangeListener {
 
     public ViewPager mViewPager;
     private FragmentPagerAdapter mPagerAdapter;
-    private List<Fragment> mTabs = new ArrayList<>();
-    private String[] mTitles = new String[] {
-            "Chats",
-            "Contacts",
-            "Discover",
-            "Me",
-    };
+    private ChatsFragment mChatsFragment;
+    private ContactsFragment mContactsFragment;
+    private DiscoverFragment mDiscoverFragment;
+    private MeFragment mMeFragment;
 
     private List<PagerIcon> mPagerIcons = new ArrayList<>();
 
@@ -47,20 +47,30 @@ public class MainActivity extends ActionBarActivity
         mPagerIcons.add((PagerIcon) findViewById(R.id.id_pi_me));
         mPagerIcons.get(0).setIconAlpha(1.0f);
 
-        for (String title : mTitles) {
-            ChatsFragment frag = ChatsFragment.newInstance(title);
-            mTabs.add(frag);
-        }
+        mChatsFragment = new ChatsFragment();
+        mContactsFragment = new ContactsFragment();
+        mDiscoverFragment = new DiscoverFragment();
+        mMeFragment = new MeFragment();
 
         mPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int i) {
-                return mTabs.get(i);
+                switch (i) {
+                    case 0:
+                        return mChatsFragment;
+                    case 1:
+                        return mContactsFragment;
+                    case 2:
+                        return mDiscoverFragment;
+                    case 3:
+                        return mMeFragment;
+                }
+                return null;
             }
 
             @Override
             public int getCount() {
-                return mTabs.size();
+                return 4;
             }
         };
 

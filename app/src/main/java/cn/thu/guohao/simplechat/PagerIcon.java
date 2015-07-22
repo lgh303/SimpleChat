@@ -6,12 +6,13 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 
@@ -25,11 +26,17 @@ public class PagerIcon extends View {
     private int mColor = Color.RED;
     private float mTextSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
             12, getResources().getDisplayMetrics());
-    private Drawable mIcon = getResources().getDrawable(R.drawable.tab_chats);
-    private Bitmap mBitmap;
+    private Bitmap mLineBitmap;
     private Paint mTextPaint;
     private Rect mIconRect;
     private Rect mTextRect;
+
+    private float mAlpha = 1.0f;
+    private Bitmap mColorBitmap;
+    private Canvas mColorCanvas;
+    private Paint mIconPaint;
+    final static private PorterDuffXfermode XFERMODE = new PorterDuffXfermode(
+            PorterDuff.Mode.DST_IN);
 
     public PagerIcon(Context context) {
         super(context);
@@ -62,11 +69,11 @@ public class PagerIcon extends View {
                 R.styleable.PagerIcon_pi_text_size,
                 mTextSize);
 
-        mIcon = a.getDrawable(
+        Drawable mIcon = a.getDrawable(
                 R.styleable.PagerIcon_pi_icon);
         BitmapDrawable bd = (BitmapDrawable)mIcon;
         if (bd != null)
-            mBitmap = bd.getBitmap();
+            mLineBitmap = bd.getBitmap();
 
         a.recycle();
 
@@ -80,6 +87,11 @@ public class PagerIcon extends View {
         mTextPaint.setTextSize(mTextSize);
         mTextPaint.setColor(Color.parseColor("#ff666666"));
         mTextPaint.getTextBounds(mText, 0, mText.length(), mTextRect);
+
+        mIconPaint = new Paint();
+        mIconPaint.setColor(mColor);
+        mIconPaint.setAntiAlias(true);
+        mIconPaint.setDither(true);
     }
 
     @Override
@@ -96,28 +108,34 @@ public class PagerIcon extends View {
         int left = (getMeasuredWidth() - iconLength) / 2;
         int top = (getMeasuredHeight() - iconLength - mTextRect.height()) / 2;
         mIconRect.set(left, top, left + iconLength, top + iconLength);
-        Log.i("lgh", "measuredWidth" + getMeasuredWidth());
-        Log.i("lgh", "measuredHeight" + getMeasuredHeight());
-        Log.i("lgh", "iconLength: " + iconLength);
-        Log.i("lgh", "iconLeft: " + left);
-        Log.i("lgh", "iconTop: " + top);
-        Log.i("lgh", "textHeight: " + mTextRect.height());
-        Log.i("lgh", "textWidth: " + mTextRect.width());
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        Log.i("lgh", ((Boolean)(mBitmap != null)).toString());
-        Log.i("lgh", mIconRect.toString());
+        int alpha = (int) Math.ceil(mAlpha * 255);
+        if (mColorBitmap == null) {
+            mColorBitmap = Bitmap.createBitmap(getMeasuredWidth(), getMeasuredHeight(),
+                    Bitmap.Config.ARGB_8888);
+            mColorCanvas = new Canvas(mColorBitmap);
+        }
 
-        canvas.drawBitmap(mBitmap, null, mIconRect, null);
+        //DST
+        mIconPaint.setAlpha(alpha);
+        mColorCanvas.drawRect(mIconRect, mIconPaint);
+        //SRC
+        mIconPaint.setXfermode(XFERMODE); // DST_IN
+        mIconPaint.setAlpha(255);
+        mColorCanvas.drawBitmap(mLineBitmap, null, mIconRect, mIconPaint);
+
+        // color
+        canvas.drawBitmap(mColorBitmap, 0, 0, null);
+        // bounder
+        canvas.drawBitmap(mLineBitmap, null, mIconRect, null);
+        // text
         int x = getMeasuredWidth() / 2;
         int y = mIconRect.bottom + mTextRect.height();
-        Log.i("lgh", "textMW" + getMeasuredWidth());
-        Log.i("lgh", "textX" + x);
-        Log.i("lgh", "textY" + y);
         canvas.drawText(mText, x, y, mTextPaint);
     }
 

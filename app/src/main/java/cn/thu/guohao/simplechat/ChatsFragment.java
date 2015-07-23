@@ -1,13 +1,16 @@
 package cn.thu.guohao.simplechat;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -24,10 +27,12 @@ import java.util.List;
  * Use the {@link ChatsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ChatsFragment extends Fragment {
+public class ChatsFragment extends Fragment
+        implements AdapterView.OnItemClickListener{
     private static final String TITLE = "ChatsFragment.TITLE";
 
     private ListView mListView;
+    private List<ChatBean> mChatBeans;
 
     private OnFragmentInteractionListener mListener;
 
@@ -65,11 +70,12 @@ public class ChatsFragment extends Fragment {
     }
 
     private void initData() {
-        List<ChatBean> chatBeans = new ArrayList<>();
-        chatBeans.add(new ChatBean("dog", "Wo"));
-        chatBeans.add(new ChatBean("cat", "Mia"));
-        ChatsAdapter adapter = new ChatsAdapter(getActivity(), chatBeans, mListView);
+        mChatBeans = new ArrayList<>();
+        mChatBeans.add(new ChatBean("dog", "Wo"));
+        mChatBeans.add(new ChatBean("cat", "Mia"));
+        ChatsAdapter adapter = new ChatsAdapter(getActivity(), mChatBeans, mListView);
         mListView.setAdapter(adapter);
+        mListView.setOnItemClickListener(this);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -94,6 +100,13 @@ public class ChatsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Intent intent = new Intent(getActivity(), ChatActivity.class);
+        intent.putExtra("title", mChatBeans.get(position).title);
+        startActivity(intent);
     }
 
     /**

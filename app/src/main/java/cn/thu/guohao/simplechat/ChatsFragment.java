@@ -8,7 +8,12 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -22,7 +27,7 @@ import android.widget.TextView;
 public class ChatsFragment extends Fragment {
     private static final String TITLE = "ChatsFragment.TITLE";
 
-    private String mTitle;
+    private ListView mListView;
 
     private OnFragmentInteractionListener mListener;
 
@@ -48,15 +53,23 @@ public class ChatsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mTitle = getArguments().getString(TITLE);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_chats, container, false);
+        View view = inflater.inflate(R.layout.fragment_chats, container, false);
+        mListView = (ListView) view.findViewById(R.id.id_lv_chats);
+        initData();
+        return view;
+    }
+
+    private void initData() {
+        List<ChatBean> chatBeans = new ArrayList<>();
+        chatBeans.add(new ChatBean("dog", "Wo"));
+        chatBeans.add(new ChatBean("cat", "Mia"));
+        ChatsAdapter adapter = new ChatsAdapter(getActivity(), chatBeans, mListView);
+        mListView.setAdapter(adapter);
     }
 
     // TODO: Rename method, update argument and hook method into UI event

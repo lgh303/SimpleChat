@@ -1,5 +1,6 @@
 package cn.thu.guohao.simplechat;
 
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,7 +14,9 @@ public class ChatActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         String title = getIntent().getStringExtra("title");
-        Log.i("lgh", title);
+        ActionBar bar = getSupportActionBar();
+        if (bar != null)
+            bar.setTitle(title);
         setContentView(R.layout.activity_chat);
     }
 

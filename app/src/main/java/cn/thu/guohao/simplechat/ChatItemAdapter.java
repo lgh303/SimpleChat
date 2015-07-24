@@ -29,6 +29,21 @@ public class ChatItemAdapter extends BaseAdapter
     }
 
     @Override
+    public int getViewTypeCount() {
+        return 2;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        ChatItemBean.TYPE type = mData.get(position).type;
+        if (type == ChatItemBean.TYPE.LEFT)
+            return 0;
+        else if (type == ChatItemBean.TYPE.RIGHT)
+            return 1;
+        return super.getItemViewType(position);
+    }
+
+    @Override
     public int getCount() {
         return mData.size();
     }
@@ -46,12 +61,23 @@ public class ChatItemAdapter extends BaseAdapter
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
+        int type = getItemViewType(position);
         if (convertView == null) {
-            convertView = mInflater.inflate(R.layout.item_right_chat, null);
             viewHolder = new ViewHolder();
-            viewHolder.icon = (ImageView) convertView.findViewById(R.id.id_iv_right_chat_item);
-            viewHolder.text = (TextView) convertView.findViewById(R.id.id_tv_right_chat_item);
-            convertView.setTag(viewHolder);
+            switch (type) {
+                case 0:
+                    convertView = mInflater.inflate(R.layout.item_left_chat, null);
+                    viewHolder.icon = (ImageView) convertView.findViewById(R.id.id_iv_left_chat_item);
+                    viewHolder.text = (TextView) convertView.findViewById(R.id.id_tv_left_chat_item);
+                    convertView.setTag(viewHolder);
+                    break;
+                case 1:
+                    convertView = mInflater.inflate(R.layout.item_right_chat, null);
+                    viewHolder.icon = (ImageView) convertView.findViewById(R.id.id_iv_right_chat_item);
+                    viewHolder.text = (TextView) convertView.findViewById(R.id.id_tv_right_chat_item);
+                    convertView.setTag(viewHolder);
+                    break;
+            }
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }

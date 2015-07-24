@@ -78,13 +78,17 @@ public class ChatActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 if (mText.length() > 0) {
-                    Log.i("lgh", "Send: " + mText);
-                    mData.add(new ChatItemBean(mText));
-                    mAdapter.notifyDataSetChanged();
+                    addChatItem(mText, ChatItemBean.TYPE.RIGHT);
+                    addChatItem(mText, ChatItemBean.TYPE.LEFT);
                     mEditText.setText("");
                 }
             }
         });
+    }
+
+    private void addChatItem(String text, ChatItemBean.TYPE type) {
+        mData.add(new ChatItemBean(text, type));
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override

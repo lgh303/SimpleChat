@@ -9,6 +9,7 @@
         android:id="@+id/id_lv_chat_pane"
         android:divider="@null"
         android:background="#88f0f0f0"
+        android:transcriptMode="alwaysScroll"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"

@@ -1,9 +1,11 @@
 package cn.thu.guohao.simplechat;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -21,8 +23,10 @@ public class ChatItemAdapter extends BaseAdapter
 
     private LayoutInflater mInflater;
     private List<ChatItemBean> mData;
+    private ChatActivity mContext;
 
-    public ChatItemAdapter(Context context, List<ChatItemBean> data, ListView listview) {
+    public ChatItemAdapter(ChatActivity context, List<ChatItemBean> data, ListView listview) {
+        mContext = context;
         mInflater = LayoutInflater.from(context);
         mData = data;
         listview.setOnScrollListener(this);
@@ -88,12 +92,19 @@ public class ChatItemAdapter extends BaseAdapter
 
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
-
+        if (scrollState == SCROLL_STATE_TOUCH_SCROLL) {
+            hideKeyboard();
+        }
     }
 
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 
+    }
+
+    private void hideKeyboard(){
+        InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(mContext.findViewById(android.R.id.content).getWindowToken(), 0);
     }
 
     class ViewHolder {

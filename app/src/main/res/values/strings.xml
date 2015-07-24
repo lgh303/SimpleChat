@@ -4,6 +4,12 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
 
+    <string name="hint_username">Username</string>
+    <string name="hint_password">Password</string>
+    <string name="hint_confirm_password">Confirm Password</string>
+    <string name="hint_login">Login</string>
+    <string name="hint_register">Register</string>
+
     <string name="action_search">Search</string>
     <string name="action_more">More</string>
     <string name="menu_group_chat">Group Chat</string>
@@ -20,4 +26,9 @@
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_chat">ChatActivity</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="title_activity_register">RegisterActivity</string>
+    <string name="title_activity_register_success">RegisterSuccessActivity</string>
+    <string name="title_activity_splash">SplashActivity</string>
+    <string name="title_activity_switch_login">SwitchLoginActivity</string>
 </resources>

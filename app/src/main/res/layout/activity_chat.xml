@@ -6,6 +6,7 @@
     tools:context="cn.thu.guohao.simplechat.ChatActivity">
 
     <ListView
+        android:id="@+id/id_lv_chat_pane"
         android:background="#88f0f0f0"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -20,22 +21,26 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <ImageView
-            android:src="@drawable/chat_speak_released"
-            android:padding="5dp"
+            android:id="@+id/id_iv_chat_input"
+            android:src="@drawable/selector_chat_speak"
+            android:paddingLeft="6dp"
+            android:padding="4dp"
             android:clickable="true"
-            android:layout_width="40dp"
-            android:layout_height="40dp" />
+            android:layout_width="42dp"
+            android:layout_height="42dp" />
         <EditText
+            android:id="@+id/id_et_chat"
             android:gravity="start"
             android:inputType="text"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="match_parent" />
         <ImageView
-            android:src="@drawable/chat_extras_released"
-            android:padding="5dp"
+            android:id="@+id/id_iv_chat_extras"
+            android:src="@drawable/selector_chat_extras"
+            android:padding="4dp"
             android:clickable="true"
-            android:layout_width="40dp"
-            android:layout_height="40dp" />
+            android:layout_width="42dp"
+            android:layout_height="42dp" />
     </LinearLayout>
 </LinearLayout>

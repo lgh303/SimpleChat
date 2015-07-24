@@ -3,12 +3,25 @@ package cn.thu.guohao.simplechat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ListView;
 
 
 public class ChatActivity extends ActionBarActivity {
+
+    private ListView mListView;
+    private ImageView mInputView;
+    private ImageView mExtraView;
+    private EditText mEditText;
+    private String mText = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,6 +31,51 @@ public class ChatActivity extends ActionBarActivity {
         if (bar != null)
             bar.setTitle(title);
         setContentView(R.layout.activity_chat);
+        initView();
+        initEvent();
+    }
+
+    private void initView() {
+        mListView = (ListView) findViewById(R.id.id_lv_chat_pane);
+        mInputView = (ImageView) findViewById(R.id.id_iv_chat_input);
+        mEditText = (EditText) findViewById(R.id.id_et_chat);
+        mExtraView = (ImageView) findViewById(R.id.id_iv_chat_extras);
+    }
+
+    private void initEvent() {
+        mInputView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            }
+        });
+        mEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String text = mEditText.getText().toString();
+                if (mText.length() > 0 && text.length() == 0)
+                    mExtraView.setImageResource(R.drawable.selector_chat_extras);
+                else if (mText.length() == 0 && text.length() > 0)
+                    mExtraView.setImageResource(R.drawable.selector_chat_send);
+                mText = text;
+            }
+        });
+        mExtraView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mText.length() > 0) {
+                    Log.i("lgh", "Send: " + mText);
+                    mEditText.setText("");
+                }
+            }
+        });
     }
 
     @Override

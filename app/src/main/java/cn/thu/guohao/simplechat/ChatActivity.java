@@ -14,14 +14,19 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class ChatActivity extends ActionBarActivity {
 
     private ListView mListView;
+    private ChatItemAdapter mAdapter;
     private ImageView mInputView;
     private ImageView mExtraView;
     private EditText mEditText;
     private String mText = "";
+    private List<ChatItemBean> mData = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +45,8 @@ public class ChatActivity extends ActionBarActivity {
         mInputView = (ImageView) findViewById(R.id.id_iv_chat_input);
         mEditText = (EditText) findViewById(R.id.id_et_chat);
         mExtraView = (ImageView) findViewById(R.id.id_iv_chat_extras);
+        mAdapter = new ChatItemAdapter(this, mData, mListView);
+        mListView.setAdapter(mAdapter);
     }
 
     private void initEvent() {
@@ -72,6 +79,8 @@ public class ChatActivity extends ActionBarActivity {
             public void onClick(View v) {
                 if (mText.length() > 0) {
                     Log.i("lgh", "Send: " + mText);
+                    mData.add(new ChatItemBean(mText));
+                    mAdapter.notifyDataSetChanged();
                     mEditText.setText("");
                 }
             }

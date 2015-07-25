@@ -1,4 +1,4 @@
-package cn.thu.guohao.simplechat;
+package cn.thu.guohao.simplechat.ui;
 
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
@@ -8,6 +8,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import cn.thu.guohao.simplechat.R;
 
 
 public class RegisterSuccessActivity extends ActionBarActivity {

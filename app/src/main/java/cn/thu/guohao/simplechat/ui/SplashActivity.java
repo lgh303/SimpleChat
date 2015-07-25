@@ -1,9 +1,13 @@
-package cn.thu.guohao.simplechat;
+package cn.thu.guohao.simplechat.ui;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+
+import cn.bmob.v3.Bmob;
+import cn.thu.guohao.simplechat.R;
+
 
 public class SplashActivity extends Activity {
 
@@ -13,6 +17,8 @@ public class SplashActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+
+        Bmob.initialize(this, "fc26b418ba0a8938a58eb1ff46976026");
 
         new Handler().postDelayed(new Runnable() {
             @Override

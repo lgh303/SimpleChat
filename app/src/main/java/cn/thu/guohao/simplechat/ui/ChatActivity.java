@@ -1,14 +1,12 @@
-package cn.thu.guohao.simplechat;
+package cn.thu.guohao.simplechat.ui;
 
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -16,6 +14,10 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import cn.thu.guohao.simplechat.adapter.ChatItemAdapter;
+import cn.thu.guohao.simplechat.adapter.ChatItemBean;
+import cn.thu.guohao.simplechat.R;
 
 
 public class ChatActivity extends ActionBarActivity {

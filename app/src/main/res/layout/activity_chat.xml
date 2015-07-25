@@ -3,7 +3,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="cn.thu.guohao.simplechat.ChatActivity">
+    tools:context="cn.thu.guohao.simplechat.ui.ChatActivity">
 
     <ListView
         android:id="@+id/id_lv_chat_pane"

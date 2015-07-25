@@ -1,4 +1,4 @@
-package cn.thu.guohao.simplechat;
+package cn.thu.guohao.simplechat.ui;
 
 import android.net.Uri;
 import android.support.v4.app.Fragment;
@@ -12,6 +12,13 @@ import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import cn.thu.guohao.simplechat.fragment.ChatsFragment;
+import cn.thu.guohao.simplechat.fragment.ContactsFragment;
+import cn.thu.guohao.simplechat.fragment.DiscoverFragment;
+import cn.thu.guohao.simplechat.fragment.MeFragment;
+import cn.thu.guohao.simplechat.view.PagerIcon;
+import cn.thu.guohao.simplechat.R;
 
 
 public class MainActivity extends ActionBarActivity

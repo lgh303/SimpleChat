@@ -1,4 +1,4 @@
-package cn.thu.guohao.simplechat;
+package cn.thu.guohao.simplechat.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -18,6 +18,8 @@ import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
+
+import cn.thu.guohao.simplechat.R;
 
 
 /**

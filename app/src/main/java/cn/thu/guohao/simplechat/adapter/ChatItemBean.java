@@ -1,4 +1,4 @@
-package cn.thu.guohao.simplechat;
+package cn.thu.guohao.simplechat.adapter;
 
 /**
  * Created by Guohao on 2015/7/24.

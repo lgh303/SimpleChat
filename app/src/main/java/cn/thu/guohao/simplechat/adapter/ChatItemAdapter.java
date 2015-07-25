@@ -1,7 +1,6 @@
-package cn.thu.guohao.simplechat;
+package cn.thu.guohao.simplechat.adapter;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +12,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.List;
+
+import cn.thu.guohao.simplechat.R;
+import cn.thu.guohao.simplechat.ui.ChatActivity;
 
 /**
  * Created by Guohao on 2015/7/24.

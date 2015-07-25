@@ -1,4 +1,4 @@
-package cn.thu.guohao.simplechat;
+package cn.thu.guohao.simplechat.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -11,6 +11,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.List;
+
+import cn.thu.guohao.simplechat.R;
 
 /**
  * Created by Guohao on 2015/7/23.

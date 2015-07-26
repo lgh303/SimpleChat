@@ -43,6 +43,8 @@ public class SwitchLoginActivity extends ActionBarActivity {
                 String username = mNameEditText.getText().toString();
                 String password = mPasswordEditText.getText().toString();
                 Log.i("lgh", "username: " + username + "; password: " + password);
+                Intent intent = new Intent(SwitchLoginActivity.this, MainActivity.class);
+                startActivity(intent);
             }
         });
         mRegisterTextView.setOnClickListener(new View.OnClickListener() {

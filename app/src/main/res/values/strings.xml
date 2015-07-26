@@ -4,11 +4,15 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
 
+    <string name="hint_id">Chat ID</string>
     <string name="hint_username">Username</string>
     <string name="hint_password">Password</string>
     <string name="hint_confirm_password">Confirm Password</string>
     <string name="hint_login">Login</string>
     <string name="hint_register">Register</string>
+    <string name="hint_male">Male</string>
+    <string name="hint_female">Female</string>
+
 
     <string name="action_search">Search</string>
     <string name="action_more">More</string>

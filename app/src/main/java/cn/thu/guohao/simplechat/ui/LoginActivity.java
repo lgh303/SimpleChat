@@ -51,6 +51,8 @@ public class LoginActivity extends ActionBarActivity {
                 String password = mPasswordEditText.getText().toString();
                 Log.i("lgh", "Password: " + password);
                 mPasswordEditText.setText("");
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
             }
         });
     }

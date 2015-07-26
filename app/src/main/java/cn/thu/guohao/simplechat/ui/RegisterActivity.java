@@ -9,16 +9,25 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import cn.bmob.v3.BmobUser;
+import cn.bmob.v3.listener.SaveListener;
 import cn.thu.guohao.simplechat.R;
+import cn.thu.guohao.simplechat.data.User;
 
 
 public class RegisterActivity extends ActionBarActivity {
 
+    private EditText mIDEditText;
     private EditText mNameEditText;
     private EditText mPasswordEditText, mConfirmEditText;
+    private RadioGroup mSexRadioGroup;
     private Button mRegisterButton;
+
+    private String id, nickname, password, confirm;
+    private boolean isMale;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,30 +38,80 @@ public class RegisterActivity extends ActionBarActivity {
     }
 
     private void initView() {
+        mIDEditText = (EditText) findViewById(R.id.id_et_reg_id);
         mNameEditText = (EditText) findViewById(R.id.id_et_reg_username);
         mPasswordEditText = (EditText) findViewById(R.id.id_et_reg_password);
         mConfirmEditText = (EditText) findViewById(R.id.id_et_reg_confirm);
         mRegisterButton = (Button) findViewById(R.id.id_bt_register);
+        mSexRadioGroup = (RadioGroup) findViewById(R.id.id_rg_register_sex);
     }
 
     private void initEvent() {
         mRegisterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String username = mNameEditText.getText().toString();
-                String password = mPasswordEditText.getText().toString();
-                String confirm = mConfirmEditText.getText().toString();
-                if (username.isEmpty() || password.isEmpty() || !password.equals(confirm)) {
-                    Toast.makeText(RegisterActivity.this, "Fail", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                Log.i("lgh", "register: " + username + " " + password);
+                id = mIDEditText.getText().toString();
+                nickname = mNameEditText.getText().toString();
+                password = mPasswordEditText.getText().toString();
+                confirm = mConfirmEditText.getText().toString();
+                isMale = (mSexRadioGroup.getCheckedRadioButtonId() == R.id.id_rb_register_male);
+
+                if (checkRegister())
+                    register();
+            }
+        });
+    }
+
+    private void register() {
+        Log.i("lgh", "register: id=" + id +
+                        ",nick=" + nickname +
+                        ",password=" + password +
+                        ",sex=" + isMale
+        );
+
+        User user = new User();
+        user.setUsername(id);
+        user.setPassword(password);
+        user.setNickname(nickname);
+        user.setIsMale(isMale);
+        user.signUp(this, new SaveListener() {
+            @Override
+            public void onSuccess() {
                 Intent intent = new Intent(RegisterActivity.this, RegisterSuccessActivity.class);
-                intent.putExtra("username", username);
+                intent.putExtra("username", nickname);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                 startActivity(intent);
             }
+
+            @Override
+            public void onFailure(int i, String s) {
+                Log.i("lgh", "RegisterFail: " + i + "," + s);
+            }
         });
+    }
+
+    private boolean checkRegister() {
+        if (!isUniqueID(id)) {
+            Toast.makeText(RegisterActivity.this, "ID Exists", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (nickname.isEmpty()) {
+            Toast.makeText(RegisterActivity.this, "Nickname Invalid", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (password.isEmpty()) {
+            Toast.makeText(RegisterActivity.this, "Password Invalid", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (!password.equals(confirm)) {
+            Toast.makeText(RegisterActivity.this, "Two Passwords Not Equal", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isUniqueID(String id) {
+        return true;
     }
 
     @Override

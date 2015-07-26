@@ -53,6 +53,17 @@
         android:layout_height="wrap_content" />
 
     <TextView
+        android:id="@+id/id_tv_login_switch"
+        android:clickable="true"
+        android:padding="20dp"
+        android:layout_gravity="start"
+        android:textColor="#ff234567"
+        android:text="@string/hint_switch"
+        android:textSize="18sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
         android:id="@+id/id_tv_register"
         android:clickable="true"
         android:padding="20dp"

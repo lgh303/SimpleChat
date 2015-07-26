@@ -75,6 +75,7 @@ public class MeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_me, container, false);
         mTextView = (TextView) view.findViewById(R.id.id_tv_frag_me);
         User currUser = User.getCurrentUser(getActivity(), User.class);
+        Log.i("lgh", "MeFragment: currUser=" + currUser);
         mTextView.setText(currUser.getNickname());
         mLogoutButton = (Button) view.findViewById(R.id.id_bt_frag_me_logout);
         mLogoutButton.setOnClickListener(new View.OnClickListener() {

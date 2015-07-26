@@ -20,6 +20,7 @@ import cn.thu.guohao.simplechat.data.User;
 public class LoginActivity extends ActionBarActivity {
 
     private TextView mRegisterTextView;
+    private TextView mSwitchTextView;
     private Button mLoginButton;
     private EditText mPasswordEditText;
     private String username;
@@ -37,6 +38,7 @@ public class LoginActivity extends ActionBarActivity {
 
     private void initView() {
         mRegisterTextView = (TextView) findViewById(R.id.id_tv_register);
+        mSwitchTextView = (TextView) findViewById(R.id.id_tv_login_switch);
         mLoginButton = (Button) findViewById(R.id.id_bt_login);
         mPasswordEditText = (EditText) findViewById(R.id.id_et_login_password);
         TextView mUsernameTextView = (TextView) findViewById(R.id.id_tv_login_username);
@@ -51,28 +53,38 @@ public class LoginActivity extends ActionBarActivity {
                 startActivity(intent);
             }
         });
+        mSwitchTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this, SwitchLoginActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                startActivity(intent);
+            }
+        });
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String password = mPasswordEditText.getText().toString();
-                Log.i("lgh", "Password: " + password);
                 mPasswordEditText.setText("");
-                User user = new User();
-                user.setUsername(username);
-                user.setPassword(password);
-                user.login(LoginActivity.this, new SaveListener() {
-                    @Override
-                    public void onSuccess() {
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        startActivity(intent);
-                    }
+                login(username, password);
+            }
+        });
+    }
 
-                    @Override
-                    public void onFailure(int i, String s) {
-                        Toast.makeText(LoginActivity.this, "Unexpected Login Error", Toast.LENGTH_SHORT).show();
-                    }
-                });
+    private void login(String username, String password) {
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(password);
+        user.login(LoginActivity.this, new SaveListener() {
+            @Override
+            public void onSuccess() {
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
 
+            @Override
+            public void onFailure(int i, String s) {
+                Toast.makeText(LoginActivity.this, "Login Fail", Toast.LENGTH_SHORT).show();
             }
         });
     }

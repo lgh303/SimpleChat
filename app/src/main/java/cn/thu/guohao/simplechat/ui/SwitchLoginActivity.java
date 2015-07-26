@@ -10,8 +10,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import cn.bmob.v3.listener.SaveListener;
 import cn.thu.guohao.simplechat.R;
+import cn.thu.guohao.simplechat.data.User;
 
 
 public class SwitchLoginActivity extends ActionBarActivity {
@@ -42,9 +45,7 @@ public class SwitchLoginActivity extends ActionBarActivity {
             public void onClick(View v) {
                 String username = mNameEditText.getText().toString();
                 String password = mPasswordEditText.getText().toString();
-                Log.i("lgh", "username: " + username + "; password: " + password);
-                Intent intent = new Intent(SwitchLoginActivity.this, MainActivity.class);
-                startActivity(intent);
+                login(username, password);
             }
         });
         mRegisterTextView.setOnClickListener(new View.OnClickListener() {
@@ -53,6 +54,24 @@ public class SwitchLoginActivity extends ActionBarActivity {
                 Intent intent = new Intent(SwitchLoginActivity.this, RegisterActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                 startActivity(intent);
+            }
+        });
+    }
+
+    private void login(String username, String password) {
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(password);
+        user.login(SwitchLoginActivity.this, new SaveListener() {
+            @Override
+            public void onSuccess() {
+                Intent intent = new Intent(SwitchLoginActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onFailure(int i, String s) {
+                Toast.makeText(SwitchLoginActivity.this, "Login Fail", Toast.LENGTH_SHORT).show();
             }
         });
     }

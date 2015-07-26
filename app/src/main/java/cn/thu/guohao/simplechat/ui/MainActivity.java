@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,6 +45,8 @@ public class MainActivity extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        User currUser = User.getCurrentUser(this, User.class);
+        Log.i("lgh", "MainActivity: currUser=" + currUser);
         initView();
         initEvent();
     }
@@ -124,6 +127,7 @@ public class MainActivity extends ActionBarActivity
     public void logout() {
         User.logOut(this);
         Intent intent = new Intent(MainActivity.this, SwitchLoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         startActivity(intent);
     }
 

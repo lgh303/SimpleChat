@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import cn.thu.guohao.simplechat.R;
@@ -32,6 +33,7 @@ public class MeFragment extends Fragment {
     private String mParam1;
     private String mParam2;
     private TextView mTextView;
+    private Button mLogoutButton;
 
     private OnFragmentInteractionListener mListener;
 
@@ -74,14 +76,14 @@ public class MeFragment extends Fragment {
         mTextView = (TextView) view.findViewById(R.id.id_tv_frag_me);
         User currUser = User.getCurrentUser(getActivity(), User.class);
         mTextView.setText(currUser.getNickname());
+        mLogoutButton = (Button) view.findViewById(R.id.id_bt_frag_me_logout);
+        mLogoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mListener.logout();
+            }
+        });
         return view;
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
     }
 
     @Override
@@ -112,8 +114,7 @@ public class MeFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        public void onFragmentInteraction(Uri uri);
+        void logout();
     }
 
 }

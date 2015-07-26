@@ -12,6 +12,7 @@
     <string name="hint_register">Register</string>
     <string name="hint_male">Male</string>
     <string name="hint_female">Female</string>
+    <string name="hint_logout">Logout</string>
 
 
     <string name="action_search">Search</string>

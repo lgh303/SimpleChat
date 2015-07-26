@@ -1,5 +1,6 @@
 package cn.thu.guohao.simplechat.ui;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -13,6 +14,7 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.thu.guohao.simplechat.data.User;
 import cn.thu.guohao.simplechat.fragment.ChatsFragment;
 import cn.thu.guohao.simplechat.fragment.ContactsFragment;
 import cn.thu.guohao.simplechat.fragment.DiscoverFragment;
@@ -116,6 +118,13 @@ public class MainActivity extends ActionBarActivity
     @Override
     public void onFragmentInteraction(Uri uri) {
 
+    }
+
+    @Override
+    public void logout() {
+        User.logOut(this);
+        Intent intent = new Intent(MainActivity.this, SwitchLoginActivity.class);
+        startActivity(intent);
     }
 
     @Override

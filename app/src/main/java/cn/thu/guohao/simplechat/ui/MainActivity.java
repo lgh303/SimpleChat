@@ -1,6 +1,7 @@
 package cn.thu.guohao.simplechat.ui;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -41,12 +42,13 @@ public class MainActivity extends ActionBarActivity
 
     private List<PagerIcon> mPagerIcons = new ArrayList<>();
 
+    private User mCurrUser;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        User currUser = User.getCurrentUser(this, User.class);
-        Log.i("lgh", "MainActivity: currUser=" + currUser);
+        mCurrUser = User.getCurrentUser(this, User.class);
         initView();
         initEvent();
     }
@@ -68,14 +70,10 @@ public class MainActivity extends ActionBarActivity
             @Override
             public Fragment getItem(int i) {
                 switch (i) {
-                    case 0:
-                        return mChatsFragment;
-                    case 1:
-                        return mContactsFragment;
-                    case 2:
-                        return mDiscoverFragment;
-                    case 3:
-                        return mMeFragment;
+                    case 0: return mChatsFragment;
+                    case 1: return mContactsFragment;
+                    case 2: return mDiscoverFragment;
+                    case 3: return mMeFragment;
                 }
                 return null;
             }
@@ -96,6 +94,7 @@ public class MainActivity extends ActionBarActivity
         }
         mViewPager.addOnPageChangeListener(this);
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -125,10 +124,25 @@ public class MainActivity extends ActionBarActivity
 
     @Override
     public void logout() {
+        saveLatestUser();
+        String username = mCurrUser.getUsername();
+        String nickname = mCurrUser.getNickname();
         User.logOut(this);
-        Intent intent = new Intent(MainActivity.this, SwitchLoginActivity.class);
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        intent.putExtra("username", username);
+        intent.putExtra("nickname", nickname);
         startActivity(intent);
+    }
+
+    private void saveLatestUser() {
+        SharedPreferences pref = getSharedPreferences("latest_user", MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString("username", mCurrUser.getUsername());
+        editor.putString("objectID", mCurrUser.getObjectId());
+        editor.putString("nickname", mCurrUser.getNickname());
+        editor.apply();
     }
 
     @Override

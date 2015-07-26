@@ -29,10 +29,7 @@ public class RegisterSuccessActivity extends ActionBarActivity {
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(RegisterSuccessActivity.this, LoginActivity.class);
-                intent.putExtra("username", username);
-                intent.putExtra("nickname", nickname);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                Intent intent = new Intent(RegisterSuccessActivity.this, MainActivity.class);
                 startActivity(intent);
             }
         });

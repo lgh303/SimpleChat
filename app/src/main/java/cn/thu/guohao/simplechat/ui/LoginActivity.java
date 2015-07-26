@@ -50,6 +50,7 @@ public class LoginActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                 startActivity(intent);
             }
         });
@@ -65,7 +66,6 @@ public class LoginActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 String password = mPasswordEditText.getText().toString();
-                mPasswordEditText.setText("");
                 login(username, password);
             }
         });

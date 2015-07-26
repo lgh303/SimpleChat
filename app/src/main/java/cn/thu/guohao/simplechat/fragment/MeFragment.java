@@ -4,11 +4,14 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import cn.thu.guohao.simplechat.R;
+import cn.thu.guohao.simplechat.data.User;
 
 
 /**
@@ -28,6 +31,7 @@ public class MeFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private TextView mTextView;
 
     private OnFragmentInteractionListener mListener;
 
@@ -66,7 +70,11 @@ public class MeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_me, container, false);
+        View view = inflater.inflate(R.layout.fragment_me, container, false);
+        mTextView = (TextView) view.findViewById(R.id.id_tv_frag_me);
+        User currUser = User.getCurrentUser(getActivity(), User.class);
+        mTextView.setText(currUser.getNickname());
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

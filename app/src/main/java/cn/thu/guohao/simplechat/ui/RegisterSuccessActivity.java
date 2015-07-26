@@ -22,6 +22,7 @@ public class RegisterSuccessActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register_success);
         final String username = getIntent().getStringExtra("username");
+        final String nickname = getIntent().getStringExtra("nickname");
         mTextView = (TextView) findViewById(R.id.id_tv_success_username);
         mTextView.setText(username);
         mLoginButton = (Button) findViewById(R.id.id_bt_register2login);
@@ -30,6 +31,7 @@ public class RegisterSuccessActivity extends ActionBarActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(RegisterSuccessActivity.this, LoginActivity.class);
                 intent.putExtra("username", username);
+                intent.putExtra("nickname", nickname);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                 startActivity(intent);
             }

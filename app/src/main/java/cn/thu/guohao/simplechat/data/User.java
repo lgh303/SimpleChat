@@ -1,9 +1,12 @@
 package cn.thu.guohao.simplechat.data;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 
 import cn.bmob.v3.BmobUser;
 import cn.bmob.v3.datatype.BmobFile;
+import cn.bmob.v3.datatype.BmobRelation;
 
 /**
  * Created by Guohao on 2015/7/25.
@@ -13,7 +16,15 @@ public class User extends BmobUser {
     private String nickname;
     private Boolean isMale;
     private BmobFile photo;
-    private User[] friends;
+    private BmobRelation friends;
+
+    public BmobRelation getFriends() {
+        return friends;
+    }
+
+    public void setFriends(BmobRelation friends) {
+        this.friends = friends;
+    }
 
     public Boolean getIsMale() {
         return isMale;

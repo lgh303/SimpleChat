@@ -10,8 +10,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import cn.bmob.v3.listener.SaveListener;
 import cn.thu.guohao.simplechat.R;
+import cn.thu.guohao.simplechat.data.User;
 
 
 public class LoginActivity extends ActionBarActivity {
@@ -19,12 +22,15 @@ public class LoginActivity extends ActionBarActivity {
     private TextView mRegisterTextView;
     private Button mLoginButton;
     private EditText mPasswordEditText;
-    private TextView mUsernameTextView;
+    private String username;
+    private String nickname;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        username = getIntent().getStringExtra("username");
+        nickname = getIntent().getStringExtra("nickname");
         initView();
         initEvent();
     }
@@ -33,8 +39,8 @@ public class LoginActivity extends ActionBarActivity {
         mRegisterTextView = (TextView) findViewById(R.id.id_tv_register);
         mLoginButton = (Button) findViewById(R.id.id_bt_login);
         mPasswordEditText = (EditText) findViewById(R.id.id_et_login_password);
-        mUsernameTextView = (TextView) findViewById(R.id.id_tv_login_username);
-        mUsernameTextView.setText(getIntent().getStringExtra("username"));
+        TextView mUsernameTextView = (TextView) findViewById(R.id.id_tv_login_username);
+        mUsernameTextView.setText(nickname);
     }
 
     private void initEvent() {
@@ -51,8 +57,22 @@ public class LoginActivity extends ActionBarActivity {
                 String password = mPasswordEditText.getText().toString();
                 Log.i("lgh", "Password: " + password);
                 mPasswordEditText.setText("");
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                startActivity(intent);
+                User user = new User();
+                user.setUsername(username);
+                user.setPassword(password);
+                user.login(LoginActivity.this, new SaveListener() {
+                    @Override
+                    public void onSuccess() {
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        startActivity(intent);
+                    }
+
+                    @Override
+                    public void onFailure(int i, String s) {
+                        Toast.makeText(LoginActivity.this, "Unexpected Login Error", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
             }
         });
     }

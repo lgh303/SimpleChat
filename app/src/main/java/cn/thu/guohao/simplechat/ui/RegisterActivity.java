@@ -12,7 +12,10 @@ import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
-import cn.bmob.v3.BmobUser;
+import java.util.List;
+
+import cn.bmob.v3.BmobQuery;
+import cn.bmob.v3.listener.FindListener;
 import cn.bmob.v3.listener.SaveListener;
 import cn.thu.guohao.simplechat.R;
 import cn.thu.guohao.simplechat.data.User;
@@ -26,8 +29,9 @@ public class RegisterActivity extends ActionBarActivity {
     private RadioGroup mSexRadioGroup;
     private Button mRegisterButton;
 
-    private String id, nickname, password, confirm;
+    private String username, nickname, password, confirm;
     private boolean isMale;
+    private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,51 +54,19 @@ public class RegisterActivity extends ActionBarActivity {
         mRegisterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                id = mIDEditText.getText().toString();
+                username = mIDEditText.getText().toString();
                 nickname = mNameEditText.getText().toString();
                 password = mPasswordEditText.getText().toString();
                 confirm = mConfirmEditText.getText().toString();
                 isMale = (mSexRadioGroup.getCheckedRadioButtonId() == R.id.id_rb_register_male);
 
-                if (checkRegister())
-                    register();
+                if (checkInput())
+                    checkRegister();
             }
         });
     }
 
-    private void register() {
-        Log.i("lgh", "register: id=" + id +
-                        ",nick=" + nickname +
-                        ",password=" + password +
-                        ",sex=" + isMale
-        );
-
-        User user = new User();
-        user.setUsername(id);
-        user.setPassword(password);
-        user.setNickname(nickname);
-        user.setIsMale(isMale);
-        user.signUp(this, new SaveListener() {
-            @Override
-            public void onSuccess() {
-                Intent intent = new Intent(RegisterActivity.this, RegisterSuccessActivity.class);
-                intent.putExtra("username", nickname);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                startActivity(intent);
-            }
-
-            @Override
-            public void onFailure(int i, String s) {
-                Log.i("lgh", "RegisterFail: " + i + "," + s);
-            }
-        });
-    }
-
-    private boolean checkRegister() {
-        if (!isUniqueID(id)) {
-            Toast.makeText(RegisterActivity.this, "ID Exists", Toast.LENGTH_SHORT).show();
-            return false;
-        }
+    private boolean checkInput() {
         if (nickname.isEmpty()) {
             Toast.makeText(RegisterActivity.this, "Nickname Invalid", Toast.LENGTH_SHORT).show();
             return false;
@@ -110,9 +82,59 @@ public class RegisterActivity extends ActionBarActivity {
         return true;
     }
 
-    private boolean isUniqueID(String id) {
-        return true;
+    private void checkRegister() {
+        BmobQuery<User> query = new BmobQuery<>();
+        query.addWhereEqualTo("username", username);
+        query.findObjects(this, new FindListener<User>() {
+            @Override
+            public void onSuccess(List<User> list) {
+                if (list.isEmpty())
+                    register();
+                else
+                    Toast.makeText(RegisterActivity.this, "Chat ID Exists", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(int i, String s) {
+                Toast.makeText(RegisterActivity.this, "Unexpected Register Error", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
+    private void register() {
+        Log.i("lgh", "register: username=" + username +
+                        ",nick=" + nickname +
+                        ",password=" + password +
+                        ",isMale=" + isMale
+        );
+
+        user = new User();
+        user.setUsername(username);
+        user.setPassword(password);
+        user.setNickname(nickname);
+        user.setIsMale(isMale);
+        user.signUp(this, new SaveListener() {
+            @Override
+            public void onSuccess() {
+                login();
+            }
+
+            @Override
+            public void onFailure(int i, String s) {
+                Toast.makeText(RegisterActivity.this, "Unexpected Register Error", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void login() {
+        Intent intent = new Intent(RegisterActivity.this, RegisterSuccessActivity.class);
+        intent.putExtra("username", username);
+        intent.putExtra("nickname", nickname);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        startActivity(intent);
+    }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

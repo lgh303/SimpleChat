@@ -14,6 +14,9 @@
     <string name="hint_female">Female</string>
     <string name="hint_logout">Logout</string>
     <string name="hint_switch">Switch User</string>
+    <string name="hint_message">Message</string>
+
+    <string name="prefix_id">Chat ID: </string>
 
 
     <string name="action_search">Search</string>
@@ -37,4 +40,5 @@
     <string name="title_activity_register_success">RegisterSuccessActivity</string>
     <string name="title_activity_splash">SplashActivity</string>
     <string name="title_activity_switch_login">SwitchLoginActivity</string>
+    <string name="title_activity_profile">ProfileActivity</string>
 </resources>

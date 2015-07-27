@@ -2,12 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="cn.thu.guohao.simplechat" >
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_LOGS"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_LOGS" />
 
     <application
         android:allowBackup="true"
@@ -26,8 +26,8 @@
         </activity>
         <activity
             android:name=".ui.LoginActivity"
-            android:launchMode="singleTop"
-            android:label="@string/title_activity_login" >
+            android:label="@string/title_activity_login"
+            android:launchMode="singleTop" >
         </activity>
         <activity
             android:name=".ui.RegisterActivity"
@@ -51,6 +51,10 @@
         <activity
             android:name=".ui.SwitchLoginActivity"
             android:label="@string/title_activity_switch_login" >
+        </activity>
+        <activity
+            android:name=".ui.ProfileActivity"
+            android:label="@string/title_activity_profile" >
         </activity>
     </application>
 

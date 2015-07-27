@@ -1,6 +1,7 @@
 package cn.thu.guohao.simplechat.fragment;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -22,6 +24,7 @@ import cn.thu.guohao.simplechat.adapter.ContactBean;
 import cn.thu.guohao.simplechat.data.User;
 import cn.thu.guohao.simplechat.db.UserBean;
 import cn.thu.guohao.simplechat.db.UserDAO;
+import cn.thu.guohao.simplechat.ui.ProfileActivity;
 
 
 /**
@@ -30,7 +33,8 @@ import cn.thu.guohao.simplechat.db.UserDAO;
  * {@link ContactsFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class ContactsFragment extends Fragment {
+public class ContactsFragment extends Fragment
+        implements AdapterView.OnItemClickListener{
 
     private ListView mListView;
     private List<ContactBean> mData;
@@ -77,6 +81,7 @@ public class ContactsFragment extends Fragment {
             }
             mAdapter = new ContactAdapter(getActivity(), mData, mListView);
             mListView.setAdapter(mAdapter);
+            mListView.setOnItemClickListener(ContactsFragment.this);
         }
     }
 
@@ -97,6 +102,7 @@ public class ContactsFragment extends Fragment {
                 }
                 mAdapter = new ContactAdapter(getActivity(), mData, mListView);
                 mListView.setAdapter(mAdapter);
+                mListView.setOnItemClickListener(ContactsFragment.this);
             }
 
             @Override
@@ -127,6 +133,14 @@ public class ContactsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Intent intent = new Intent(getActivity(), ProfileActivity.class);
+        intent.putExtra("currUser", mCurrUser.getUsername());
+        intent.putExtra("username", mData.get(position).username);
+        startActivity(intent);
     }
 
     /**

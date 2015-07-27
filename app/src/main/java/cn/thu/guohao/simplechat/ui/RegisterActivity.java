@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
@@ -28,6 +29,7 @@ public class RegisterActivity extends ActionBarActivity {
     private EditText mPasswordEditText, mConfirmEditText;
     private RadioGroup mSexRadioGroup;
     private Button mRegisterButton;
+    private ProgressBar mProgressBar;
 
     private String username, nickname, password, confirm;
     private boolean isMale;
@@ -48,6 +50,7 @@ public class RegisterActivity extends ActionBarActivity {
         mConfirmEditText = (EditText) findViewById(R.id.id_et_reg_confirm);
         mRegisterButton = (Button) findViewById(R.id.id_bt_register);
         mSexRadioGroup = (RadioGroup) findViewById(R.id.id_rg_register_sex);
+        mProgressBar = (ProgressBar) findViewById(R.id.id_pb_register);
     }
 
     private void initEvent() {
@@ -60,8 +63,12 @@ public class RegisterActivity extends ActionBarActivity {
                 confirm = mConfirmEditText.getText().toString();
                 isMale = (mSexRadioGroup.getCheckedRadioButtonId() == R.id.id_rb_register_male);
 
+                mProgressBar.setVisibility(ProgressBar.VISIBLE);
+                mRegisterButton.setClickable(false);
                 if (checkInput())
                     checkRegister();
+                mProgressBar.setVisibility(ProgressBar.INVISIBLE);
+                mRegisterButton.setClickable(true);
             }
         });
     }

@@ -7,8 +7,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +24,7 @@ public class LoginActivity extends ActionBarActivity {
     private TextView mRegisterTextView;
     private TextView mSwitchTextView;
     private Button mLoginButton;
+    private ProgressBar mProgressBar;
     private EditText mPasswordEditText;
     private String username;
     private String nickname;
@@ -40,6 +43,7 @@ public class LoginActivity extends ActionBarActivity {
         mRegisterTextView = (TextView) findViewById(R.id.id_tv_register);
         mSwitchTextView = (TextView) findViewById(R.id.id_tv_login_switch);
         mLoginButton = (Button) findViewById(R.id.id_bt_login);
+        mProgressBar = (ProgressBar) findViewById(R.id.id_pb_login);
         mPasswordEditText = (EditText) findViewById(R.id.id_et_login_password);
         TextView mUsernameTextView = (TextView) findViewById(R.id.id_tv_login_username);
         mUsernameTextView.setText(nickname);
@@ -66,6 +70,8 @@ public class LoginActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 String password = mPasswordEditText.getText().toString();
+                mLoginButton.setClickable(false);
+                mProgressBar.setVisibility(ProgressBar.VISIBLE);
                 login(username, password);
             }
         });
@@ -85,6 +91,8 @@ public class LoginActivity extends ActionBarActivity {
             @Override
             public void onFailure(int i, String s) {
                 Toast.makeText(LoginActivity.this, "Login Fail", Toast.LENGTH_SHORT).show();
+                mProgressBar.setVisibility(ProgressBar.INVISIBLE);
+                mLoginButton.setClickable(true);
             }
         });
     }

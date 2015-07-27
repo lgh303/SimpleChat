@@ -66,8 +66,13 @@ public class ChatsFragment extends Fragment
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_chats, container, false);
         mListView = (ListView) view.findViewById(R.id.id_lv_chats);
-        initData();
         return view;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        initData();
     }
 
     private void initData() {

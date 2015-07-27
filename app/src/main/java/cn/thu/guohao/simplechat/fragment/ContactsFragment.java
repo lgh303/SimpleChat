@@ -4,11 +4,22 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import cn.bmob.v3.BmobQuery;
+import cn.bmob.v3.datatype.BmobPointer;
+import cn.bmob.v3.listener.FindListener;
 import cn.thu.guohao.simplechat.R;
+import cn.thu.guohao.simplechat.adapter.ContactAdapter;
+import cn.thu.guohao.simplechat.adapter.ContactBean;
+import cn.thu.guohao.simplechat.data.User;
 
 
 /**
@@ -20,6 +31,12 @@ import cn.thu.guohao.simplechat.R;
  * create an instance of this fragment.
  */
 public class ContactsFragment extends Fragment {
+
+    private ListView mListView;
+    private List<ContactBean> mData;
+    private User mCurrUser;
+    private ContactAdapter mAdapter;
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -66,7 +83,37 @@ public class ContactsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_contacts, container, false);
+        View view = inflater.inflate(R.layout.fragment_contacts, container, false);
+        mListView = (ListView) view.findViewById(R.id.id_lv_contacts);
+        return view;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mCurrUser = User.getCurrentUser(getActivity(), User.class);
+
+        initData();
+    }
+
+    private void initData() {
+        BmobQuery<User> query = new BmobQuery<>();
+        query.addWhereRelatedTo("friends", new BmobPointer(mCurrUser));
+        query.findObjects(getActivity(), new FindListener<User>() {
+            @Override
+            public void onSuccess(List<User> list) {
+                mData = new ArrayList<>();
+                for (User user : list) {
+                    mData.add(new ContactBean(user.getObjectId(), user.getNickname()));
+                }
+                mAdapter = new ContactAdapter(getActivity(), mData, mListView);
+                mListView.setAdapter(mAdapter);
+            }
+
+            @Override
+            public void onError(int i, String s) {
+            }
+        });
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -85,6 +132,7 @@ public class ContactsFragment extends Fragment {
             throw new ClassCastException(activity.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+
     }
 
     @Override

@@ -1,6 +1,7 @@
 package cn.thu.guohao.simplechat.ui;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,8 +17,10 @@ import android.widget.Toast;
 import java.util.List;
 
 import cn.bmob.v3.BmobQuery;
+import cn.bmob.v3.datatype.BmobRelation;
 import cn.bmob.v3.listener.FindListener;
 import cn.bmob.v3.listener.SaveListener;
+import cn.bmob.v3.listener.UpdateListener;
 import cn.thu.guohao.simplechat.R;
 import cn.thu.guohao.simplechat.data.User;
 
@@ -34,6 +37,7 @@ public class RegisterActivity extends ActionBarActivity {
     private String username, nickname, password, confirm;
     private boolean isMale;
     private User user;
+    private User filehelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,10 +69,21 @@ public class RegisterActivity extends ActionBarActivity {
 
                 mProgressBar.setVisibility(ProgressBar.VISIBLE);
                 mRegisterButton.setClickable(false);
-                if (checkInput())
-                    checkRegister();
-                mProgressBar.setVisibility(ProgressBar.INVISIBLE);
-                mRegisterButton.setClickable(true);
+                new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        if (checkInput())
+                            checkRegister();
+                        return null;
+                    }
+
+                    @Override
+                    protected void onPostExecute(Void aVoid) {
+                        super.onPostExecute(aVoid);
+                        mProgressBar.setVisibility(ProgressBar.INVISIBLE);
+                        mRegisterButton.setClickable(true);
+                    }
+                }.execute();
             }
         });
     }
@@ -123,12 +138,53 @@ public class RegisterActivity extends ActionBarActivity {
         user.signUp(this, new SaveListener() {
             @Override
             public void onSuccess() {
-                login();
+                initSpecialUsers();
             }
 
             @Override
             public void onFailure(int i, String s) {
                 Toast.makeText(RegisterActivity.this, "Unexpected Register Error", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void initSpecialUsers() {
+        BmobQuery<User> query = new BmobQuery<>();
+        query.addWhereEqualTo("username", "filehelper");
+        query.findObjects(this, new FindListener<User>() {
+            @Override
+            public void onSuccess(List<User> list) {
+                if (!list.isEmpty()) {
+                    filehelper = list.get(0);
+                    Log.i("lgh", "filehelper: " + filehelper);
+                    if (filehelper != null) Log.i("lgh", "filehelper ID: " + filehelper.getObjectId());
+                    addSpecialUsers();
+                }
+                else
+                    Log.i("lgh", "filehelper not found!");
+            }
+
+            @Override
+            public void onError(int i, String s) {
+                Log.i("lgh", "filehelper not found!");
+            }
+        });
+    }
+
+    private void addSpecialUsers() {
+        BmobRelation friends = new BmobRelation();
+        friends.add(user);
+        friends.add(filehelper);
+        user.setFriends(friends);
+        user.update(this, new UpdateListener() {
+            @Override
+            public void onSuccess() {
+                Log.i("lgh", "Update Success");
+                login();
+            }
+            @Override
+            public void onFailure(int i, String s) {
+                Log.i("lgh", "Update Fail " + i + " " + s);
             }
         });
     }

@@ -20,6 +20,8 @@ import cn.thu.guohao.simplechat.R;
 import cn.thu.guohao.simplechat.adapter.ContactAdapter;
 import cn.thu.guohao.simplechat.adapter.ContactBean;
 import cn.thu.guohao.simplechat.data.User;
+import cn.thu.guohao.simplechat.db.UserBean;
+import cn.thu.guohao.simplechat.db.UserDAO;
 
 
 /**
@@ -27,8 +29,6 @@ import cn.thu.guohao.simplechat.data.User;
  * Activities that contain this fragment must implement the
  * {@link ContactsFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link ContactsFragment#newInstance} factory method to
- * create an instance of this fragment.
  */
 public class ContactsFragment extends Fragment {
 
@@ -37,34 +37,9 @@ public class ContactsFragment extends Fragment {
     private User mCurrUser;
     private ContactAdapter mAdapter;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
     private OnFragmentInteractionListener mListener;
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ContactsFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static ContactsFragment newInstance(String param1, String param2) {
-        ContactsFragment fragment = new ContactsFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    private UserDAO mUserDAO;
 
     public ContactsFragment() {
         // Required empty public constructor
@@ -73,16 +48,11 @@ public class ContactsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_contacts, container, false);
         mListView = (ListView) view.findViewById(R.id.id_lv_contacts);
         return view;
@@ -92,19 +62,38 @@ public class ContactsFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mCurrUser = User.getCurrentUser(getActivity(), User.class);
-
+        mUserDAO = new UserDAO(getActivity(), mCurrUser.getUsername());
         initData();
     }
 
     private void initData() {
+        mData = new ArrayList<>();
+        ArrayList<UserBean> list = mUserDAO.get();
+        if (list.isEmpty())
+            initDataViaCloud();
+        else {
+            for (UserBean user : list) {
+                mData.add(new ContactBean(user.getUsername(), user.getNickname()));
+            }
+            mAdapter = new ContactAdapter(getActivity(), mData, mListView);
+            mListView.setAdapter(mAdapter);
+        }
+    }
+
+    private void initDataViaCloud() {
         BmobQuery<User> query = new BmobQuery<>();
         query.addWhereRelatedTo("friends", new BmobPointer(mCurrUser));
         query.findObjects(getActivity(), new FindListener<User>() {
             @Override
             public void onSuccess(List<User> list) {
-                mData = new ArrayList<>();
                 for (User user : list) {
-                    mData.add(new ContactBean(user.getObjectId(), user.getNickname()));
+                    mData.add(new ContactBean(user.getUsername(), user.getNickname()));
+                    int sex = 0;
+                    if (user.getIsMale()) sex = 1;
+                    int type = 0;
+                    mUserDAO.insert(new UserBean(
+                            user.getUsername(), user.getNickname(),
+                            sex, type));
                 }
                 mAdapter = new ContactAdapter(getActivity(), mData, mListView);
                 mListView.setAdapter(mAdapter);
@@ -115,7 +104,6 @@ public class ContactsFragment extends Fragment {
             }
         });
     }
-
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {

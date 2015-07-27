@@ -76,7 +76,6 @@ public class RegisterActivity extends ActionBarActivity {
                             checkRegister();
                         return null;
                     }
-
                     @Override
                     protected void onPostExecute(Void aVoid) {
                         super.onPostExecute(aVoid);

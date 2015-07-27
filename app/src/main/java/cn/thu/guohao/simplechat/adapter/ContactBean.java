@@ -5,10 +5,10 @@ package cn.thu.guohao.simplechat.adapter;
  * Contact Item
  */
 public class ContactBean {
-    public String objectID;
+    public String username;
     public String nickname;
-    public ContactBean(String objectID, String nickname) {
-        this.objectID = objectID;
+    public ContactBean(String username, String nickname) {
+        this.username = username;
         this.nickname = nickname;
     }
 }

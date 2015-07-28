@@ -176,8 +176,10 @@ public class RegisterActivity extends ActionBarActivity {
     private void initSpecialConversations() {
         mConv1 = new Conversation();
         mConv1.setaUser(user);
+        mConv1.setaUsername(user.getUsername());
         mConv1.setaNickname(user.getNickname());
         mConv1.setbUser(user);
+        mConv1.setbUsername(user.getUsername());
         mConv1.setbNickname(user.getNickname());
         mConv1.setLatestMessage(getString(R.string.chat_first_message));
         mConv1.save(this, new SaveListener() {
@@ -186,8 +188,10 @@ public class RegisterActivity extends ActionBarActivity {
                 Log.i("lgh", "mConv1.id=" + mConv1.getObjectId());
                 mConv2 = new Conversation();
                 mConv2.setaUser(user);
+                mConv2.setaUsername(user.getUsername());
                 mConv2.setaNickname(user.getNickname());
                 mConv2.setbUser(filehelper);
+                mConv2.setbUsername(filehelper.getUsername());
                 mConv2.setbNickname(filehelper.getNickname());
                 mConv2.setLatestMessage(getString(R.string.chat_first_message));
                 mConv2.save(RegisterActivity.this, new SaveListener() {

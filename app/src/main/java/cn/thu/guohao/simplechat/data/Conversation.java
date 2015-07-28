@@ -12,8 +12,24 @@ public class Conversation extends BmobObject {
     private User bUser;
     private BmobRelation messages;
     private String latestMessage;
-    private String aNickname;
-    private String bNickname;
+    private String aNickname, aUsername;
+    private String bNickname, bUsername;
+
+    public String getaUsername() {
+        return aUsername;
+    }
+
+    public void setaUsername(String aUsername) {
+        this.aUsername = aUsername;
+    }
+
+    public String getbUsername() {
+        return bUsername;
+    }
+
+    public void setbUsername(String bUsername) {
+        this.bUsername = bUsername;
+    }
 
     public String getaNickname() {
         return aNickname;

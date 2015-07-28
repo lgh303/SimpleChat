@@ -23,6 +23,8 @@ import cn.thu.guohao.simplechat.adapter.ChatsAdapter;
 import cn.thu.guohao.simplechat.R;
 import cn.thu.guohao.simplechat.data.Conversation;
 import cn.thu.guohao.simplechat.data.User;
+import cn.thu.guohao.simplechat.db.ChatsDAO;
+import cn.thu.guohao.simplechat.db.ConversationBean;
 import cn.thu.guohao.simplechat.ui.ChatActivity;
 
 
@@ -45,6 +47,7 @@ public class ChatsFragment extends Fragment
 
     private User mCurrUser;
     private ChatsAdapter mAdapter;
+    private ChatsDAO mChatsDAO;
 
     /**
      * Use this factory method to create a new instance of
@@ -82,12 +85,23 @@ public class ChatsFragment extends Fragment
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mCurrUser = User.getCurrentUser(getActivity(), User.class);
+        mChatsDAO = new ChatsDAO(getActivity(), mCurrUser.getUsername());
         initData();
     }
 
     private void initData() {
         mChatBeans = new ArrayList<>();
-        initDataViaCloud();
+        ArrayList<ConversationBean> list = mChatsDAO.getConversation();
+        if (list.isEmpty())
+            initDataViaCloud();
+        else {
+            for (ConversationBean conv : list) {
+                mChatBeans.add(new ChatBean(conv.getTitle(), conv.getLatestMessage()));
+            }
+            mAdapter = new ChatsAdapter(getActivity(), mChatBeans, mListView);
+            mListView.setAdapter(mAdapter);
+            mListView.setOnItemClickListener(ChatsFragment.this);
+        }
     }
 
     private void initDataViaCloud() {
@@ -98,13 +112,19 @@ public class ChatsFragment extends Fragment
             public void onSuccess(List<Conversation> list) {
                 for (Conversation conv : list) {
                     User aUser = conv.getaUser();
-                    User bUser = conv.getbUser();
-                    String title;
-                    if (aUser.getObjectId().equals(mCurrUser.getObjectId()))
+                    String title, friend_username;
+                    if (aUser.getObjectId().equals(mCurrUser.getObjectId())) {
                         title = conv.getbNickname();
-                    else
+                        friend_username = conv.getbUsername();
+                    } else {
                         title = conv.getaNickname();
+                        friend_username = conv.getaUsername();
+                    }
                     mChatBeans.add(new ChatBean(title, conv.getLatestMessage()));
+                    mChatsDAO.insertConversation(new ConversationBean(
+                            title, friend_username,
+                            conv.getLatestMessage(),
+                            conv.getUpdatedAt()));
                 }
                 mAdapter = new ChatsAdapter(getActivity(), mChatBeans, mListView);
                 mListView.setAdapter(mAdapter);

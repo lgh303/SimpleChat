@@ -5,10 +5,12 @@ package cn.thu.guohao.simplechat.adapter;
  * Conversation Item in Chats Tab.
  */
 public class ChatBean {
-    public ChatBean(String title, String content) {
+    public ChatBean(String username, String title, String content) {
+        this.username = username;
         this.title = title;
         this.content = content;
     }
+    public String username;
     public String title;
     public String content;
 }

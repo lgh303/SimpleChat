@@ -5,6 +5,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,12 +13,17 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import cn.thu.guohao.simplechat.adapter.ChatItemAdapter;
 import cn.thu.guohao.simplechat.adapter.ChatItemBean;
 import cn.thu.guohao.simplechat.R;
+import cn.thu.guohao.simplechat.data.User;
+import cn.thu.guohao.simplechat.db.MessageBean;
+import cn.thu.guohao.simplechat.db.MessageDAO;
 
 
 public class ChatActivity extends ActionBarActivity {
@@ -30,16 +36,51 @@ public class ChatActivity extends ActionBarActivity {
     private String mText = "";
     private List<ChatItemBean> mData = new ArrayList<>();
 
+    private String mFriendUsername;
+    private User mCurrUser;
+    private MessageDAO mMessageDAO;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mCurrUser = User.getCurrentUser(this, User.class);
+        mMessageDAO = new MessageDAO(this, mCurrUser.getUsername());
+        mFriendUsername = getIntent().getStringExtra("friend_username");
+        mMessageDAO.createMessageConvTable(mFriendUsername);
+
+        Log.i("lgh", "friend_username: " + mFriendUsername);
+
         String title = getIntent().getStringExtra("title");
         ActionBar bar = getSupportActionBar();
         if (bar != null)
             bar.setTitle(title);
         setContentView(R.layout.activity_chat);
+        initData();
         initView();
         initEvent();
+    }
+
+    private void initData() {
+        ArrayList<MessageBean> list = mMessageDAO.getMessageFromConvTable(mFriendUsername);
+        Log.i("lgh", "initData: list.size=" + list.size());
+        if (list.isEmpty()) return;
+        for (MessageBean message : list) {
+            String content = message.getContent();
+            ChatItemBean.TYPE type = ChatItemBean.TYPE.LEFT;
+            switch (message.getPosType()) {
+                case 0:
+                    type = ChatItemBean.TYPE.LEFT;
+                    break;
+                case 1:
+                    type = ChatItemBean.TYPE.RIGHT;
+                    break;
+                case 2:
+                    type = ChatItemBean.TYPE.MIDDLE;
+                    break;
+            }
+            mData.add(new ChatItemBean(content, type));
+        }
     }
 
     private void initView() {
@@ -86,6 +127,24 @@ public class ChatActivity extends ActionBarActivity {
     }
 
     private void addChatItem(String text, ChatItemBean.TYPE type) {
+        Log.i("lgh", "addchatitem");
+        int posType = 0, mediaType = 0;
+        String speaker = "null", uri = "null";
+        String update_time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        if (type == ChatItemBean.TYPE.LEFT) {
+            posType = 0;
+            speaker = mFriendUsername;
+        } else if (type == ChatItemBean.TYPE.RIGHT) {
+            posType = 1;
+            speaker = mCurrUser.getUsername();
+        } else if (type == ChatItemBean.TYPE.MIDDLE) {
+            posType = 2;
+        }
+        mMessageDAO.insertMessageToConvTable(mFriendUsername, new MessageBean(
+                posType, mediaType, speaker, text, uri, update_time
+        ));
+
+        Log.i("lgh", "added: " + text);
         mData.add(new ChatItemBean(text, type));
         mAdapter.notifyDataSetChanged();
     }

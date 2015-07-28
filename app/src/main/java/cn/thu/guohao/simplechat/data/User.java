@@ -17,6 +17,15 @@ public class User extends BmobUser {
     private Boolean isMale;
     private BmobFile photo;
     private BmobRelation friends;
+    private BmobRelation conversations;
+
+    public BmobRelation getConversations() {
+        return conversations;
+    }
+
+    public void setConversations(BmobRelation conversations) {
+        this.conversations = conversations;
+    }
 
     public BmobRelation getFriends() {
         return friends;

@@ -22,6 +22,7 @@ import cn.bmob.v3.listener.FindListener;
 import cn.bmob.v3.listener.SaveListener;
 import cn.bmob.v3.listener.UpdateListener;
 import cn.thu.guohao.simplechat.R;
+import cn.thu.guohao.simplechat.data.Conversation;
 import cn.thu.guohao.simplechat.data.User;
 
 
@@ -38,6 +39,8 @@ public class RegisterActivity extends ActionBarActivity {
     private boolean isMale;
     private User user;
     private User filehelper;
+
+    private Conversation mConv1, mConv2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,10 +159,10 @@ public class RegisterActivity extends ActionBarActivity {
                 if (!list.isEmpty()) {
                     filehelper = list.get(0);
                     Log.i("lgh", "filehelper: " + filehelper);
-                    if (filehelper != null) Log.i("lgh", "filehelper ID: " + filehelper.getObjectId());
-                    addSpecialUsers();
-                }
-                else
+                    if (filehelper != null)
+                        Log.i("lgh", "filehelper ID: " + filehelper.getObjectId());
+                    initSpecialConversations();
+                } else
                     Log.i("lgh", "filehelper not found!");
             }
 
@@ -170,11 +173,44 @@ public class RegisterActivity extends ActionBarActivity {
         });
     }
 
+    private void initSpecialConversations() {
+        mConv1 = new Conversation();
+        mConv1.setaUser(user);
+        mConv1.setbUser(user);
+        mConv1.save(this, new SaveListener() {
+            @Override
+            public void onSuccess() {
+                Log.i("lgh", "mConv1.id=" + mConv1.getObjectId());
+                mConv2 = new Conversation();
+                mConv2.setaUser(user);
+                mConv2.setbUser(filehelper);
+                mConv2.save(RegisterActivity.this, new SaveListener() {
+                    @Override
+                    public void onSuccess() {
+                        Log.i("lgh", "mConv2.id=" + mConv2.getObjectId());
+                        addSpecialUsers();
+                    }
+
+                    @Override
+                    public void onFailure(int i, String s) {
+                    }
+                });
+            }
+            @Override
+            public void onFailure(int i, String s) {
+            }
+        });
+    }
+
     private void addSpecialUsers() {
         BmobRelation friends = new BmobRelation();
         friends.add(user);
         friends.add(filehelper);
         user.setFriends(friends);
+        BmobRelation conversations = new BmobRelation();
+        conversations.add(mConv1);
+        conversations.add(mConv2);
+        user.setConversations(conversations);
         user.update(this, new UpdateListener() {
             @Override
             public void onSuccess() {
@@ -195,7 +231,6 @@ public class RegisterActivity extends ActionBarActivity {
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         startActivity(intent);
     }
-
 
 
     @Override

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,9 +15,14 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.bmob.v3.BmobQuery;
+import cn.bmob.v3.datatype.BmobPointer;
+import cn.bmob.v3.listener.FindListener;
 import cn.thu.guohao.simplechat.adapter.ChatBean;
 import cn.thu.guohao.simplechat.adapter.ChatsAdapter;
 import cn.thu.guohao.simplechat.R;
+import cn.thu.guohao.simplechat.data.Conversation;
+import cn.thu.guohao.simplechat.data.User;
 import cn.thu.guohao.simplechat.ui.ChatActivity;
 
 
@@ -36,6 +42,9 @@ public class ChatsFragment extends Fragment
     private List<ChatBean> mChatBeans;
 
     private OnFragmentInteractionListener mListener;
+
+    private User mCurrUser;
+    private ChatsAdapter mAdapter;
 
     /**
      * Use this factory method to create a new instance of
@@ -72,16 +81,41 @@ public class ChatsFragment extends Fragment
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        mCurrUser = User.getCurrentUser(getActivity(), User.class);
         initData();
     }
 
     private void initData() {
         mChatBeans = new ArrayList<>();
-        mChatBeans.add(new ChatBean("dog", "Wo"));
-        mChatBeans.add(new ChatBean("cat", "Mia"));
-        ChatsAdapter adapter = new ChatsAdapter(getActivity(), mChatBeans, mListView);
-        mListView.setAdapter(adapter);
-        mListView.setOnItemClickListener(this);
+        initDataViaCloud();
+    }
+
+    private void initDataViaCloud() {
+        BmobQuery<Conversation> query = new BmobQuery<>();
+        query.addWhereRelatedTo("conversations", new BmobPointer(mCurrUser));
+        query.findObjects(getActivity(), new FindListener<Conversation>() {
+            @Override
+            public void onSuccess(List<Conversation> list) {
+                for (Conversation conv : list) {
+                    User aUser = conv.getaUser();
+                    User bUser = conv.getbUser();
+                    String title;
+                    if (aUser.getObjectId().equals(mCurrUser.getObjectId()))
+                        title = conv.getbNickname();
+                    else
+                        title = conv.getaNickname();
+                    mChatBeans.add(new ChatBean(title, conv.getLatestMessage()));
+                }
+                mAdapter = new ChatsAdapter(getActivity(), mChatBeans, mListView);
+                mListView.setAdapter(mAdapter);
+                mListView.setOnItemClickListener(ChatsFragment.this);
+            }
+            @Override
+            public void onError(int i, String s) {
+
+            }
+        });
+
     }
 
     // TODO: Rename method, update argument and hook method into UI event

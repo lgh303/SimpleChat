@@ -176,14 +176,20 @@ public class RegisterActivity extends ActionBarActivity {
     private void initSpecialConversations() {
         mConv1 = new Conversation();
         mConv1.setaUser(user);
+        mConv1.setaNickname(user.getNickname());
         mConv1.setbUser(user);
+        mConv1.setbNickname(user.getNickname());
+        mConv1.setLatestMessage(getString(R.string.chat_first_message));
         mConv1.save(this, new SaveListener() {
             @Override
             public void onSuccess() {
                 Log.i("lgh", "mConv1.id=" + mConv1.getObjectId());
                 mConv2 = new Conversation();
                 mConv2.setaUser(user);
+                mConv2.setaNickname(user.getNickname());
                 mConv2.setbUser(filehelper);
+                mConv2.setbNickname(filehelper.getNickname());
+                mConv2.setLatestMessage(getString(R.string.chat_first_message));
                 mConv2.save(RegisterActivity.this, new SaveListener() {
                     @Override
                     public void onSuccess() {
@@ -196,6 +202,7 @@ public class RegisterActivity extends ActionBarActivity {
                     }
                 });
             }
+
             @Override
             public void onFailure(int i, String s) {
             }

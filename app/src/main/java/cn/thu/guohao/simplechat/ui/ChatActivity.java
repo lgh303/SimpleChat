@@ -59,13 +59,9 @@ public class ChatActivity extends ActionBarActivity {
         });
         mEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
             @Override
             public void afterTextChanged(Editable s) {
                 String text = mEditText.getText().toString();
@@ -81,6 +77,7 @@ public class ChatActivity extends ActionBarActivity {
             public void onClick(View v) {
                 if (mText.length() > 0) {
                     addChatItem(mText, ChatItemBean.TYPE.RIGHT);
+                    addChatItem(mText, ChatItemBean.TYPE.MIDDLE);
                     addChatItem(mText, ChatItemBean.TYPE.LEFT);
                     mEditText.setText("");
                 }

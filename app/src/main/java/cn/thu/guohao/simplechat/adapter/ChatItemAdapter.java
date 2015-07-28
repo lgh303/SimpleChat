@@ -36,7 +36,7 @@ public class ChatItemAdapter extends BaseAdapter
 
     @Override
     public int getViewTypeCount() {
-        return 2;
+        return 3;
     }
 
     @Override
@@ -46,6 +46,8 @@ public class ChatItemAdapter extends BaseAdapter
             return 0;
         else if (type == ChatItemBean.TYPE.RIGHT)
             return 1;
+        else if (type == ChatItemBean.TYPE.MIDDLE)
+            return 2;
         return super.getItemViewType(position);
     }
 
@@ -83,11 +85,17 @@ public class ChatItemAdapter extends BaseAdapter
                     viewHolder.text = (TextView) convertView.findViewById(R.id.id_tv_right_chat_item);
                     convertView.setTag(viewHolder);
                     break;
+                case 2:
+                    convertView = mInflater.inflate(R.layout.item_middle_chat, null);
+                    viewHolder.text = (TextView) convertView.findViewById(R.id.id_tv_middle_chat_item);
+                    convertView.setTag(viewHolder);
+                    break;
             }
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        viewHolder.icon.setImageResource(R.mipmap.ic_launcher);
+        if (type < 2)
+            viewHolder.icon.setImageResource(R.mipmap.ic_launcher);
         viewHolder.text.setText(mData.get(position).text);
         return convertView;
     }

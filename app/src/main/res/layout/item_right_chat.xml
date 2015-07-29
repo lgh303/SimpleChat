@@ -16,6 +16,7 @@
         android:layout_height="wrap_content" />
     <ImageView
         android:id="@+id/id_iv_right_chat_item"
+        android:layout_marginRight="6dp"
         android:src="@mipmap/ic_launcher"
         android:layout_width="48dp"
         android:layout_height="48dp" />

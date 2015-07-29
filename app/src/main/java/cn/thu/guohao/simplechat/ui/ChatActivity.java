@@ -19,7 +19,6 @@ import android.widget.ListView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -116,14 +115,9 @@ public class ChatActivity extends ActionBarActivity {
             public void onSuccess(List<Installation> list) {
                 if (!list.isEmpty())
                     mFriendInstallation = list.get(0);
-                else
-                    Log.i("lgh", "not found friend installation");
             }
-
             @Override
-            public void onError(int i, String s) {
-                Log.i("lgh", "find installation error " + s);
-            }
+            public void onError(int i, String s) { }
         });
     }
 
@@ -159,6 +153,7 @@ public class ChatActivity extends ActionBarActivity {
         mExtraView = (ImageView) findViewById(R.id.id_iv_chat_extras);
         mAdapter = new ChatItemAdapter(this, mData, mListView);
         mListView.setAdapter(mAdapter);
+        mListView.setSelection(mListView.getCount() - 1);
     }
 
     private void initEvent() {
@@ -169,13 +164,9 @@ public class ChatActivity extends ActionBarActivity {
         });
         mEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
             @Override
             public void afterTextChanged(Editable s) {
                 String text = mEditText.getText().toString();
@@ -199,7 +190,7 @@ public class ChatActivity extends ActionBarActivity {
 
     private void addChat(String text, ChatItemBean.TYPE type) {
         addChatItem(text, type);
-        saveChatItem(text, type);
+        saveMessage(text, type);
     }
 
     private void addChatItem(String text, ChatItemBean.TYPE type) {
@@ -207,7 +198,7 @@ public class ChatActivity extends ActionBarActivity {
         mAdapter.notifyDataSetChanged();
     }
 
-    private void saveChatItem(String text, ChatItemBean.TYPE type) {
+    private void saveMessage(String text, final ChatItemBean.TYPE type) {
         int posType = 0, mediaType = 0;
         String speaker = "Notification", uri = "null";
         String update_time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
@@ -223,10 +214,6 @@ public class ChatActivity extends ActionBarActivity {
         mMessageDAO.insertMessageToConvTable(mFriendUsername, new MessageBean(
                 posType, mediaType, speaker, text, uri, update_time
         ));
-        saveChatToServer(type, speaker, text);
-    }
-
-    private void saveChatToServer(final ChatItemBean.TYPE type, String speaker, String text) {
         message = new Message();
         message.setUsername(speaker);
         message.setContent(text);
@@ -234,43 +221,48 @@ public class ChatActivity extends ActionBarActivity {
         message.save(this, new SaveListener() {
             @Override
             public void onSuccess() {
-                mChatsDAO.updateConversation(
-                        mFriendUsername,
-                        message.getContent(),
-                        message.getUpdatedAt()
-                );
-                final BmobRelation messages = new BmobRelation();
-                messages.add(message);
-                mCurrConversation.setMessages(messages);
-                mCurrConversation.setLatestMessage(message.getContent());
-                mCurrConversation.update(ChatActivity.this, new UpdateListener() {
-                    @Override
-                    public void onSuccess() {
-                        if (type != ChatItemBean.TYPE.RIGHT)
-                            return;
-                        if (mFriendInstallation == null) {
-                            // TODO save it to user's wait list
-                        } else {
-                            BmobQuery<Installation> query = Installation.getQuery();
-                            query.addWhereEqualTo("username", mFriendUsername);
-                            mPushManager.setQuery(query);
-                            try {
-                                JSONObject json = new JSONObject("{\"content\":\"" + message.getContent() + "\"}");
-                                mPushManager.pushMessage(json);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                    @Override
-                    public void onFailure(int i, String s) {
-                    }
-                });
+                updateConversation(type);
             }
             @Override
-            public void onFailure(int i, String s) {
-            }
+            public void onFailure(int i, String s) { }
         });
+    }
+
+    private void updateConversation(final ChatItemBean.TYPE type) {
+        mChatsDAO.updateConversation(
+                mFriendUsername,
+                message.getContent(),
+                message.getUpdatedAt()
+        );
+        final BmobRelation messages = new BmobRelation();
+        messages.add(message);
+        mCurrConversation.setMessages(messages);
+        mCurrConversation.setLatestMessage(message.getContent());
+        mCurrConversation.update(ChatActivity.this, new UpdateListener() {
+            @Override
+            public void onSuccess() {
+                if (type != ChatItemBean.TYPE.RIGHT) return;
+                forwardMessage();
+            }
+            @Override
+            public void onFailure(int i, String s) { }
+        });
+    }
+
+    private void forwardMessage() {
+        if (mFriendInstallation == null) {
+            // TODO save it to user's wait list
+        } else {
+            BmobQuery<Installation> query = Installation.getQuery();
+            query.addWhereEqualTo("username", mFriendUsername);
+            mPushManager.setQuery(query);
+            try {
+                JSONObject json = new JSONObject("{\"content\":\"" + message.getContent() + "\"}");
+                mPushManager.pushMessage(json);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private BroadcastReceiver receiver = new BroadcastReceiver() {

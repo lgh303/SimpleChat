@@ -86,6 +86,11 @@ public class ChatsFragment extends Fragment
         super.onActivityCreated(savedInstanceState);
         mCurrUser = User.getCurrentUser(getActivity(), User.class);
         mChatsDAO = new ChatsDAO(getActivity(), mCurrUser.getUsername());
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         initData();
     }
 

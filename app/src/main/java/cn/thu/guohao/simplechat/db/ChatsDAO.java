@@ -1,10 +1,13 @@
 package cn.thu.guohao.simplechat.db;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * Created by Guohao on 2015/7/28.
@@ -30,6 +33,16 @@ public class ChatsDAO {
                 conv.getLatestMessage(), conv.getUpdate_time()
         };
         db.execSQL(insertSQL, params);
+        db.close();
+    }
+
+    public void updateConversation(String friend_username, String latest_message, String update_time) {
+        SQLiteDatabase db = helper.getWritableDatabase();
+        ContentValues data = new ContentValues();
+        data.put("latest_message", latest_message);
+        data.put("update_time", update_time);
+        db.update("conversation", data,
+                "friend_username=?", new String[] {friend_username});
         db.close();
     }
 

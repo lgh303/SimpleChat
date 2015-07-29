@@ -29,6 +29,7 @@ import cn.thu.guohao.simplechat.R;
 import cn.thu.guohao.simplechat.data.Conversation;
 import cn.thu.guohao.simplechat.data.Message;
 import cn.thu.guohao.simplechat.data.User;
+import cn.thu.guohao.simplechat.db.ChatsDAO;
 import cn.thu.guohao.simplechat.db.MessageBean;
 import cn.thu.guohao.simplechat.db.MessageDAO;
 
@@ -48,6 +49,7 @@ public class ChatActivity extends ActionBarActivity {
     private Conversation mCurrConversation;
     private MessageDAO mMessageDAO;
     private Message message;
+    private ChatsDAO mChatsDAO;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +61,7 @@ public class ChatActivity extends ActionBarActivity {
         mTitle = getIntent().getStringExtra("title");
         initConversation();
 
+        mChatsDAO = new ChatsDAO(this, mCurrUser.getUsername());
         mMessageDAO = new MessageDAO(this, mCurrUser.getUsername());
         mMessageDAO.createMessageConvTable(mFriendUsername);
 
@@ -190,9 +193,15 @@ public class ChatActivity extends ActionBarActivity {
         message.save(this, new SaveListener() {
             @Override
             public void onSuccess() {
+                mChatsDAO.updateConversation(
+                        mFriendUsername,
+                        message.getContent(),
+                        message.getUpdatedAt()
+                );
                 BmobRelation messages = new BmobRelation();
                 messages.add(message);
                 mCurrConversation.setMessages(messages);
+                mCurrConversation.setLatestMessage(message.getContent());
                 mCurrConversation.update(ChatActivity.this, new UpdateListener() {
                     @Override
                     public void onSuccess() {

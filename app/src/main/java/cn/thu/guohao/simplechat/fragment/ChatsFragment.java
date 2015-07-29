@@ -1,7 +1,10 @@
 package cn.thu.guohao.simplechat.fragment;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -15,6 +18,7 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.bmob.push.PushConstants;
 import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.datatype.BmobPointer;
 import cn.bmob.v3.listener.FindListener;
@@ -38,7 +42,6 @@ import cn.thu.guohao.simplechat.ui.ChatActivity;
  */
 public class ChatsFragment extends Fragment
         implements AdapterView.OnItemClickListener{
-    private static final String TITLE = "ChatsFragment.TITLE";
 
     private ListView mListView;
     private List<ChatBean> mChatBeans;
@@ -49,20 +52,12 @@ public class ChatsFragment extends Fragment
     private ChatsAdapter mAdapter;
     private ChatsDAO mChatsDAO;
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param title Parameter 1.
-     * @return A new instance of fragment ChatsFragment.
-     */
-    public static ChatsFragment newInstance(String title) {
-        ChatsFragment fragment = new ChatsFragment();
-        Bundle args = new Bundle();
-        args.putString(TITLE, title);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+        }
+    };
 
     public ChatsFragment() {
         // Required empty public constructor
@@ -92,6 +87,15 @@ public class ChatsFragment extends Fragment
     public void onResume() {
         super.onResume();
         initData();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(PushConstants.ACTION_MESSAGE);
+        getActivity().registerReceiver(receiver, intentFilter);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getActivity().unregisterReceiver(receiver);
     }
 
     private void initData() {

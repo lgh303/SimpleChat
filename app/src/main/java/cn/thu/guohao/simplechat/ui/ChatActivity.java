@@ -116,8 +116,10 @@ public class ChatActivity extends ActionBarActivity {
                 if (!list.isEmpty())
                     mFriendInstallation = list.get(0);
             }
+
             @Override
-            public void onError(int i, String s) { }
+            public void onError(int i, String s) {
+            }
         });
     }
 
@@ -164,9 +166,13 @@ public class ChatActivity extends ActionBarActivity {
         });
         mEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
             @Override
             public void afterTextChanged(Editable s) {
                 String text = mEditText.getText().toString();
@@ -190,7 +196,8 @@ public class ChatActivity extends ActionBarActivity {
 
     private void addChat(String text, ChatItemBean.TYPE type) {
         addChatItem(text, type);
-        saveMessage(text, type);
+        saveLocal(text, type);
+        saveMessageRemote(text, type);
     }
 
     private void addChatItem(String text, ChatItemBean.TYPE type) {
@@ -198,7 +205,7 @@ public class ChatActivity extends ActionBarActivity {
         mAdapter.notifyDataSetChanged();
     }
 
-    private void saveMessage(String text, final ChatItemBean.TYPE type) {
+    private void saveLocal(String text, final ChatItemBean.TYPE type) {
         int posType = 0, mediaType = 0;
         String speaker = "Notification", uri = "null";
         String update_time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
@@ -214,6 +221,19 @@ public class ChatActivity extends ActionBarActivity {
         mMessageDAO.insertMessageToConvTable(mFriendUsername, new MessageBean(
                 posType, mediaType, speaker, text, uri, update_time
         ));
+        mChatsDAO.updateConversation(
+                mFriendUsername,
+                text,
+                update_time
+        );
+    }
+
+    private void saveMessageRemote(String text, final ChatItemBean.TYPE type) {
+        String speaker = "Notification";
+        if (type == ChatItemBean.TYPE.LEFT)
+            speaker = mFriendUsername;
+        else if (type == ChatItemBean.TYPE.RIGHT)
+            speaker = mCurrUser.getUsername();
         message = new Message();
         message.setUsername(speaker);
         message.setContent(text);
@@ -221,19 +241,14 @@ public class ChatActivity extends ActionBarActivity {
         message.save(this, new SaveListener() {
             @Override
             public void onSuccess() {
-                updateConversation(type);
+                updateConversationRemote(type);
             }
             @Override
             public void onFailure(int i, String s) { }
         });
     }
 
-    private void updateConversation(final ChatItemBean.TYPE type) {
-        mChatsDAO.updateConversation(
-                mFriendUsername,
-                message.getContent(),
-                message.getUpdatedAt()
-        );
+    private void updateConversationRemote(final ChatItemBean.TYPE type) {
         final BmobRelation messages = new BmobRelation();
         messages.add(message);
         mCurrConversation.setMessages(messages);
@@ -276,8 +291,10 @@ public class ChatActivity extends ActionBarActivity {
                 String jsonString = intent.getStringExtra(
                         PushConstants.EXTRA_PUSH_MESSAGE_STRING);
                 String[] arr = Utils.parseMessage(jsonString);
-                if (arr != null && mFriendUsername.equals(arr[0]))
-                    addChat(arr[1], ChatItemBean.TYPE.LEFT);
+                if (arr != null && mFriendUsername.equals(arr[0])) {
+                    addChatItem(arr[1], ChatItemBean.TYPE.LEFT);
+                    saveLocal(arr[1], ChatItemBean.TYPE.LEFT);
+                }
             }
         }
     };
@@ -318,7 +335,4 @@ public class ChatActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public String getmFriendUsername() {
-        return mFriendUsername;
-    }
 }

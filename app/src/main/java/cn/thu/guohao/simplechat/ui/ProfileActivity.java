@@ -1,5 +1,6 @@
 package cn.thu.guohao.simplechat.ui;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -10,6 +11,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import cn.thu.guohao.simplechat.R;
+import cn.thu.guohao.simplechat.db.ChatsDAO;
+import cn.thu.guohao.simplechat.db.ConversationBean;
 import cn.thu.guohao.simplechat.db.UserBean;
 import cn.thu.guohao.simplechat.db.UserDAO;
 
@@ -21,6 +24,7 @@ public class ProfileActivity extends ActionBarActivity {
     private Button mMessageButton;
 
     private UserDAO mUserDAO;
+    private ChatsDAO mChatsDAO;
     private UserBean mUser;
 
     @Override
@@ -32,6 +36,7 @@ public class ProfileActivity extends ActionBarActivity {
         String username = getIntent().getStringExtra("username");
         mUserDAO = new UserDAO(this, currUser);
         mUser = mUserDAO.get(username);
+        mChatsDAO = new ChatsDAO(this, currUser);
         initView();
         initEvent();
     }
@@ -53,7 +58,12 @@ public class ProfileActivity extends ActionBarActivity {
         mMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO
+                ConversationBean conv = mChatsDAO.getConversation(mUser.getUsername());
+                Intent intent = new Intent(ProfileActivity.this, ChatActivity.class);
+                intent.putExtra("friend_username", mUser.getUsername());
+                intent.putExtra("title", mUser.getNickname());
+                intent.putExtra("conversationID", conv.getId());
+                startActivity(intent);
             }
         });
     }

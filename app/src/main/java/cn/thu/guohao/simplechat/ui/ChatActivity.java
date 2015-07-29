@@ -84,7 +84,7 @@ public class ChatActivity extends ActionBarActivity {
         mMessageDAO = new MessageDAO(this, mCurrUser.getUsername());
         mMessageDAO.createMessageConvTable(mFriendUsername);
 
-        mPushManager = new BmobPushManager(this);
+        mPushManager = new BmobPushManager<>(this);
 
         setContentView(R.layout.activity_chat);
         initData();
@@ -242,14 +242,15 @@ public class ChatActivity extends ActionBarActivity {
             @Override
             public void onSuccess() {
                 if (type != ChatItemBean.TYPE.RIGHT) return;
-                forwardMessage();
+                if (message.getUsername().equals("filehelper")) return;
+                sendMessage();
             }
             @Override
             public void onFailure(int i, String s) { }
         });
     }
 
-    private void forwardMessage() {
+    private void sendMessage() {
         if (mFriendInstallation == null) {
             // TODO save it to user's wait list
         } else {
@@ -257,7 +258,10 @@ public class ChatActivity extends ActionBarActivity {
             query.addWhereEqualTo("username", mFriendUsername);
             mPushManager.setQuery(query);
             try {
-                JSONObject json = new JSONObject("{\"content\":\"" + message.getContent() + "\"}");
+                JSONObject json = new JSONObject("{" +
+                        "\"user\":" + "\"" + mCurrUser.getUsername() + "\"" + "," +
+                        "\"content\":" + "\"" + message.getContent() + "\"" +
+                        "}");
                 mPushManager.pushMessage(json);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -271,8 +275,9 @@ public class ChatActivity extends ActionBarActivity {
             if(intent.getAction().equals(PushConstants.ACTION_MESSAGE)){
                 String jsonString = intent.getStringExtra(
                         PushConstants.EXTRA_PUSH_MESSAGE_STRING);
-                String message = Utils.parseMessage(jsonString);
-                addChat(message, ChatItemBean.TYPE.LEFT);
+                String[] arr = Utils.parseMessage(jsonString);
+                if (arr != null && mFriendUsername.equals(arr[0]))
+                    addChat(arr[1], ChatItemBean.TYPE.LEFT);
             }
         }
     };

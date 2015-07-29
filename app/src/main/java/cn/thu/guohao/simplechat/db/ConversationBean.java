@@ -1,13 +1,12 @@
 package cn.thu.guohao.simplechat.db;
 
 
-import cn.thu.guohao.simplechat.data.Conversation;
-
 /**
  * Created by Guohao on 2015/7/28.
  * Conversation for chats.db
  */
 public class ConversationBean {
+    private String id;
     private String title;
     private String friend_username;
     private String latestMessage;
@@ -15,7 +14,8 @@ public class ConversationBean {
 
     public ConversationBean() {}
 
-    public ConversationBean(String title, String friend_username, String latestMessage, String update_time) {
+    public ConversationBean(String id, String title, String friend_username, String latestMessage, String update_time) {
+        this.id = id;
         this.title = title;
         this.friend_username = friend_username;
         this.latestMessage = latestMessage;
@@ -25,10 +25,20 @@ public class ConversationBean {
     @Override
     public String toString() {
         return "ConversationBean{" +
-                "title='" + title + '\'' +
+                "id='" + id + '\'' +
+                ", title='" + title + '\'' +
                 ", friend_username='" + friend_username + '\'' +
+                ", latestMessage='" + latestMessage + '\'' +
                 ", update_time='" + update_time + '\'' +
                 '}';
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getLatestMessage() {

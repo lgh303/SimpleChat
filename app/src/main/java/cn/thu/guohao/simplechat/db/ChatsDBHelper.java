@@ -14,6 +14,7 @@ public class ChatsDBHelper extends SQLiteOpenHelper {
 
     private static final String CREATE_CONV_SQL = "create table conversation(" +
             "_id integer primary key autoincrement," +
+            "id text," +
             "title text," +
             "friend_username text," +
             "latest_message text," +

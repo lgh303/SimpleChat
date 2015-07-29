@@ -72,22 +72,17 @@ public class RegisterActivity extends ActionBarActivity {
 
                 mProgressBar.setVisibility(ProgressBar.VISIBLE);
                 mRegisterButton.setClickable(false);
-                new AsyncTask<Void, Void, Void>() {
-                    @Override
-                    protected Void doInBackground(Void... params) {
-                        if (checkInput())
-                            checkRegister();
-                        return null;
-                    }
-                    @Override
-                    protected void onPostExecute(Void aVoid) {
-                        super.onPostExecute(aVoid);
-                        mProgressBar.setVisibility(ProgressBar.INVISIBLE);
-                        mRegisterButton.setClickable(true);
-                    }
-                }.execute();
+                if (checkInput())
+                    checkRegister();
+                else
+                    restoreUI();
             }
         });
+    }
+
+    private void restoreUI() {
+        mProgressBar.setVisibility(ProgressBar.INVISIBLE);
+        mRegisterButton.setClickable(true);
     }
 
     private boolean checkInput() {
@@ -114,13 +109,16 @@ public class RegisterActivity extends ActionBarActivity {
             public void onSuccess(List<User> list) {
                 if (list.isEmpty())
                     register();
-                else
+                else {
                     Toast.makeText(RegisterActivity.this, "Chat ID Exists", Toast.LENGTH_SHORT).show();
+                    restoreUI();
+                }
             }
 
             @Override
             public void onError(int i, String s) {
                 Toast.makeText(RegisterActivity.this, "Unexpected Register Error", Toast.LENGTH_SHORT).show();
+                restoreUI();
             }
         });
     }
@@ -146,6 +144,7 @@ public class RegisterActivity extends ActionBarActivity {
             @Override
             public void onFailure(int i, String s) {
                 Toast.makeText(RegisterActivity.this, "Unexpected Register Error", Toast.LENGTH_SHORT).show();
+                restoreUI();
             }
         });
     }
@@ -169,6 +168,7 @@ public class RegisterActivity extends ActionBarActivity {
             @Override
             public void onError(int i, String s) {
                 Log.i("lgh", "filehelper not found!");
+                restoreUI();
             }
         });
     }

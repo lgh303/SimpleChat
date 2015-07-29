@@ -96,7 +96,7 @@ public class ChatsFragment extends Fragment
             initDataViaCloud();
         else {
             for (ConversationBean conv : list) {
-                mChatBeans.add(new ChatBean(conv.getFriend_username(), conv.getTitle(), conv.getLatestMessage()));
+                mChatBeans.add(new ChatBean(conv.getId(), conv.getFriend_username(), conv.getTitle(), conv.getLatestMessage()));
             }
             mAdapter = new ChatsAdapter(getActivity(), mChatBeans, mListView);
             mListView.setAdapter(mAdapter);
@@ -120,8 +120,9 @@ public class ChatsFragment extends Fragment
                         title = conv.getaNickname();
                         friend_username = conv.getaUsername();
                     }
-                    mChatBeans.add(new ChatBean(friend_username, title, conv.getLatestMessage()));
+                    mChatBeans.add(new ChatBean(conv.getObjectId(), friend_username, title, conv.getLatestMessage()));
                     mChatsDAO.insertConversation(new ConversationBean(
+                            conv.getObjectId(),
                             title, friend_username,
                             conv.getLatestMessage(),
                             conv.getUpdatedAt()));
@@ -167,6 +168,7 @@ public class ChatsFragment extends Fragment
         Intent intent = new Intent(getActivity(), ChatActivity.class);
         intent.putExtra("friend_username", mChatBeans.get(position).username);
         intent.putExtra("title", mChatBeans.get(position).title);
+        intent.putExtra("conversationID", mChatBeans.get(position).convID);
         startActivity(intent);
     }
 

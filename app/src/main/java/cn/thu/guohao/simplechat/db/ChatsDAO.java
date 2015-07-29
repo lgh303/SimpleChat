@@ -22,9 +22,10 @@ public class ChatsDAO {
     public void insertConversation(ConversationBean conv) {
         SQLiteDatabase db = helper.getWritableDatabase();
         String insertSQL = "insert into conversation( " +
-                "title, friend_username, latest_message, update_time) " +
-                "values(?,?,?,?)";
+                "id, title, friend_username, latest_message, update_time) " +
+                "values(?,?,?,?,?)";
         Object[] params = new Object[] {
+                conv.getId(),
                 conv.getTitle(), conv.getFriend_username(),
                 conv.getLatestMessage(), conv.getUpdate_time()
         };
@@ -47,6 +48,7 @@ public class ChatsDAO {
         ConversationBean conv = null;
         if (cursor.moveToNext()) {
             conv = new ConversationBean();
+            conv.setId(cursor.getString(cursor.getColumnIndex("id")));
             conv.setTitle(cursor.getString(cursor.getColumnIndex("title")));
             conv.setFriend_username(cursor.getString(cursor.getColumnIndex("friend_username")));
             conv.setLatestMessage(cursor.getString(cursor.getColumnIndex("latest_message")));
@@ -64,6 +66,7 @@ public class ChatsDAO {
         while (cursor.moveToNext()) {
 
             ConversationBean conv = new ConversationBean();
+            conv.setId(cursor.getString(cursor.getColumnIndex("id")));
             conv.setTitle(cursor.getString(cursor.getColumnIndex("title")));
             conv.setFriend_username(cursor.getString(cursor.getColumnIndex("friend_username")));
             conv.setLatestMessage(cursor.getString(cursor.getColumnIndex("latest_message")));

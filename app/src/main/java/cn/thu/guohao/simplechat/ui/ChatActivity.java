@@ -1,5 +1,9 @@
 package cn.thu.guohao.simplechat.ui;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -13,14 +17,22 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import cn.bmob.push.PushConstants;
+import cn.bmob.v3.Bmob;
+import cn.bmob.v3.BmobInstallation;
 import cn.bmob.v3.BmobPushManager;
 import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.datatype.BmobRelation;
+import cn.bmob.v3.listener.FindListener;
 import cn.bmob.v3.listener.GetListener;
 import cn.bmob.v3.listener.SaveListener;
 import cn.bmob.v3.listener.UpdateListener;
@@ -28,11 +40,13 @@ import cn.thu.guohao.simplechat.adapter.ChatItemAdapter;
 import cn.thu.guohao.simplechat.adapter.ChatItemBean;
 import cn.thu.guohao.simplechat.R;
 import cn.thu.guohao.simplechat.data.Conversation;
+import cn.thu.guohao.simplechat.data.Installation;
 import cn.thu.guohao.simplechat.data.Message;
 import cn.thu.guohao.simplechat.data.User;
 import cn.thu.guohao.simplechat.db.ChatsDAO;
 import cn.thu.guohao.simplechat.db.MessageBean;
 import cn.thu.guohao.simplechat.db.MessageDAO;
+import cn.thu.guohao.simplechat.util.Utils;
 
 
 public class ChatActivity extends ActionBarActivity {
@@ -48,10 +62,13 @@ public class ChatActivity extends ActionBarActivity {
     private String mFriendUsername, mTitle, mConvID;
     private User mCurrUser;
     private Conversation mCurrConversation;
-    private MessageDAO mMessageDAO;
+    private Installation mFriendInstallation = null;
+
     private Message message;
+    private MessageDAO mMessageDAO;
     private ChatsDAO mChatsDAO;
-    private BmobPushManager mPushManager;
+
+    private BmobPushManager<Installation> mPushManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +79,7 @@ public class ChatActivity extends ActionBarActivity {
         mConvID = getIntent().getStringExtra("conversationID");
         mTitle = getIntent().getStringExtra("title");
         initConversation();
+        initInstallation();
 
         mChatsDAO = new ChatsDAO(this, mCurrUser.getUsername());
         mMessageDAO = new MessageDAO(this, mCurrUser.getUsername());
@@ -86,6 +104,25 @@ public class ChatActivity extends ActionBarActivity {
             @Override
             public void onFailure(int i, String s) {
                 mCurrConversation = null;
+            }
+        });
+    }
+
+    private void initInstallation() {
+        BmobQuery<Installation> query = new BmobQuery<>();
+        query.addWhereEqualTo("username", mFriendUsername);
+        query.findObjects(this, new FindListener<Installation>() {
+            @Override
+            public void onSuccess(List<Installation> list) {
+                if (!list.isEmpty())
+                    mFriendInstallation = list.get(0);
+                else
+                    Log.i("lgh", "not found friend installation");
+            }
+
+            @Override
+            public void onError(int i, String s) {
+                Log.i("lgh", "find installation error " + s);
             }
         });
     }
@@ -186,10 +223,10 @@ public class ChatActivity extends ActionBarActivity {
         mMessageDAO.insertMessageToConvTable(mFriendUsername, new MessageBean(
                 posType, mediaType, speaker, text, uri, update_time
         ));
-        saveChatToServer(speaker, text);
+        saveChatToServer(type, speaker, text);
     }
 
-    private void saveChatToServer(String speaker, String text) {
+    private void saveChatToServer(final ChatItemBean.TYPE type, String speaker, String text) {
         message = new Message();
         message.setUsername(speaker);
         message.setContent(text);
@@ -202,15 +239,28 @@ public class ChatActivity extends ActionBarActivity {
                         message.getContent(),
                         message.getUpdatedAt()
                 );
-                BmobRelation messages = new BmobRelation();
+                final BmobRelation messages = new BmobRelation();
                 messages.add(message);
                 mCurrConversation.setMessages(messages);
                 mCurrConversation.setLatestMessage(message.getContent());
                 mCurrConversation.update(ChatActivity.this, new UpdateListener() {
                     @Override
                     public void onSuccess() {
-                        mPushManager.pushMessageAll(message.getContent());
-                        // TODO push message or save it to user's unread list.
+                        if (type != ChatItemBean.TYPE.RIGHT)
+                            return;
+                        if (mFriendInstallation == null) {
+                            // TODO save it to user's wait list
+                        } else {
+                            BmobQuery<Installation> query = Installation.getQuery();
+                            query.addWhereEqualTo("username", mFriendUsername);
+                            mPushManager.setQuery(query);
+                            try {
+                                JSONObject json = new JSONObject("{\"content\":\"" + message.getContent() + "\"}");
+                                mPushManager.pushMessage(json);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
                     }
                     @Override
                     public void onFailure(int i, String s) {
@@ -221,6 +271,32 @@ public class ChatActivity extends ActionBarActivity {
             public void onFailure(int i, String s) {
             }
         });
+    }
+
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction().equals(PushConstants.ACTION_MESSAGE)){
+                String jsonString = intent.getStringExtra(
+                        PushConstants.EXTRA_PUSH_MESSAGE_STRING);
+                String message = Utils.parseMessage(jsonString);
+                addChat(message, ChatItemBean.TYPE.LEFT);
+            }
+        }
+    };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(PushConstants.ACTION_MESSAGE);
+        registerReceiver(receiver, intentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(receiver);
     }
 
     @Override
@@ -243,5 +319,9 @@ public class ChatActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public String getmFriendUsername() {
+        return mFriendUsername;
     }
 }

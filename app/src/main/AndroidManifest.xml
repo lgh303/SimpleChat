@@ -82,11 +82,6 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".receiver.MessageReceiver">
-            <intent-filter>
-                <action android:name="cn.bmob.push.action.MESSAGE"/>
-            </intent-filter>
-        </receiver>
     </application>
 
 </manifest>

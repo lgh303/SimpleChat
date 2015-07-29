@@ -16,6 +16,13 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.bmob.push.BmobPush;
+import cn.bmob.v3.BmobInstallation;
+import cn.bmob.v3.BmobQuery;
+import cn.bmob.v3.listener.FindListener;
+import cn.bmob.v3.listener.SaveListener;
+import cn.bmob.v3.listener.UpdateListener;
+import cn.thu.guohao.simplechat.data.Installation;
 import cn.thu.guohao.simplechat.data.User;
 import cn.thu.guohao.simplechat.fragment.ChatsFragment;
 import cn.thu.guohao.simplechat.fragment.ContactsFragment;
@@ -43,14 +50,41 @@ public class MainActivity extends ActionBarActivity
     private List<PagerIcon> mPagerIcons = new ArrayList<>();
 
     private User mCurrUser;
+    private Installation mInstallation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mCurrUser = User.getCurrentUser(this, User.class);
+        initInstallation();
         initView();
         initEvent();
+    }
+
+    private void initInstallation() {
+        BmobQuery<Installation> query = new BmobQuery<>();
+        query.addWhereEqualTo("installationId", BmobInstallation.getInstallationId(this));
+        query.findObjects(this, new FindListener<Installation>() {
+            @Override
+            public void onSuccess(List<Installation> list) {
+                if (list.isEmpty()) {
+                    Installation install = new Installation(MainActivity.this);
+                    install.setInstallationId(BmobInstallation.getInstallationId(MainActivity.this));
+                    install.setUsername(mCurrUser.getUsername());
+                    install.save(MainActivity.this);
+                } else {
+                    mInstallation = list.get(0);
+                    mInstallation.setUsername(mCurrUser.getUsername());
+                    mInstallation.update(MainActivity.this);
+                }
+            }
+            @Override
+            public void onError(int i, String s) {
+                Log.i("lgh", "find failed");
+            }
+        });
+        BmobPush.startWork(this, "fc26b418ba0a8938a58eb1ff46976026");
     }
 
     private void initView()

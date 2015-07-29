@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import cn.bmob.v3.BmobPushManager;
 import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.datatype.BmobRelation;
 import cn.bmob.v3.listener.GetListener;
@@ -50,6 +51,7 @@ public class ChatActivity extends ActionBarActivity {
     private MessageDAO mMessageDAO;
     private Message message;
     private ChatsDAO mChatsDAO;
+    private BmobPushManager mPushManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +66,8 @@ public class ChatActivity extends ActionBarActivity {
         mChatsDAO = new ChatsDAO(this, mCurrUser.getUsername());
         mMessageDAO = new MessageDAO(this, mCurrUser.getUsername());
         mMessageDAO.createMessageConvTable(mFriendUsername);
+
+        mPushManager = new BmobPushManager(this);
 
         setContentView(R.layout.activity_chat);
         initData();
@@ -205,6 +209,7 @@ public class ChatActivity extends ActionBarActivity {
                 mCurrConversation.update(ChatActivity.this, new UpdateListener() {
                     @Override
                     public void onSuccess() {
+                        mPushManager.pushMessageAll(message.getContent());
                         // TODO push message or save it to user's unread list.
                     }
                     @Override

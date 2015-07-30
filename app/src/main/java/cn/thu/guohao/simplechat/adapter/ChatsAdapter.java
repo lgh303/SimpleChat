@@ -55,6 +55,7 @@ public class ChatsAdapter extends BaseAdapter
             viewHolder.icon = (ImageView) convertView.findViewById(R.id.id_iv_chats);
             viewHolder.title = (TextView) convertView.findViewById(R.id.id_tv_title);
             viewHolder.content = (TextView) convertView.findViewById(R.id.id_tv_content);
+            viewHolder.time = (TextView) convertView.findViewById(R.id.id_tv_chats_time);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
@@ -63,6 +64,7 @@ public class ChatsAdapter extends BaseAdapter
         viewHolder.icon.setImageResource(R.mipmap.ic_launcher);
         viewHolder.title.setText(mListBean.get(position).title);
         viewHolder.content.setText(mListBean.get(position).content);
+        viewHolder.time.setText(mListBean.get(position).time);
         return convertView;
     }
 
@@ -71,6 +73,7 @@ public class ChatsAdapter extends BaseAdapter
         public ImageView icon;
         public TextView title;
         public TextView content;
+        public TextView time;
     }
 
     @Override

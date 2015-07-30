@@ -15,7 +15,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import cn.bmob.push.PushConstants;
@@ -66,7 +69,8 @@ public class ChatsFragment extends Fragment
                         if (pack.getSender().equals(chatBean.username)) {
                             chatBean.unread = chatBean.unread + 1;
                             chatBean.content = pack.getContent();
-                            // TODO move this conversation up to the top
+                            mChatBeans.remove(chatBean);
+                            mChatBeans.add(0, chatBean);
                             mAdapter.notifyDataSetChanged();
                             break;
                         }
@@ -116,18 +120,31 @@ public class ChatsFragment extends Fragment
     }
 
     private void initData() {
-        mChatBeans = new ArrayList<>();
+        mChatBeans = new LinkedList<>();
         ArrayList<ConversationBean> list = mChatsDAO.getConversation();
         if (list.isEmpty())
             initDataViaCloud();
         else {
             for (ConversationBean conv : list) {
-                mChatBeans.add(new ChatBean(conv.getId(), conv.getFriend_username(), conv.getTitle(), conv.getLatestMessage(), conv.getUnreadCount()));
+                mChatBeans.add(new ChatBean(
+                        conv.getId(), conv.getFriend_username(),
+                        conv.getTitle(), conv.getLatestMessage(),
+                        conv.getUnreadCount(),
+                        formatTime(conv.getUpdate_time())
+                ));
             }
             mAdapter = new ChatsAdapter(getActivity(), mChatBeans, mListView);
             mListView.setAdapter(mAdapter);
             mListView.setOnItemClickListener(ChatsFragment.this);
         }
+    }
+
+    private String formatTime(String update_time) {
+        String curr_time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        if (update_time.substring(0, 10).equals(curr_time.substring(0, 10)))
+            return update_time.substring(11, 16);
+        else
+            return update_time.substring(0, 10);
     }
 
     private void initDataViaCloud() {
@@ -146,7 +163,11 @@ public class ChatsFragment extends Fragment
                         title = conv.getaNickname();
                         friend_username = conv.getaUsername();
                     }
-                    mChatBeans.add(new ChatBean(conv.getObjectId(), friend_username, title, conv.getLatestMessage(), conv.getUnread()));
+                    mChatBeans.add(new ChatBean(
+                            conv.getObjectId(), friend_username,
+                            title, conv.getLatestMessage(), conv.getUnread(),
+                            formatTime(conv.getUpdatedAt())
+                    ));
                     mChatsDAO.insertConversation(new ConversationBean(
                             conv.getObjectId(),
                             title, friend_username,

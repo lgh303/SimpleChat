@@ -86,7 +86,7 @@ public class ChatsDAO {
 
     public ArrayList<ConversationBean> getConversation() {
         SQLiteDatabase db = helper.getWritableDatabase();
-        Cursor cursor = db.query("conversation", null, null, null, null, null, null, null);
+        Cursor cursor = db.query("conversation", null, null, null, null, null, "update_time" + " DESC", null);
         ArrayList<ConversationBean> list = new ArrayList<>();
         while (cursor.moveToNext()) {
 

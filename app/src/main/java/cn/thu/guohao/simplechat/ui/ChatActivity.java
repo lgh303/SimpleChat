@@ -309,8 +309,10 @@ public class ChatActivity extends ActionBarActivity {
                 InfoPack pack = Utils.parseMessage(jsonString);
                 if (pack.getType() == InfoPack.TYPE.MESSAGE &&
                         mFriendUsername.equals(pack.getSender())) {
-                    addChatItem(pack.getContent(), ChatItemBean.TYPE.LEFT);
-                    mChatsDAO.clearUnread(mFriendUsername);
+                    if (pack.getType() == InfoPack.TYPE.NOTIFICATION)
+                        addChatItem(pack.getContent(), ChatItemBean.TYPE.MIDDLE);
+                    else if (pack.getType() == InfoPack.TYPE.MESSAGE)
+                        addChatItem(pack.getContent(), ChatItemBean.TYPE.LEFT);
                 }
             }
         }
@@ -328,6 +330,13 @@ public class ChatActivity extends ActionBarActivity {
     protected void onPause() {
         super.onPause();
         unregisterReceiver(receiver);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mMessageDAO.markMessageReadInConvTable(mFriendUsername);
+        mChatsDAO.clearUnread(mFriendUsername);
     }
 
     @Override

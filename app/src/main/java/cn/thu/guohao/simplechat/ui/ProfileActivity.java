@@ -47,7 +47,7 @@ public class ProfileActivity extends ActionBarActivity {
         mSexImageView = (ImageView) findViewById(R.id.id_iv_profile_sex);
         mMessageButton = (Button) findViewById(R.id.id_bt_profile_message);
         mNicknameTextView.setText(mUser.getNickname());
-        mUsernameTextView.setText(getString(R.string.prefix_id) + mUser.getUsername());
+        mUsernameTextView.setText(getString(R.string.prefix_id) + " " + mUser.getUsername());
         if (mUser.getSex() == 0)
             mSexImageView.setImageResource(R.drawable.profile_woman);
         else

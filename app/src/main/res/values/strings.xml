@@ -16,8 +16,13 @@
     <string name="hint_switch">Switch User</string>
     <string name="hint_message">Message</string>
 
-    <string name="prefix_id">Chat ID: </string>
+    <string name="prefix_id">ID: </string>
     <string name="chat_first_message">Let\'s Chat!</string>
+    <string name="profile_photo">Profile Photo</string>
+    <string name="nick_name">Full Name</string>
+    <string name="chat_id">Chat ID</string>
+    <string name="my_gender">Gender</string>
+    <string name="save">Save</string>
 
 
     <string name="action_search">Search</string>
@@ -42,4 +47,6 @@
     <string name="title_activity_splash">SplashActivity</string>
     <string name="title_activity_switch_login">SwitchLoginActivity</string>
     <string name="title_activity_profile">ProfileActivity</string>
+    <string name="title_activity_my_profile">MyProfileActivity</string>
+    <string name="title_activity_edit">EditActivity</string>
 </resources>

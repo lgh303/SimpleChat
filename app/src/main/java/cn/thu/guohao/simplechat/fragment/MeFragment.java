@@ -1,6 +1,7 @@
 package cn.thu.guohao.simplechat.fragment;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,10 +10,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import cn.thu.guohao.simplechat.R;
 import cn.thu.guohao.simplechat.data.User;
+import cn.thu.guohao.simplechat.ui.MyProfileActivity;
 
 
 /**
@@ -20,40 +24,13 @@ import cn.thu.guohao.simplechat.data.User;
  * Activities that contain this fragment must implement the
  * {@link MeFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link MeFragment#newInstance} factory method to
- * create an instance of this fragment.
  */
 public class MeFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-    private TextView mTextView;
+    private TextView mNicknameTextView, mUsernameTextView;
     private Button mLogoutButton;
+    private LinearLayout mMeLayout;
 
     private OnFragmentInteractionListener mListener;
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment MeFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static MeFragment newInstance(String param1, String param2) {
-        MeFragment fragment = new MeFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     public MeFragment() {
         // Required empty public constructor
@@ -62,10 +39,6 @@ public class MeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
@@ -73,14 +46,26 @@ public class MeFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_me, container, false);
-        mTextView = (TextView) view.findViewById(R.id.id_tv_frag_me);
+        mNicknameTextView = (TextView) view.findViewById(R.id.id_tv_frag_me);
+        mUsernameTextView = (TextView) view.findViewById(R.id.id_tv_frag_me_id);
+        mMeLayout = (LinearLayout) view.findViewById(R.id.id_li_frag_me);
         User currUser = User.getCurrentUser(getActivity(), User.class);
-        mTextView.setText(currUser.getNickname());
+        mNicknameTextView.setText(currUser.getNickname());
+        mUsernameTextView.setText(getString(R.string.prefix_id) + " " +
+                currUser.getUsername());
         mLogoutButton = (Button) view.findViewById(R.id.id_bt_frag_me_logout);
         mLogoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mListener.logout();
+            }
+        });
+        mMeLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), MyProfileActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                startActivity(intent);
             }
         });
         return view;

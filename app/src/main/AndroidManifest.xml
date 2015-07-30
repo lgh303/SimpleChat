@@ -2,8 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="cn.thu.guohao.simplechat" >
 
-    <permission android:protectionLevel="normal" android:name="cn.bmob.permission.push"></permission>
-    <uses-permission android:name="cn.bmob.permission.push"/>
+    <permission
+        android:name="cn.bmob.permission.push"
+        android:protectionLevel="normal" />
+
+    <uses-permission android:name="cn.bmob.permission.push" />
     <uses-permission android:name="android.permission.READ_LOGS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
@@ -60,13 +63,13 @@
         </activity>
 
         <service
-            android:label="PushService"
             android:name="cn.bmob.push.lib.service.PushService"
-            android:process="cn.bmob.push"
+            android:exported="true"
+            android:label="PushService"
             android:permission="cn.bmob.permission.push"
-            android:exported="true">
+            android:process="cn.bmob.push" >
             <intent-filter>
-                <action android:name="cn.bmob.push.lib.service.PushService"/>
+                <action android:name="cn.bmob.push.lib.service.PushService" />
             </intent-filter>
         </service>
 
@@ -77,15 +80,22 @@
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
-
         <receiver
             android:name=".receiver.MessageReceiver"
-            android:exported="false">
+            android:exported="false" >
             <intent-filter>
-                <action android:name="cn.bmob.push.action.MESSAGE"/>
+                <action android:name="cn.bmob.push.action.MESSAGE" />
             </intent-filter>
         </receiver>
 
+        <activity
+            android:name=".ui.MyProfileActivity"
+            android:label="@string/title_activity_my_profile" >
+        </activity>
+        <activity
+            android:name=".ui.EditActivity"
+            android:label="@string/title_activity_edit" >
+        </activity>
     </application>
 
 </manifest>

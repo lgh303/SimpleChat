@@ -330,14 +330,10 @@ public class ChatActivity extends ActionBarActivity {
     protected void onPause() {
         super.onPause();
         unregisterReceiver(receiver);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
         mMessageDAO.markMessageReadInConvTable(mFriendUsername);
         mChatsDAO.clearUnread(mFriendUsername);
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

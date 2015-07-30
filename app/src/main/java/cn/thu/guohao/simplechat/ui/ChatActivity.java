@@ -45,6 +45,7 @@ import cn.thu.guohao.simplechat.data.User;
 import cn.thu.guohao.simplechat.db.ChatsDAO;
 import cn.thu.guohao.simplechat.db.MessageBean;
 import cn.thu.guohao.simplechat.db.MessageDAO;
+import cn.thu.guohao.simplechat.util.InfoPack;
 import cn.thu.guohao.simplechat.util.Utils;
 
 
@@ -187,17 +188,18 @@ public class ChatActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 if (mText.length() > 0) {
-                    addChat(mText, ChatItemBean.TYPE.RIGHT);
+                    String update_time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+                    addChat(mText, ChatItemBean.TYPE.RIGHT, update_time);
                     mEditText.setText("");
                 }
             }
         });
     }
 
-    private void addChat(String text, ChatItemBean.TYPE type) {
+    private void addChat(String text, ChatItemBean.TYPE type, String update_time) {
         addChatItem(text, type);
-        saveLocal(text, type);
-        saveMessageRemote(text, type);
+        saveLocal(text, type, update_time);
+        saveMessageRemote(text, type, update_time);
     }
 
     private void addChatItem(String text, ChatItemBean.TYPE type) {
@@ -205,10 +207,10 @@ public class ChatActivity extends ActionBarActivity {
         mAdapter.notifyDataSetChanged();
     }
 
-    private void saveLocal(String text, final ChatItemBean.TYPE type) {
+    private void saveLocal(String text, final ChatItemBean.TYPE type, String update_time) {
         int posType = 0, mediaType = 0;
         String speaker = "Notification", uri = "null";
-        String update_time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+
         if (type == ChatItemBean.TYPE.LEFT) {
             posType = 0;
             speaker = mFriendUsername;
@@ -228,7 +230,7 @@ public class ChatActivity extends ActionBarActivity {
         );
     }
 
-    private void saveMessageRemote(String text, final ChatItemBean.TYPE type) {
+    private void saveMessageRemote(String text, final ChatItemBean.TYPE type, final String update_time) {
         String speaker = "Notification";
         if (type == ChatItemBean.TYPE.LEFT)
             speaker = mFriendUsername;
@@ -241,14 +243,14 @@ public class ChatActivity extends ActionBarActivity {
         message.save(this, new SaveListener() {
             @Override
             public void onSuccess() {
-                updateConversationRemote(type);
+                updateConversationRemote(type, update_time);
             }
             @Override
             public void onFailure(int i, String s) { }
         });
     }
 
-    private void updateConversationRemote(final ChatItemBean.TYPE type) {
+    private void updateConversationRemote(final ChatItemBean.TYPE type, final String update_time) {
         final BmobRelation messages = new BmobRelation();
         messages.add(message);
         mCurrConversation.setMessages(messages);
@@ -258,14 +260,14 @@ public class ChatActivity extends ActionBarActivity {
             public void onSuccess() {
                 if (type != ChatItemBean.TYPE.RIGHT) return;
                 if (message.getUsername().equals("filehelper")) return;
-                sendMessage();
+                sendMessage(update_time);
             }
             @Override
             public void onFailure(int i, String s) { }
         });
     }
 
-    private void sendMessage() {
+    private void sendMessage(final String update_time) {
         if (mFriendInstallation == null) {
             // TODO save it to user's wait list
         } else {
@@ -274,8 +276,11 @@ public class ChatActivity extends ActionBarActivity {
             mPushManager.setQuery(query);
             try {
                 JSONObject json = new JSONObject("{" +
-                        "\"user\":" + "\"" + mCurrUser.getUsername() + "\"" + "," +
-                        "\"content\":" + "\"" + message.getContent() + "\"" +
+                        "\"type\":" + "\"" + "message" + "\"" + "," +
+                        "\"sender\":" + "\"" + mCurrUser.getUsername() + "\"" + "," +
+                        "\"content\":" + "\"" + message.getContent() + "\"" + "," +
+                        "\"uri\":" + "\"" + "null" + "\"" + "," +
+                        "\"update_time\":" + "\"" + update_time + "\"" +
                         "}");
                 mPushManager.pushMessage(json);
             } catch (JSONException e) {
@@ -290,10 +295,10 @@ public class ChatActivity extends ActionBarActivity {
             if(intent.getAction().equals(PushConstants.ACTION_MESSAGE)){
                 String jsonString = intent.getStringExtra(
                         PushConstants.EXTRA_PUSH_MESSAGE_STRING);
-                String[] arr = Utils.parseMessage(jsonString);
-                if (arr != null && mFriendUsername.equals(arr[0])) {
-                    addChatItem(arr[1], ChatItemBean.TYPE.LEFT);
-                    saveLocal(arr[1], ChatItemBean.TYPE.LEFT);
+                InfoPack pack = Utils.parseMessage(jsonString);
+                if (pack.getType() == InfoPack.TYPE.MESSAGE &&
+                        mFriendUsername.equals(pack.getSender())) {
+                    addChatItem(pack.getContent(), ChatItemBean.TYPE.LEFT);
                 }
             }
         }
@@ -334,5 +339,4 @@ public class ChatActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
 }

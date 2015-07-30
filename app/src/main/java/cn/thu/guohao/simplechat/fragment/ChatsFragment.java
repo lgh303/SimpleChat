@@ -69,6 +69,7 @@ public class ChatsFragment extends Fragment
                         if (pack.getSender().equals(chatBean.username)) {
                             chatBean.unread = chatBean.unread + 1;
                             chatBean.content = pack.getContent();
+                            chatBean.time = formatTime(pack.getUpdate_time());
                             mChatBeans.remove(chatBean);
                             mChatBeans.add(0, chatBean);
                             mAdapter.notifyDataSetChanged();

@@ -117,13 +117,7 @@ public class RegisterActivity extends ActionBarActivity {
             @Override
             public void onSuccess(List<User> list) {
                 if (list.isEmpty())
-                    new AsyncTask<Void, Void, Void>() {
-                        @Override
-                        protected Void doInBackground(Void... params) {
-                            register();
-                            return null;
-                        }
-                    }.execute();
+                    register();
                 else {
                     Toast.makeText(RegisterActivity.this, "Chat ID Exists", Toast.LENGTH_SHORT).show();
                     restoreUI();

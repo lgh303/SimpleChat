@@ -117,7 +117,13 @@ public class RegisterActivity extends ActionBarActivity {
             @Override
             public void onSuccess(List<User> list) {
                 if (list.isEmpty())
-                    register();
+                    new AsyncTask<Void, Void, Void>() {
+                        @Override
+                        protected Void doInBackground(Void... params) {
+                            register();
+                            return null;
+                        }
+                    }.execute();
                 else {
                     Toast.makeText(RegisterActivity.this, "Chat ID Exists", Toast.LENGTH_SHORT).show();
                     restoreUI();
@@ -161,7 +167,6 @@ public class RegisterActivity extends ActionBarActivity {
             @Override
             public void onFailure(int i, String s) {
                 Toast.makeText(RegisterActivity.this, "Unexpected Register Error", Toast.LENGTH_SHORT).show();
-                restoreUI();
             }
         });
     }
@@ -180,15 +185,11 @@ public class RegisterActivity extends ActionBarActivity {
                             filehelper.getUsername(), filehelper.getNickname(),
                             sex, type));
                     initSpecialConversations();
-                } else
-                    Log.i("lgh", "filehelper not found!");
+                }
             }
 
             @Override
-            public void onError(int i, String s) {
-                Log.i("lgh", "filehelper not found!");
-                restoreUI();
-            }
+            public void onError(int i, String s) { }
         });
     }
 
@@ -223,6 +224,7 @@ public class RegisterActivity extends ActionBarActivity {
         mConv.setbUser(bUser);
         mConv.setbUsername(bUser.getUsername());
         mConv.setbNickname(bUser.getNickname());
+        mConv.setUnread(1);
         mConv.setLatestMessage(getString(R.string.chat_first_message));
     }
 
@@ -231,6 +233,7 @@ public class RegisterActivity extends ActionBarActivity {
                 mConv.getObjectId(),
                 mConv.getbNickname(),
                 mConv.getbUsername(),
+                0,
                 mConv.getLatestMessage(),
                 mConv.getUpdatedAt()));
         mMessageDAO.createMessageConvTable(mConv.getbUsername());
@@ -246,7 +249,8 @@ public class RegisterActivity extends ActionBarActivity {
         mChatsDAO.updateConversation(
                 mConv.getbUsername(),
                 getString(R.string.chat_first_message),
-                mConv.getUpdatedAt()
+                mConv.getUpdatedAt(),
+                1
         );
     }
 

@@ -6,6 +6,7 @@
 
     <TextView
         android:id="@+id/id_tv_middle_chat_item"
+        android:paddingTop="10dp"
         android:textSize="13sp"
         android:textColor="#ff56789f"
         android:layout_gravity="center"

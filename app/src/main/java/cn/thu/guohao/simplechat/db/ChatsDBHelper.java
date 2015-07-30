@@ -16,6 +16,7 @@ public class ChatsDBHelper extends SQLiteOpenHelper {
             "_id integer primary key autoincrement," +
             "id text," +
             "title text," +
+            "unread_count text," +
             "friend_username text," +
             "latest_message text," +
             "update_time text)";

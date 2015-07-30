@@ -69,8 +69,20 @@ public class MessageDAO {
         db.close();
     }
 
-    public ArrayList<MessageBean> getMessageFromConvTable(String friend_username) {
+    public void markMessageReadInConvTable(String friend_username) {
         String table_name = "message_conversation_" + friend_username;
+        String table_name_unread = table_name + "_unread";
+        ArrayList<MessageBean> messages = getMessageFromConvTable(friend_username, true);
+        for (MessageBean message : messages)
+            insertMessageToConvTable(friend_username, message, false);
+        SQLiteDatabase db = helper.getWritableDatabase();
+        db.execSQL("delete from " + table_name_unread);
+        db.close();
+    }
+
+    public ArrayList<MessageBean> getMessageFromConvTable(String friend_username, boolean unread) {
+        String table_name = "message_conversation_" + friend_username;
+        if (unread) table_name += "_unread";
         SQLiteDatabase db = helper.getWritableDatabase();
         Cursor cursor = db.query(table_name, null, null, null, null, null, null, null);
         ArrayList<MessageBean> list = new ArrayList<>();

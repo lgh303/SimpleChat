@@ -9,15 +9,17 @@ public class ConversationBean {
     private String id;
     private String title;
     private String friend_username;
+    private int unreadCount;
     private String latestMessage;
     private String update_time;
 
     public ConversationBean() {}
 
-    public ConversationBean(String id, String title, String friend_username, String latestMessage, String update_time) {
+    public ConversationBean(String id, String title, String friend_username, int unreadCount, String latestMessage, String update_time) {
         this.id = id;
         this.title = title;
         this.friend_username = friend_username;
+        this.unreadCount = unreadCount;
         this.latestMessage = latestMessage;
         this.update_time = update_time;
     }
@@ -28,6 +30,7 @@ public class ConversationBean {
                 "id='" + id + '\'' +
                 ", title='" + title + '\'' +
                 ", friend_username='" + friend_username + '\'' +
+                ", unreadCount=" + unreadCount +
                 ", latestMessage='" + latestMessage + '\'' +
                 ", update_time='" + update_time + '\'' +
                 '}';
@@ -39,6 +42,14 @@ public class ConversationBean {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public int getUnreadCount() {
+        return unreadCount;
+    }
+
+    public void setUnreadCount(int unreadCount) {
+        this.unreadCount = unreadCount;
     }
 
     public String getLatestMessage() {

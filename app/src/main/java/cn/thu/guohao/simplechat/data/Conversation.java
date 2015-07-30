@@ -11,9 +11,18 @@ public class Conversation extends BmobObject {
     private User aUser;
     private User bUser;
     private BmobRelation messages;
+    private Integer unread;
     private String latestMessage;
     private String aNickname, aUsername;
     private String bNickname, bUsername;
+
+    public Integer getUnread() {
+        return unread;
+    }
+
+    public void setUnread(Integer unread) {
+        this.unread = unread;
+    }
 
     public String getaUsername() {
         return aUsername;

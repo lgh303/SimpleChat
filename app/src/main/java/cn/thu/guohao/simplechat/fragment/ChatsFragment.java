@@ -29,7 +29,10 @@ import cn.thu.guohao.simplechat.data.Conversation;
 import cn.thu.guohao.simplechat.data.User;
 import cn.thu.guohao.simplechat.db.ChatsDAO;
 import cn.thu.guohao.simplechat.db.ConversationBean;
+import cn.thu.guohao.simplechat.receiver.MessageReceiver;
 import cn.thu.guohao.simplechat.ui.ChatActivity;
+import cn.thu.guohao.simplechat.util.InfoPack;
+import cn.thu.guohao.simplechat.util.Utils;
 
 
 /**
@@ -37,7 +40,6 @@ import cn.thu.guohao.simplechat.ui.ChatActivity;
  * Activities that contain this fragment must implement the
  * {@link ChatsFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link ChatsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
 public class ChatsFragment extends Fragment
@@ -55,7 +57,22 @@ public class ChatsFragment extends Fragment
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-
+            if(intent.getAction().equals(MessageReceiver.FORWARD_ACTION)){
+                String jsonString = intent.getStringExtra(
+                        MessageReceiver.FORWARD_MESSAGE);
+                InfoPack pack = Utils.parseMessage(jsonString);
+                if (pack.getType() == InfoPack.TYPE.MESSAGE) {
+                    for (ChatBean chatBean : mChatBeans)
+                        if (pack.getSender().equals(chatBean.username)) {
+                            chatBean.unread = chatBean.unread + 1;
+                            chatBean.content = pack.getContent();
+                            // TODO move this conversation up to the top
+                            mAdapter.notifyDataSetChanged();
+                            break;
+                        }
+                    // TODO what if this is a new group chat
+                }
+            }
         }
     };
 
@@ -88,7 +105,7 @@ public class ChatsFragment extends Fragment
         super.onResume();
         initData();
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(PushConstants.ACTION_MESSAGE);
+        intentFilter.addAction(MessageReceiver.FORWARD_ACTION);
         getActivity().registerReceiver(receiver, intentFilter);
     }
 
@@ -105,7 +122,7 @@ public class ChatsFragment extends Fragment
             initDataViaCloud();
         else {
             for (ConversationBean conv : list) {
-                mChatBeans.add(new ChatBean(conv.getId(), conv.getFriend_username(), conv.getTitle(), conv.getLatestMessage()));
+                mChatBeans.add(new ChatBean(conv.getId(), conv.getFriend_username(), conv.getTitle(), conv.getLatestMessage(), conv.getUnreadCount()));
             }
             mAdapter = new ChatsAdapter(getActivity(), mChatBeans, mListView);
             mListView.setAdapter(mAdapter);
@@ -129,10 +146,11 @@ public class ChatsFragment extends Fragment
                         title = conv.getaNickname();
                         friend_username = conv.getaUsername();
                     }
-                    mChatBeans.add(new ChatBean(conv.getObjectId(), friend_username, title, conv.getLatestMessage()));
+                    mChatBeans.add(new ChatBean(conv.getObjectId(), friend_username, title, conv.getLatestMessage(), conv.getUnread()));
                     mChatsDAO.insertConversation(new ConversationBean(
                             conv.getObjectId(),
                             title, friend_username,
+                            conv.getUnread(),
                             conv.getLatestMessage(),
                             conv.getUpdatedAt()));
                 }

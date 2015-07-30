@@ -51,6 +51,7 @@ public class ChatsAdapter extends BaseAdapter
         if (convertView == null) {
             viewHolder = new ViewHolder();
             convertView = mInflater.inflate(R.layout.item_chats, null);
+            viewHolder.unread = (TextView) convertView.findViewById(R.id.id_tv_chats_unread);
             viewHolder.icon = (ImageView) convertView.findViewById(R.id.id_iv_chats);
             viewHolder.title = (TextView) convertView.findViewById(R.id.id_tv_title);
             viewHolder.content = (TextView) convertView.findViewById(R.id.id_tv_content);
@@ -58,6 +59,7 @@ public class ChatsAdapter extends BaseAdapter
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
+        viewHolder.unread.setText("" + mListBean.get(position).unread);
         viewHolder.icon.setImageResource(R.mipmap.ic_launcher);
         viewHolder.title.setText(mListBean.get(position).title);
         viewHolder.content.setText(mListBean.get(position).content);
@@ -65,6 +67,7 @@ public class ChatsAdapter extends BaseAdapter
     }
 
     class ViewHolder {
+        public TextView unread;
         public ImageView icon;
         public TextView title;
         public TextView content;

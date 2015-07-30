@@ -43,8 +43,10 @@ import cn.thu.guohao.simplechat.data.Installation;
 import cn.thu.guohao.simplechat.data.Message;
 import cn.thu.guohao.simplechat.data.User;
 import cn.thu.guohao.simplechat.db.ChatsDAO;
+import cn.thu.guohao.simplechat.db.ConversationBean;
 import cn.thu.guohao.simplechat.db.MessageBean;
 import cn.thu.guohao.simplechat.db.MessageDAO;
+import cn.thu.guohao.simplechat.receiver.MessageReceiver;
 import cn.thu.guohao.simplechat.util.InfoPack;
 import cn.thu.guohao.simplechat.util.Utils;
 
@@ -125,7 +127,9 @@ public class ChatActivity extends ActionBarActivity {
     }
 
     private void initData() {
-        ArrayList<MessageBean> list = mMessageDAO.getMessageFromConvTable(mFriendUsername);
+        mMessageDAO.markMessageReadInConvTable(mFriendUsername);
+        mChatsDAO.clearUnread(mFriendUsername);
+        ArrayList<MessageBean> list = mMessageDAO.getMessageFromConvTable(mFriendUsername, false);
         if (list.isEmpty()) return;
         for (MessageBean message : list) {
             String content = message.getContent();
@@ -231,7 +235,8 @@ public class ChatActivity extends ActionBarActivity {
         mChatsDAO.updateConversation(
                 mFriendUsername,
                 text,
-                update_time
+                update_time,
+                0
         );
     }
 
@@ -260,6 +265,7 @@ public class ChatActivity extends ActionBarActivity {
         messages.add(message);
         mCurrConversation.setMessages(messages);
         mCurrConversation.setLatestMessage(message.getContent());
+        mCurrConversation.setUnread(0);
         mCurrConversation.update(ChatActivity.this, new UpdateListener() {
             @Override
             public void onSuccess() {
@@ -297,13 +303,14 @@ public class ChatActivity extends ActionBarActivity {
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.getAction().equals(PushConstants.ACTION_MESSAGE)){
+            if(intent.getAction().equals(MessageReceiver.FORWARD_ACTION)){
                 String jsonString = intent.getStringExtra(
-                        PushConstants.EXTRA_PUSH_MESSAGE_STRING);
+                        MessageReceiver.FORWARD_MESSAGE);
                 InfoPack pack = Utils.parseMessage(jsonString);
                 if (pack.getType() == InfoPack.TYPE.MESSAGE &&
                         mFriendUsername.equals(pack.getSender())) {
                     addChatItem(pack.getContent(), ChatItemBean.TYPE.LEFT);
+                    mChatsDAO.clearUnread(mFriendUsername);
                 }
             }
         }
@@ -313,7 +320,7 @@ public class ChatActivity extends ActionBarActivity {
     protected void onResume() {
         super.onResume();
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(PushConstants.ACTION_MESSAGE);
+        intentFilter.addAction(MessageReceiver.FORWARD_ACTION);
         registerReceiver(receiver, intentFilter);
     }
 

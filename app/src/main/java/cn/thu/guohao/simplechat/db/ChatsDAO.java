@@ -25,22 +25,33 @@ public class ChatsDAO {
     public void insertConversation(ConversationBean conv) {
         SQLiteDatabase db = helper.getWritableDatabase();
         String insertSQL = "insert into conversation( " +
-                "id, title, friend_username, latest_message, update_time) " +
-                "values(?,?,?,?,?)";
+                "id, title, friend_username, unread_count, latest_message, update_time) " +
+                "values(?,?,?,?,?,?)";
         Object[] params = new Object[] {
                 conv.getId(),
                 conv.getTitle(), conv.getFriend_username(),
+                conv.getUnreadCount(),
                 conv.getLatestMessage(), conv.getUpdate_time()
         };
         db.execSQL(insertSQL, params);
         db.close();
     }
 
-    public void updateConversation(String friend_username, String latest_message, String update_time) {
+    public void updateConversation(String friend_username, String latest_message, String update_time, int unread) {
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues data = new ContentValues();
         data.put("latest_message", latest_message);
         data.put("update_time", update_time);
+        data.put("unread_count", unread);
+        db.update("conversation", data,
+                "friend_username=?", new String[]{friend_username});
+        db.close();
+    }
+
+    public void clearUnread(String friend_username) {
+        SQLiteDatabase db = helper.getWritableDatabase();
+        ContentValues data = new ContentValues();
+        data.put("unread_count", 0);
         db.update("conversation", data,
                 "friend_username=?", new String[] {friend_username});
         db.close();
@@ -64,6 +75,7 @@ public class ChatsDAO {
             conv.setId(cursor.getString(cursor.getColumnIndex("id")));
             conv.setTitle(cursor.getString(cursor.getColumnIndex("title")));
             conv.setFriend_username(cursor.getString(cursor.getColumnIndex("friend_username")));
+            conv.setUnreadCount(cursor.getInt(cursor.getColumnIndex("unread_count")));
             conv.setLatestMessage(cursor.getString(cursor.getColumnIndex("latest_message")));
             conv.setUpdate_time(cursor.getString(cursor.getColumnIndex("update_time")));
         }
@@ -82,6 +94,7 @@ public class ChatsDAO {
             conv.setId(cursor.getString(cursor.getColumnIndex("id")));
             conv.setTitle(cursor.getString(cursor.getColumnIndex("title")));
             conv.setFriend_username(cursor.getString(cursor.getColumnIndex("friend_username")));
+            conv.setUnreadCount(cursor.getInt(cursor.getColumnIndex("unread_count")));
             conv.setLatestMessage(cursor.getString(cursor.getColumnIndex("latest_message")));
             conv.setUpdate_time(cursor.getString(cursor.getColumnIndex("update_time")));
             list.add(conv);

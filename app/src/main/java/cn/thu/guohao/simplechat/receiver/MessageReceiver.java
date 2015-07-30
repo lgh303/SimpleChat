@@ -8,6 +8,7 @@ import android.util.Log;
 import cn.bmob.push.PushConstants;
 import cn.thu.guohao.simplechat.data.User;
 import cn.thu.guohao.simplechat.db.ChatsDAO;
+import cn.thu.guohao.simplechat.db.ConversationBean;
 import cn.thu.guohao.simplechat.db.MessageBean;
 import cn.thu.guohao.simplechat.db.MessageDAO;
 import cn.thu.guohao.simplechat.util.InfoPack;
@@ -23,6 +24,9 @@ public class MessageReceiver extends BroadcastReceiver {
     private MessageDAO mMessageDAO;
     private ChatsDAO mChatsDAO;
 
+    public static final String FORWARD_ACTION = "cn.thu.guohao.simplechat.FORWARD_ACTION";
+    public static final String FORWARD_MESSAGE = "cn.thu.guohao.simplechat.FORWARD_MESSAGE";
+
     @Override
     public void onReceive(Context context, Intent intent) {
         if(intent.getAction().equals(PushConstants.ACTION_MESSAGE)){
@@ -35,6 +39,10 @@ public class MessageReceiver extends BroadcastReceiver {
                 mMessageDAO = new MessageDAO(context, mCurrUser.getUsername());
                 mChatsDAO = new ChatsDAO(context, mCurrUser.getUsername());
                 saveLocalUnread(pack);
+                Intent forward_intent = new Intent();
+                forward_intent.setAction(FORWARD_ACTION);
+                forward_intent.putExtra(FORWARD_MESSAGE, jsonString);
+                context.sendBroadcast(forward_intent);
             }
         }
     }
@@ -55,10 +63,13 @@ public class MessageReceiver extends BroadcastReceiver {
                 ),
                 true
         );
+        ConversationBean conv = mChatsDAO.getConversation(pack.getSender());
         mChatsDAO.updateConversation(
                 pack.getSender(),
                 pack.getContent(),
-                pack.getUpdate_time()
+                pack.getUpdate_time(),
+                conv.getUnreadCount() + 1
         );
     }
+
 }

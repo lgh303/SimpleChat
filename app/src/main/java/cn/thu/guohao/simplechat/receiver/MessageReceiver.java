@@ -44,13 +44,16 @@ public class MessageReceiver extends BroadcastReceiver {
         int posType = 0, mediaType = 0;
         if (pack.getType() == InfoPack.TYPE.NOTIFICATION)
             posType = 2;
+
+        mMessageDAO.createMessageConvTable(pack.getSender());
         mMessageDAO.insertMessageToConvTable(
                 pack.getSender(),
                 new MessageBean(
                         posType, mediaType, pack.getSender(),
                         pack.getContent(), pack.getUri(),
                         pack.getUpdate_time()
-                )
+                ),
+                true
         );
         mChatsDAO.updateConversation(
                 pack.getSender(),

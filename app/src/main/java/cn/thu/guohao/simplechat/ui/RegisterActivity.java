@@ -24,6 +24,12 @@ import cn.bmob.v3.listener.UpdateListener;
 import cn.thu.guohao.simplechat.R;
 import cn.thu.guohao.simplechat.data.Conversation;
 import cn.thu.guohao.simplechat.data.User;
+import cn.thu.guohao.simplechat.db.ChatsDAO;
+import cn.thu.guohao.simplechat.db.ConversationBean;
+import cn.thu.guohao.simplechat.db.MessageBean;
+import cn.thu.guohao.simplechat.db.MessageDAO;
+import cn.thu.guohao.simplechat.db.UserBean;
+import cn.thu.guohao.simplechat.db.UserDAO;
 
 
 public class RegisterActivity extends ActionBarActivity {
@@ -39,8 +45,11 @@ public class RegisterActivity extends ActionBarActivity {
     private boolean isMale;
     private User user;
     private User filehelper;
-
     private Conversation mConv1, mConv2;
+
+    private UserDAO mUserDAO;
+    private ChatsDAO mChatsDAO;
+    private MessageDAO mMessageDAO;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,6 +147,14 @@ public class RegisterActivity extends ActionBarActivity {
         user.signUp(this, new SaveListener() {
             @Override
             public void onSuccess() {
+                mUserDAO = new UserDAO(RegisterActivity.this, user.getUsername());
+                int sex = 0, type = 0;
+                if (user.getIsMale()) sex = 1;
+                mUserDAO.insert(new UserBean(
+                        user.getUsername(), user.getNickname(),
+                        sex, type));
+                mChatsDAO = new ChatsDAO(RegisterActivity.this, user.getUsername());
+                mMessageDAO = new MessageDAO(RegisterActivity.this, user.getUsername());
                 initSpecialUsers();
             }
 
@@ -157,9 +174,11 @@ public class RegisterActivity extends ActionBarActivity {
             public void onSuccess(List<User> list) {
                 if (!list.isEmpty()) {
                     filehelper = list.get(0);
-                    Log.i("lgh", "filehelper: " + filehelper);
-                    if (filehelper != null)
-                        Log.i("lgh", "filehelper ID: " + filehelper.getObjectId());
+                    int sex = 0, type = 0;
+                    if (filehelper.getIsMale()) sex = 1;
+                    mUserDAO.insert(new UserBean(
+                            filehelper.getUsername(), filehelper.getNickname(),
+                            sex, type));
                     initSpecialConversations();
                 } else
                     Log.i("lgh", "filehelper not found!");
@@ -175,42 +194,60 @@ public class RegisterActivity extends ActionBarActivity {
 
     private void initSpecialConversations() {
         mConv1 = new Conversation();
-        mConv1.setaUser(user);
-        mConv1.setaUsername(user.getUsername());
-        mConv1.setaNickname(user.getNickname());
-        mConv1.setbUser(user);
-        mConv1.setbUsername(user.getUsername());
-        mConv1.setbNickname(user.getNickname());
-        mConv1.setLatestMessage(getString(R.string.chat_first_message));
+        setConversation(mConv1, user, user);
         mConv1.save(this, new SaveListener() {
             @Override
             public void onSuccess() {
-                Log.i("lgh", "mConv1.id=" + mConv1.getObjectId());
+                updateLocal(mConv1);
                 mConv2 = new Conversation();
-                mConv2.setaUser(user);
-                mConv2.setaUsername(user.getUsername());
-                mConv2.setaNickname(user.getNickname());
-                mConv2.setbUser(filehelper);
-                mConv2.setbUsername(filehelper.getUsername());
-                mConv2.setbNickname(filehelper.getNickname());
-                mConv2.setLatestMessage(getString(R.string.chat_first_message));
+                setConversation(mConv2, user, filehelper);
                 mConv2.save(RegisterActivity.this, new SaveListener() {
                     @Override
                     public void onSuccess() {
-                        Log.i("lgh", "mConv2.id=" + mConv2.getObjectId());
+                        updateLocal(mConv2);
                         addSpecialUsers();
                     }
-
                     @Override
-                    public void onFailure(int i, String s) {
-                    }
+                    public void onFailure(int i, String s) { }
                 });
             }
-
             @Override
-            public void onFailure(int i, String s) {
-            }
+            public void onFailure(int i, String s) { }
         });
+    }
+
+    private void setConversation(Conversation mConv, User aUser, User bUser) {
+        mConv.setaUser(aUser);
+        mConv.setaUsername(aUser.getUsername());
+        mConv.setaNickname(aUser.getNickname());
+        mConv.setbUser(bUser);
+        mConv.setbUsername(bUser.getUsername());
+        mConv.setbNickname(bUser.getNickname());
+        mConv.setLatestMessage(getString(R.string.chat_first_message));
+    }
+
+    private void updateLocal(Conversation mConv) {
+        mChatsDAO.insertConversation(new ConversationBean(
+                mConv.getObjectId(),
+                mConv.getbNickname(),
+                mConv.getbUsername(),
+                mConv.getLatestMessage(),
+                mConv.getUpdatedAt()));
+        mMessageDAO.createMessageConvTable(mConv.getbUsername());
+        mMessageDAO.insertMessageToConvTable(
+                mConv.getbUsername(),
+                new MessageBean(
+                        2, 0, "Notification",
+                        getString(R.string.chat_first_message),
+                        null, mConv.getUpdatedAt()
+                ),
+                true
+        );
+        mChatsDAO.updateConversation(
+                mConv.getbUsername(),
+                getString(R.string.chat_first_message),
+                mConv.getUpdatedAt()
+        );
     }
 
     private void addSpecialUsers() {
@@ -225,7 +262,6 @@ public class RegisterActivity extends ActionBarActivity {
         user.update(this, new UpdateListener() {
             @Override
             public void onSuccess() {
-                Log.i("lgh", "Update Success");
                 login();
             }
             @Override
@@ -236,10 +272,7 @@ public class RegisterActivity extends ActionBarActivity {
     }
 
     private void login() {
-        Intent intent = new Intent(RegisterActivity.this, RegisterSuccessActivity.class);
-        intent.putExtra("username", username);
-        intent.putExtra("nickname", nickname);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
         startActivity(intent);
     }
 

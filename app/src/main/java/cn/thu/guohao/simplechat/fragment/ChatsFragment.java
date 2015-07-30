@@ -141,11 +141,8 @@ public class ChatsFragment extends Fragment
                 mListView.setOnItemClickListener(ChatsFragment.this);
             }
             @Override
-            public void onError(int i, String s) {
-
-            }
+            public void onError(int i, String s) {  }
         });
-
     }
 
     // TODO: Rename method, update argument and hook method into UI event

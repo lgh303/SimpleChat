@@ -29,21 +29,34 @@ public class MessageDAO {
                 "content text," +
                 "uri text," +
                 "update_time text) ";
+        String createSQL_unread = "create table if not exists " +
+                table_name + "_unread" + "(" +
+                "_id integer primary key autoincrement," +
+                "pos_type integer," +
+                "media_type integer," +
+                "speaker text," +
+                "content text," +
+                "uri text," +
+                "update_time text) ";
         SQLiteDatabase db = helper.getWritableDatabase();
         db.execSQL(createSQL);
+        db.execSQL(createSQL_unread);
         db.close();
     }
 
     public void dropMessageConvTable(String friend_username) {
         String table_name = "message_conversation_" + friend_username;
         String dropSQL = "drop table if exists" + table_name;
+        String dropSQL_unread = "drop table if exists" + table_name + "_unread";
         SQLiteDatabase db = helper.getWritableDatabase();
         db.execSQL(dropSQL);
+        db.execSQL(dropSQL_unread);
         db.close();
     }
 
-    public void insertMessageToConvTable(String friend_username, MessageBean m) {
+    public void insertMessageToConvTable(String friend_username, MessageBean m, boolean unread) {
         String table_name = "message_conversation_" + friend_username;
+        if (unread) table_name += "_unread";
         String insertSQL = "insert into " + table_name + "( " +
                 "pos_type, media_type, speaker, content, uri, update_time) " +
                 "values(?,?,?,?,?,?)";

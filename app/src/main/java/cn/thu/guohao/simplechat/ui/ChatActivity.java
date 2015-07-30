@@ -220,9 +220,14 @@ public class ChatActivity extends ActionBarActivity {
         } else if (type == ChatItemBean.TYPE.MIDDLE) {
             posType = 2;
         }
-        mMessageDAO.insertMessageToConvTable(mFriendUsername, new MessageBean(
-                posType, mediaType, speaker, text, uri, update_time
-        ));
+        mMessageDAO.insertMessageToConvTable(
+                mFriendUsername,
+                new MessageBean(
+                        posType, mediaType, speaker,
+                        text, uri, update_time
+                ),
+                false
+        );
         mChatsDAO.updateConversation(
                 mFriendUsername,
                 text,

@@ -5,12 +5,17 @@ package cn.thu.guohao.simplechat.util;
  * Information Package
  */
 public class InfoPack {
-    public enum TYPE {ERROR, MESSAGE, NOTIFICATION, MOMENTS}
+    public enum TYPE {ERROR, MESSAGE, MOMENTS, USER_UPDATE}
     private TYPE type;
     private String sender;
     private String content;
     private String uri;
     private String update_time;
+
+    public static final String STR_MESSAGE = "message";
+    public static final String STR_USER_UPDATE = "user_update";
+    public static final String STR_MOMENTS = "moments";
+    public static final String STR_ERROR = "error";
 
     public InfoPack() {
     }

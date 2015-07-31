@@ -49,10 +49,6 @@ public class MeFragment extends Fragment {
         mNicknameTextView = (TextView) view.findViewById(R.id.id_tv_frag_me);
         mUsernameTextView = (TextView) view.findViewById(R.id.id_tv_frag_me_id);
         mMeLayout = (LinearLayout) view.findViewById(R.id.id_li_frag_me);
-        User currUser = User.getCurrentUser(getActivity(), User.class);
-        mNicknameTextView.setText(currUser.getNickname());
-        mUsernameTextView.setText(getString(R.string.prefix_id) + " " +
-                currUser.getUsername());
         mLogoutButton = (Button) view.findViewById(R.id.id_bt_frag_me_logout);
         mLogoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,11 +60,19 @@ public class MeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), MyProfileActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                 startActivity(intent);
             }
         });
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        User currUser = User.getCurrentUser(getActivity(), User.class);
+        mNicknameTextView.setText(currUser.getNickname());
+        mUsernameTextView.setText(getString(R.string.prefix_id) + " " +
+                currUser.getUsername());
     }
 
     @Override

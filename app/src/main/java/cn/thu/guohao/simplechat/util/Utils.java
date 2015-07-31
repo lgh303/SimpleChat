@@ -16,6 +16,16 @@ import cn.thu.guohao.simplechat.adapter.ChatItemBean;
  */
 public class Utils {
 
+    public static String makeJsonString(String type, String sender, String content, String uri, String update_time) {
+        return "{" +
+                "\"type\":" + "\"" + type + "\"" + "," +
+                "\"sender\":" + "\"" + sender + "\"" + "," +
+                "\"content\":" + "\"" + content + "\"" + "," +
+                "\"uri\":" + "\"" + uri + "\"" + "," +
+                "\"update_time\":" + "\"" + update_time + "\"" +
+                "}";
+    }
+
     public static InfoPack parseMessage(String jsonString) {
         JSONTokener jsonTokener = new JSONTokener(jsonString);
         try {
@@ -27,13 +37,13 @@ public class Utils {
             uri = obj.getString("uri");
             update_time = obj.getString("update_time");
             switch (type) {
-                case "notification":
-                    return new InfoPack(InfoPack.TYPE.NOTIFICATION, sender, content, null, update_time);
-                case "message":
+                case InfoPack.STR_MESSAGE:
                     return new InfoPack(InfoPack.TYPE.MESSAGE, sender, content, uri, update_time);
-                case "moments":
+                case InfoPack.STR_USER_UPDATE:
+                    return new InfoPack(InfoPack.TYPE.USER_UPDATE, sender, content, uri, update_time);
+                case InfoPack.STR_MOMENTS:
                     return new InfoPack(InfoPack.TYPE.MOMENTS, sender, content, uri, update_time);
-                case "error":
+                case InfoPack.STR_ERROR:
                     return new InfoPack(InfoPack.TYPE.ERROR, null, null, null, null);
             }
         } catch (JSONException e) {

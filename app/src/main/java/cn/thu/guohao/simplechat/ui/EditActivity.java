@@ -52,28 +52,19 @@ public class EditActivity extends ActionBarActivity {
         mNameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateNickname();
+                Intent intent = new Intent();
+                intent.putExtra("nickname", mText);
+                String gender = getString(R.string.hint_female);
+                if (mCurrUser.getIsMale())
+                    gender = getString(R.string.hint_male);
+                intent.putExtra("gender", gender);
+                setResult(303, intent);
+                finish();
             }
         });
     }
 
-    private void updateNickname() {
-        User user = new User();
-        user.setNickname(mText);
-        user.update(this, mCurrUser.getObjectId(), new UpdateListener() {
-            @Override
-            public void onSuccess() {
-                Intent intent = new Intent(EditActivity.this, MyProfileActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                startActivity(intent);
-                Toast.makeText(EditActivity.this, "Update Success", Toast.LENGTH_SHORT).show();
-            }
-            @Override
-            public void onFailure(int i, String s) {
-                Toast.makeText(EditActivity.this, "Update Error", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

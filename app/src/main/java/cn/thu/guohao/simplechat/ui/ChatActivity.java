@@ -234,6 +234,7 @@ public class ChatActivity extends ActionBarActivity {
         );
         mChatsDAO.updateConversation(
                 mFriendUsername,
+                null,
                 text,
                 update_time,
                 0
@@ -255,8 +256,10 @@ public class ChatActivity extends ActionBarActivity {
             public void onSuccess() {
                 updateConversationRemote(type, update_time);
             }
+
             @Override
-            public void onFailure(int i, String s) { }
+            public void onFailure(int i, String s) {
+            }
         });
     }
 
@@ -286,13 +289,13 @@ public class ChatActivity extends ActionBarActivity {
             query.addWhereEqualTo("username", mFriendUsername);
             mPushManager.setQuery(query);
             try {
-                JSONObject json = new JSONObject("{" +
-                        "\"type\":" + "\"" + "message" + "\"" + "," +
-                        "\"sender\":" + "\"" + mCurrUser.getUsername() + "\"" + "," +
-                        "\"content\":" + "\"" + message.getContent() + "\"" + "," +
-                        "\"uri\":" + "\"" + "null" + "\"" + "," +
-                        "\"update_time\":" + "\"" + update_time + "\"" +
-                        "}");
+                JSONObject json = new JSONObject(Utils.makeJsonString(
+                        InfoPack.STR_MESSAGE,
+                        mCurrUser.getUsername(),
+                        message.getContent(),
+                        "null",
+                        update_time
+                ));
                 mPushManager.pushMessage(json);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -309,10 +312,8 @@ public class ChatActivity extends ActionBarActivity {
                 InfoPack pack = Utils.parseMessage(jsonString);
                 if (pack.getType() == InfoPack.TYPE.MESSAGE &&
                         mFriendUsername.equals(pack.getSender())) {
-                    if (pack.getType() == InfoPack.TYPE.NOTIFICATION)
-                        addChatItem(pack.getContent(), ChatItemBean.TYPE.MIDDLE);
-                    else if (pack.getType() == InfoPack.TYPE.MESSAGE)
-                        addChatItem(pack.getContent(), ChatItemBean.TYPE.LEFT);
+                    // TODO add some notification and save local
+                    addChatItem(pack.getContent(), ChatItemBean.TYPE.LEFT);
                 }
             }
         }

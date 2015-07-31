@@ -145,7 +145,7 @@ public class ChatsFragment extends Fragment
         if (update_time.substring(0, 10).equals(curr_time.substring(0, 10)))
             return update_time.substring(11, 16);
         else
-            return update_time.substring(0, 10);
+            return update_time.substring(5, 10);
     }
 
     private void initDataViaCloud() {

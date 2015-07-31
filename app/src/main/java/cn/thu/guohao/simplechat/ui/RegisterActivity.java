@@ -242,6 +242,7 @@ public class RegisterActivity extends ActionBarActivity {
         );
         mChatsDAO.updateConversation(
                 mConv.getbUsername(),
+                mConv.getbNickname(),
                 getString(R.string.chat_first_message),
                 mConv.getUpdatedAt(),
                 1

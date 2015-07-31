@@ -1,5 +1,6 @@
 package cn.thu.guohao.simplechat.db;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -28,6 +29,17 @@ public class UserDAO {
                 user.getSex(), user.getType()
         };
         db.execSQL(insertSQL, params);
+        db.close();
+    }
+
+    public void update(UserBean user) {
+        SQLiteDatabase db = helper.getWritableDatabase();
+        ContentValues data = new ContentValues();
+        data.put("nickname", user.getNickname());
+        data.put("sex", user.getSex());
+        data.put("type", user.getType());
+        db.update("user", data,
+                "username=?", new String[]{user.getUsername()});
         db.close();
     }
 

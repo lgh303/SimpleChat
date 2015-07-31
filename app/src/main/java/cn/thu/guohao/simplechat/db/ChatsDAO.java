@@ -37,12 +37,13 @@ public class ChatsDAO {
         db.close();
     }
 
-    public void updateConversation(String friend_username, String latest_message, String update_time, int unread) {
+    public void updateConversation(String friend_username, String title, String latest_message, String update_time, Integer unread) {
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues data = new ContentValues();
-        data.put("latest_message", latest_message);
-        data.put("update_time", update_time);
-        data.put("unread_count", unread);
+        if (title != null) data.put("title", title);
+        if (latest_message != null) data.put("latest_message", latest_message);
+        if (update_time != null) data.put("update_time", update_time);
+        if (unread != null) data.put("unread_count", unread);
         db.update("conversation", data,
                 "friend_username=?", new String[]{friend_username});
         db.close();

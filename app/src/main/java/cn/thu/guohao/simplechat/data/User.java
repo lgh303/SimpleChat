@@ -15,7 +15,7 @@ import cn.bmob.v3.datatype.BmobRelation;
 public class User extends BmobUser {
     private String nickname;
     private Boolean isMale;
-    private BmobFile photo;
+    private String photoUri;
     private BmobRelation friends;
     private BmobRelation conversations;
 
@@ -51,11 +51,11 @@ public class User extends BmobUser {
         this.nickname = nickname;
     }
 
-    public BmobFile getPhoto() {
-        return photo;
+    public String getPhotoUri() {
+        return photoUri;
     }
 
-    public void setPhoto(BmobFile photo) {
-        this.photo = photo;
+    public void setPhotoUri(String photoUri) {
+        this.photoUri = photoUri;
     }
 }

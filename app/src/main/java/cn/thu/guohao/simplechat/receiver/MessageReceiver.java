@@ -86,18 +86,23 @@ public class MessageReceiver extends BroadcastReceiver {
     private void updateLocalUser(Context context, InfoPack pack) {
         UserBean user = mUserDAO.get(pack.getSender());
         user.setNickname(pack.getContent());
+        if (!user.getPhotoUri().equals(pack.getUri())) {
+            user.setPhotoUri(pack.getUri());
+            Log.i("lgh", "Received Photo Update Message");
+            // TODO download new photo
+        }
         int sex = 0;
-        if (pack.getUri().equals(context.getString(R.string.hint_male)))
+        if (pack.getUpdate_time().equals(context.getString(R.string.hint_male)))
             sex = 1;
         user.setSex(sex);
         mUserDAO.update(user);
 
-        mChatsDAO.updateConversation(
-                pack.getSender(),
-                pack.getContent(),
-                null,
-                null,
-                null
+    mChatsDAO.updateConversation(
+            pack.getSender(),
+            pack.getContent(),
+            null,
+            null,
+            null
         );
     }
 }

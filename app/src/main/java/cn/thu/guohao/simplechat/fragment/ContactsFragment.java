@@ -98,7 +98,7 @@ public class ContactsFragment extends Fragment
                     int type = 0;
                     mUserDAO.insert(new UserBean(
                             user.getUsername(), user.getNickname(),
-                            sex, type));
+                            sex, type, user.getPhotoUri()));
                 }
                 mAdapter = new ContactAdapter(getActivity(), mData, mListView);
                 mListView.setAdapter(mAdapter);

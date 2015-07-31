@@ -136,7 +136,8 @@ public class RegisterActivity extends ActionBarActivity {
         Log.i("lgh", "register: username=" + username +
                         ",nick=" + nickname +
                         ",password=" + password +
-                        ",isMale=" + isMale
+                        ",isMale=" + isMale +
+                        ",photoUri=" + "null"
         );
 
         user = new User();
@@ -144,6 +145,7 @@ public class RegisterActivity extends ActionBarActivity {
         user.setPassword(password);
         user.setNickname(nickname);
         user.setIsMale(isMale);
+        user.setPhotoUri("null");
         user.signUp(this, new SaveListener() {
             @Override
             public void onSuccess() {
@@ -152,7 +154,7 @@ public class RegisterActivity extends ActionBarActivity {
                 if (user.getIsMale()) sex = 1;
                 mUserDAO.insert(new UserBean(
                         user.getUsername(), user.getNickname(),
-                        sex, type));
+                        sex, type, "null"));
                 mChatsDAO = new ChatsDAO(RegisterActivity.this, user.getUsername());
                 mMessageDAO = new MessageDAO(RegisterActivity.this, user.getUsername());
                 initSpecialUsers();
@@ -177,7 +179,7 @@ public class RegisterActivity extends ActionBarActivity {
                     if (filehelper.getIsMale()) sex = 1;
                     mUserDAO.insert(new UserBean(
                             filehelper.getUsername(), filehelper.getNickname(),
-                            sex, type));
+                            sex, type, filehelper.getPhotoUri()));
                     initSpecialConversations();
                 }
             }
@@ -229,7 +231,7 @@ public class RegisterActivity extends ActionBarActivity {
                 mConv.getbUsername(),
                 0,
                 mConv.getLatestMessage(),
-                mConv.getUpdatedAt()));
+                mConv.getCreatedAt()));
         mMessageDAO.createMessageConvTable(mConv.getbUsername());
         mMessageDAO.insertMessageToConvTable(
                 mConv.getbUsername(),
@@ -244,7 +246,7 @@ public class RegisterActivity extends ActionBarActivity {
                 mConv.getbUsername(),
                 mConv.getbNickname(),
                 getString(R.string.chat_first_message),
-                mConv.getUpdatedAt(),
+                mConv.getCreatedAt(),
                 1
         );
     }
@@ -294,7 +296,6 @@ public class RegisterActivity extends ActionBarActivity {
         if (id == R.id.action_settings) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 }

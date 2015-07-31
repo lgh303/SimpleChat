@@ -9,25 +9,27 @@ public class UserBean {
     private String nickname;
     private int sex;
     private int type;
+    private String photoUri;
 
     public UserBean() {
     }
 
-    public UserBean(String username, String nickname, int sex, int type) {
-
+    public UserBean(String username, String nickname, int sex, int type, String photoUri) {
         this.username = username;
         this.nickname = nickname;
         this.sex = sex;
         this.type = type;
+        this.photoUri = photoUri;
     }
 
     @Override
     public String toString() {
         return "UserBean{" +
-                ", username='" + username + '\'' +
+                "username='" + username + '\'' +
                 ", nickname='" + nickname + '\'' +
                 ", sex=" + sex +
                 ", type=" + type +
+                ", photoUri='" + photoUri + '\'' +
                 '}';
     }
 
@@ -61,5 +63,13 @@ public class UserBean {
 
     public void setType(int type) {
         this.type = type;
+    }
+
+    public String getPhotoUri() {
+        return photoUri;
+    }
+
+    public void setPhotoUri(String photoUri) {
+        this.photoUri = photoUri;
     }
 }

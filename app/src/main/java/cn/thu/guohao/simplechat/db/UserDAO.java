@@ -22,11 +22,11 @@ public class UserDAO {
     public void insert(UserBean user) {
         SQLiteDatabase db = helper.getWritableDatabase();
         String insertSQL = "insert into user( " +
-                "username, nickname, sex, type) " +
-                "values(?,?,?,?)";
+                "username, nickname, sex, type, photo_uri) " +
+                "values(?,?,?,?,?)";
         Object[] params = new Object[] {
                 user.getUsername(), user.getNickname(),
-                user.getSex(), user.getType()
+                user.getSex(), user.getType(), user.getPhotoUri()
         };
         db.execSQL(insertSQL, params);
         db.close();
@@ -38,6 +38,7 @@ public class UserDAO {
         data.put("nickname", user.getNickname());
         data.put("sex", user.getSex());
         data.put("type", user.getType());
+        data.put("photo_uri", user.getPhotoUri());
         db.update("user", data,
                 "username=?", new String[]{user.getUsername()});
         db.close();
@@ -61,6 +62,7 @@ public class UserDAO {
             user.setNickname(cursor.getString(cursor.getColumnIndex("nickname")));
             user.setSex(cursor.getInt(cursor.getColumnIndex("sex")));
             user.setType(cursor.getInt(cursor.getColumnIndex("type")));
+            user.setPhotoUri(cursor.getString(cursor.getColumnIndex("photo_uri")));
         }
         cursor.close();
         db.close();
@@ -77,6 +79,7 @@ public class UserDAO {
             user.setNickname(cursor.getString(cursor.getColumnIndex("nickname")));
             user.setSex(cursor.getInt(cursor.getColumnIndex("sex")));
             user.setType(cursor.getInt(cursor.getColumnIndex("type")));
+            user.setPhotoUri(cursor.getString(cursor.getColumnIndex("photo_uri")));
             list.add(user);
         }
         cursor.close();

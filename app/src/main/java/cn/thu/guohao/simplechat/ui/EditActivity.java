@@ -58,7 +58,7 @@ public class EditActivity extends ActionBarActivity {
                 if (mCurrUser.getIsMale())
                     gender = getString(R.string.hint_male);
                 intent.putExtra("gender", gender);
-                setResult(303, intent);
+                setResult(RESULT_OK, intent);
                 finish();
             }
         });

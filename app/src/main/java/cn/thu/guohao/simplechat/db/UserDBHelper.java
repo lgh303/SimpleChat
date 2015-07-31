@@ -16,7 +16,8 @@ public class UserDBHelper extends SQLiteOpenHelper {
             "username text," +
             "nickname text," +
             "sex integer," +
-            "type integer)";
+            "type integer," +
+            "photo_uri text)";
     private static final String USER_DROP = "drop table if exists user";
 
     public UserDBHelper(Context context, String DBName) {

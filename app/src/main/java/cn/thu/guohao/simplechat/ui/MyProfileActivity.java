@@ -1,5 +1,7 @@
 package cn.thu.guohao.simplechat.ui;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -35,6 +37,9 @@ public class MyProfileActivity extends ActionBarActivity {
     private UserDAO mUserDAO;
     private BmobPushManager<Installation> mPushManager;
 
+    private String[] genderArr;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,6 +62,10 @@ public class MyProfileActivity extends ActionBarActivity {
         mNameTextView.setText(mCurrUser.getNickname());
         mIDTextView.setText(mCurrUser.getUsername());
         mGenderTextView.setText(gender2String(mCurrUser.getIsMale()));
+        genderArr = new String[] {
+                getString(R.string.hint_male),
+                getString(R.string.hint_female)
+        };
     }
 
     private void initEvent() {
@@ -76,7 +85,21 @@ public class MyProfileActivity extends ActionBarActivity {
         mGenderLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MyProfileActivity.this);
+                builder.setTitle(getString(R.string.choose_gender));
+                int choice = 1;
+                if (mCurrUser.getIsMale()) choice = 0;
+                builder.setSingleChoiceItems(genderArr, choice, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String gender = genderArr[which];
+                        updateUserRemote(mCurrUser.getNickname(), gender);
+                        dialog.cancel();
+                    }
+                });
 
+                AlertDialog dialog = builder.create();
+                dialog.show();
             }
         });
     }

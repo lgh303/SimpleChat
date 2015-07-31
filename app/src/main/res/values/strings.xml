@@ -23,7 +23,7 @@
     <string name="chat_id">Chat ID</string>
     <string name="my_gender">Gender</string>
     <string name="save">Save</string>
-
+    <string name="choose_gender">Choose Gender</string>
 
     <string name="action_search">Search</string>
     <string name="action_more">More</string>

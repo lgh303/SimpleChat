@@ -217,9 +217,11 @@ public class RegisterActivity extends ActionBarActivity {
         mConv.setaUser(aUser);
         mConv.setaUsername(aUser.getUsername());
         mConv.setaNickname(aUser.getNickname());
+        mConv.setaUri(aUser.getPhotoUri());
         mConv.setbUser(bUser);
         mConv.setbUsername(bUser.getUsername());
         mConv.setbNickname(bUser.getNickname());
+        mConv.setbUri(bUser.getPhotoUri());
         mConv.setUnread(1);
         mConv.setLatestMessage(getString(R.string.chat_first_message));
     }
@@ -231,7 +233,8 @@ public class RegisterActivity extends ActionBarActivity {
                 mConv.getbUsername(),
                 0,
                 mConv.getLatestMessage(),
-                mConv.getCreatedAt()));
+                mConv.getCreatedAt(),
+                mConv.getbUri()));
         mMessageDAO.createMessageConvTable(mConv.getbUsername());
         mMessageDAO.insertMessageToConvTable(
                 mConv.getbUsername(),
@@ -247,7 +250,8 @@ public class RegisterActivity extends ActionBarActivity {
                 mConv.getbNickname(),
                 getString(R.string.chat_first_message),
                 mConv.getCreatedAt(),
-                1
+                1,
+                mConv.getbUri()
         );
     }
 

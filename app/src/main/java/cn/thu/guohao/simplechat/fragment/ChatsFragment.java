@@ -131,7 +131,8 @@ public class ChatsFragment extends Fragment
                         conv.getId(), conv.getFriend_username(),
                         conv.getTitle(), conv.getLatestMessage(),
                         conv.getUnreadCount(),
-                        formatTime(conv.getUpdate_time())
+                        formatTime(conv.getUpdate_time()),
+                        conv.getUri()
                 ));
             }
             mAdapter = new ChatsAdapter(getActivity(), mChatBeans, mListView);
@@ -156,25 +157,27 @@ public class ChatsFragment extends Fragment
             public void onSuccess(List<Conversation> list) {
                 for (Conversation conv : list) {
                     User aUser = conv.getaUser();
-                    String title, friend_username;
+                    String title, friend_username, uri;
                     if (aUser.getObjectId().equals(mCurrUser.getObjectId())) {
                         title = conv.getbNickname();
                         friend_username = conv.getbUsername();
+                        uri = conv.getbUri();
                     } else {
                         title = conv.getaNickname();
                         friend_username = conv.getaUsername();
+                        uri = conv.getaUri();
                     }
                     mChatBeans.add(new ChatBean(
                             conv.getObjectId(), friend_username,
                             title, conv.getLatestMessage(), conv.getUnread(),
-                            formatTime(conv.getUpdatedAt())
-                    ));
+                            formatTime(conv.getUpdatedAt()), uri)
+                    );
                     mChatsDAO.insertConversation(new ConversationBean(
                             conv.getObjectId(),
                             title, friend_username,
                             conv.getUnread(),
                             conv.getLatestMessage(),
-                            conv.getUpdatedAt()));
+                            conv.getUpdatedAt(), uri));
                 }
                 mAdapter = new ChatsAdapter(getActivity(), mChatBeans, mListView);
                 mListView.setAdapter(mAdapter);

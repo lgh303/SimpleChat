@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "cn.thu.guohao.simplechat"
-        minSdkVersion 11
+        minSdkVersion 12
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"

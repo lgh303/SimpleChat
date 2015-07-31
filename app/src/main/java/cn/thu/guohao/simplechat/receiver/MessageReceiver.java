@@ -79,7 +79,8 @@ public class MessageReceiver extends BroadcastReceiver {
                 null,
                 pack.getContent(),
                 pack.getUpdate_time(),
-                conv.getUnreadCount() + 1
+                conv.getUnreadCount() + 1,
+                null
         );
     }
 
@@ -89,7 +90,6 @@ public class MessageReceiver extends BroadcastReceiver {
         if (!user.getPhotoUri().equals(pack.getUri())) {
             user.setPhotoUri(pack.getUri());
             Log.i("lgh", "Received Photo Update Message");
-            // TODO download new photo
         }
         int sex = 0;
         if (pack.getUpdate_time().equals(context.getString(R.string.hint_male)))
@@ -102,7 +102,8 @@ public class MessageReceiver extends BroadcastReceiver {
             pack.getContent(),
             null,
             null,
-            null
+            null,
+            pack.getUri()
         );
     }
 }

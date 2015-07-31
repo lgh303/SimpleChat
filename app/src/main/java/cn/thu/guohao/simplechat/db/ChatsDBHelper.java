@@ -19,7 +19,8 @@ public class ChatsDBHelper extends SQLiteOpenHelper {
             "unread_count text," +
             "friend_username text," +
             "latest_message text," +
-            "update_time text)";
+            "update_time text," +
+            "uri text)";
     private static final String DROP_CONV_SQL = "drop table if exists conversation";
 
     public ChatsDBHelper(Context context, String name) {

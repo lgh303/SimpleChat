@@ -12,16 +12,18 @@ public class ConversationBean {
     private int unreadCount;
     private String latestMessage;
     private String update_time;
+    private String uri;
 
     public ConversationBean() {}
 
-    public ConversationBean(String id, String title, String friend_username, int unreadCount, String latestMessage, String update_time) {
+    public ConversationBean(String id, String title, String friend_username, int unreadCount, String latestMessage, String update_time, String uri) {
         this.id = id;
         this.title = title;
         this.friend_username = friend_username;
         this.unreadCount = unreadCount;
         this.latestMessage = latestMessage;
         this.update_time = update_time;
+        this.uri = uri;
     }
 
     @Override
@@ -33,6 +35,7 @@ public class ConversationBean {
                 ", unreadCount=" + unreadCount +
                 ", latestMessage='" + latestMessage + '\'' +
                 ", update_time='" + update_time + '\'' +
+                ", uri='" + uri + '\'' +
                 '}';
     }
 
@@ -82,5 +85,13 @@ public class ConversationBean {
 
     public void setUpdate_time(String update_time) {
         this.update_time = update_time;
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
     }
 }

@@ -25,25 +25,28 @@ public class ChatsDAO {
     public void insertConversation(ConversationBean conv) {
         SQLiteDatabase db = helper.getWritableDatabase();
         String insertSQL = "insert into conversation( " +
-                "id, title, friend_username, unread_count, latest_message, update_time) " +
-                "values(?,?,?,?,?,?)";
+                "id, title, friend_username, unread_count, " +
+                "latest_message, update_time, uri) " +
+                "values(?,?,?,?,?,?,?)";
         Object[] params = new Object[] {
                 conv.getId(),
                 conv.getTitle(), conv.getFriend_username(),
                 conv.getUnreadCount(),
-                conv.getLatestMessage(), conv.getUpdate_time()
+                conv.getLatestMessage(), conv.getUpdate_time(),
+                conv.getUri()
         };
         db.execSQL(insertSQL, params);
         db.close();
     }
 
-    public void updateConversation(String friend_username, String title, String latest_message, String update_time, Integer unread) {
+    public void updateConversation(String friend_username, String title, String latest_message, String update_time, Integer unread, String uri) {
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues data = new ContentValues();
         if (title != null) data.put("title", title);
         if (latest_message != null) data.put("latest_message", latest_message);
         if (update_time != null) data.put("update_time", update_time);
         if (unread != null) data.put("unread_count", unread);
+        if (uri != null) data.put("uri", uri);
         db.update("conversation", data,
                 "friend_username=?", new String[]{friend_username});
         db.close();
@@ -79,6 +82,7 @@ public class ChatsDAO {
             conv.setUnreadCount(cursor.getInt(cursor.getColumnIndex("unread_count")));
             conv.setLatestMessage(cursor.getString(cursor.getColumnIndex("latest_message")));
             conv.setUpdate_time(cursor.getString(cursor.getColumnIndex("update_time")));
+            conv.setUri(cursor.getString(cursor.getColumnIndex("uri")));
         }
         cursor.close();
         db.close();
@@ -98,6 +102,7 @@ public class ChatsDAO {
             conv.setUnreadCount(cursor.getInt(cursor.getColumnIndex("unread_count")));
             conv.setLatestMessage(cursor.getString(cursor.getColumnIndex("latest_message")));
             conv.setUpdate_time(cursor.getString(cursor.getColumnIndex("update_time")));
+            conv.setUri(cursor.getString(cursor.getColumnIndex("uri")));
             list.add(conv);
         }
         cursor.close();

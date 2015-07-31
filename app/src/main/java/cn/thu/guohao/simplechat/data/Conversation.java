@@ -15,6 +15,23 @@ public class Conversation extends BmobObject {
     private String latestMessage;
     private String aNickname, aUsername;
     private String bNickname, bUsername;
+    private String aUri, bUri;
+
+    public String getaUri() {
+        return aUri;
+    }
+
+    public void setaUri(String aUri) {
+        this.aUri = aUri;
+    }
+
+    public String getbUri() {
+        return bUri;
+    }
+
+    public void setbUri(String bUri) {
+        this.bUri = bUri;
+    }
 
     public Integer getUnread() {
         return unread;

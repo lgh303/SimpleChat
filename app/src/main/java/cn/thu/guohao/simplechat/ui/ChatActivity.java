@@ -237,7 +237,8 @@ public class ChatActivity extends ActionBarActivity {
                 null,
                 text,
                 update_time,
-                0
+                0,
+                null
         );
     }
 

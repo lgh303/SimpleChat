@@ -1,10 +1,12 @@
 package cn.thu.guohao.simplechat.util;
 
+import java.io.Serializable;
+
 /**
  * Created by Guohao on 2015/7/30.
  * Information Package
  */
-public class InfoPack {
+public class InfoPack implements Serializable {
     public enum TYPE {ERROR, MESSAGE, MOMENTS, USER_UPDATE}
     private TYPE type;
     private String sender;

@@ -49,6 +49,7 @@ import cn.thu.guohao.simplechat.db.MessageDAO;
 import cn.thu.guohao.simplechat.db.UserBean;
 import cn.thu.guohao.simplechat.receiver.MessageReceiver;
 import cn.thu.guohao.simplechat.util.InfoPack;
+import cn.thu.guohao.simplechat.util.PackProcessor;
 import cn.thu.guohao.simplechat.util.Utils;
 
 
@@ -313,10 +314,13 @@ public class ChatActivity extends ActionBarActivity {
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.getAction().equals(MessageReceiver.FORWARD_ACTION)){
-                String jsonString = intent.getStringExtra(
-                        MessageReceiver.FORWARD_MESSAGE);
-                InfoPack pack = Utils.parseMessage(jsonString);
+            if(intent.getAction().equals(PackProcessor.FORWARD_ACTION)){
+                //String jsonString = intent.getStringExtra(
+                //        PackProcessor.FORWARD_MESSAGE);
+                //InfoPack pack = Utils.parseMessage(jsonString);
+                InfoPack pack = (InfoPack) intent.getSerializableExtra(
+                        PackProcessor.FORWARD_MESSAGE
+                );
                 if (pack.getType() == InfoPack.TYPE.MESSAGE &&
                         mFriendUsername.equals(pack.getSender())) {
                     // TODO add some notification and save local
@@ -330,7 +334,7 @@ public class ChatActivity extends ActionBarActivity {
     protected void onResume() {
         super.onResume();
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(MessageReceiver.FORWARD_ACTION);
+        intentFilter.addAction(PackProcessor.FORWARD_ACTION);
         registerReceiver(receiver, intentFilter);
     }
 

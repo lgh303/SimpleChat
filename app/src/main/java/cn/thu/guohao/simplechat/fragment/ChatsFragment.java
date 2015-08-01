@@ -35,6 +35,7 @@ import cn.thu.guohao.simplechat.db.ConversationBean;
 import cn.thu.guohao.simplechat.receiver.MessageReceiver;
 import cn.thu.guohao.simplechat.ui.ChatActivity;
 import cn.thu.guohao.simplechat.util.InfoPack;
+import cn.thu.guohao.simplechat.util.PackProcessor;
 import cn.thu.guohao.simplechat.util.Utils;
 
 
@@ -60,10 +61,13 @@ public class ChatsFragment extends Fragment
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.getAction().equals(MessageReceiver.FORWARD_ACTION)){
-                String jsonString = intent.getStringExtra(
-                        MessageReceiver.FORWARD_MESSAGE);
-                InfoPack pack = Utils.parseMessage(jsonString);
+            if(intent.getAction().equals(PackProcessor.FORWARD_ACTION)){
+                //String jsonString = intent.getStringExtra(
+                //        PackProcessor.FORWARD_MESSAGE);
+                //InfoPack pack = Utils.parseMessage(jsonString);
+                InfoPack pack = (InfoPack) intent.getSerializableExtra(
+                        PackProcessor.FORWARD_MESSAGE
+                );
                 if (pack.getType() == InfoPack.TYPE.MESSAGE) {
                     for (ChatBean chatBean : mChatBeans)
                         if (pack.getSender().equals(chatBean.username)) {
@@ -110,7 +114,7 @@ public class ChatsFragment extends Fragment
         super.onResume();
         initData();
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(MessageReceiver.FORWARD_ACTION);
+        intentFilter.addAction(PackProcessor.FORWARD_ACTION);
         getActivity().registerReceiver(receiver, intentFilter);
     }
 

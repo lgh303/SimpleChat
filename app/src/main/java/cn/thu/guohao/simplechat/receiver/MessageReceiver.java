@@ -16,6 +16,7 @@ import cn.thu.guohao.simplechat.db.UserBean;
 import cn.thu.guohao.simplechat.db.UserDAO;
 import cn.thu.guohao.simplechat.util.BitmapLoader;
 import cn.thu.guohao.simplechat.util.InfoPack;
+import cn.thu.guohao.simplechat.util.PackProcessor;
 import cn.thu.guohao.simplechat.util.Utils;
 
 /**
@@ -24,14 +25,6 @@ import cn.thu.guohao.simplechat.util.Utils;
  */
 public class MessageReceiver extends BroadcastReceiver {
 
-    private User mCurrUser;
-    private UserDAO mUserDAO;
-    private MessageDAO mMessageDAO;
-    private ChatsDAO mChatsDAO;
-
-    public static final String FORWARD_ACTION = "cn.thu.guohao.simplechat.FORWARD_ACTION";
-    public static final String FORWARD_MESSAGE = "cn.thu.guohao.simplechat.FORWARD_MESSAGE";
-
     @Override
     public void onReceive(Context context, Intent intent) {
         if(intent.getAction().equals(PushConstants.ACTION_MESSAGE)){
@@ -39,74 +32,7 @@ public class MessageReceiver extends BroadcastReceiver {
                     PushConstants.EXTRA_PUSH_MESSAGE_STRING);
             InfoPack pack = Utils.parseMessage(jsonString);
             Log.i("lgh", "InfoPack: " + pack.toString());
-            if (pack.getType() != InfoPack.TYPE.ERROR) {
-                mCurrUser = User.getCurrentUser(context, User.class);
-                if (mCurrUser == null) return;
-                if (pack.getType() == InfoPack.TYPE.MESSAGE) {
-                    mChatsDAO = new ChatsDAO(context, mCurrUser.getUsername());
-                    mMessageDAO = new MessageDAO(context, mCurrUser.getUsername());
-                    saveLocalUnread(pack);
-                    Intent forward_intent = new Intent();
-                    forward_intent.setAction(FORWARD_ACTION);
-                    forward_intent.putExtra(FORWARD_MESSAGE, jsonString);
-                    context.sendBroadcast(forward_intent);
-                } else if (pack.getType() == InfoPack.TYPE.USER_UPDATE) {
-                    mUserDAO = new UserDAO(context, mCurrUser.getUsername());
-                    mChatsDAO = new ChatsDAO(context, mCurrUser.getUsername());
-                    updateLocalUser(context, pack);
-                    Log.i("lgh", "Update Local user Success");
-                }
-            }
+            PackProcessor.getInstance(context).processPack(pack);
         }
-    }
-
-    private void saveLocalUnread(InfoPack pack) {
-
-        int posType = 0, mediaType = 0;
-
-        mMessageDAO.createMessageConvTable(pack.getSender());
-        mMessageDAO.insertMessageToConvTable(
-                pack.getSender(),
-                new MessageBean(
-                        posType, mediaType, pack.getSender(),
-                        pack.getContent(), pack.getUri(),
-                        pack.getUpdate_time()
-                ),
-                true
-        );
-        ConversationBean conv = mChatsDAO.getConversation(pack.getSender());
-        mChatsDAO.updateConversation(
-                pack.getSender(),
-                null,
-                pack.getContent(),
-                pack.getUpdate_time(),
-                conv.getUnreadCount() + 1,
-                null
-        );
-    }
-
-    private void updateLocalUser(Context context, InfoPack pack) {
-        UserBean user = mUserDAO.get(pack.getSender());
-        user.setNickname(pack.getContent());
-        if (!user.getPhotoUri().equals(pack.getUri())) {
-            user.setPhotoUri(pack.getUri());
-            if (!BitmapLoader.hasNoCache())
-                BitmapLoader.getInstance(context).removeBitmapFromCache(user.getUsername());
-            Log.i("lgh", "Received Photo Update Message");
-        }
-        int sex = 0;
-        if (pack.getUpdate_time().equals(context.getString(R.string.hint_male)))
-            sex = 1;
-        user.setSex(sex);
-        mUserDAO.update(user);
-
-    mChatsDAO.updateConversation(
-            pack.getSender(),
-            pack.getContent(),
-            null,
-            null,
-            null,
-            pack.getUri()
-        );
     }
 }

@@ -18,14 +18,14 @@ public class User extends BmobUser {
     private String photoUri;
     private BmobRelation friends;
     private BmobRelation conversations;
-    private BmobRelation waitMessages;
+    private BmobRelation waitDelivery;
 
-    public BmobRelation getWaitMessages() {
-        return waitMessages;
+    public BmobRelation getWaitDelivery() {
+        return waitDelivery;
     }
 
-    public void setWaitMessages(BmobRelation waitMessages) {
-        this.waitMessages = waitMessages;
+    public void setWaitDelivery(BmobRelation waitDelivery) {
+        this.waitDelivery = waitDelivery;
     }
 
     public BmobRelation getConversations() {

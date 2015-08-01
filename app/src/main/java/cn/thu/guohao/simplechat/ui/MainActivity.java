@@ -111,13 +111,11 @@ public class MainActivity extends ActionBarActivity
                 }
                 return null;
             }
-
             @Override
             public int getCount() {
                 return 4;
             }
         };
-
         mViewPager = (ViewPager) findViewById(R.id.id_viewpager);
         mViewPager.setAdapter(mPagerAdapter);
     }
@@ -131,23 +129,24 @@ public class MainActivity extends ActionBarActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-//        if (id == R.id.action_settings) {
-//            return true;
-//        }
-
+        switch (id) {
+            case R.id.menu_group_chat:
+                break;
+            case R.id.menu_add_friend:
+                Log.i("lgh", "add Friend");
+                break;
+            case R.id.menu_scan:
+                break;
+            case R.id.menu_feedback:
+                break;
+        }
         return super.onOptionsItemSelected(item);
     }
 

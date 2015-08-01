@@ -21,14 +21,9 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import cn.bmob.push.PushConstants;
-import cn.bmob.v3.Bmob;
-import cn.bmob.v3.BmobInstallation;
 import cn.bmob.v3.BmobPushManager;
 import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.datatype.BmobRelation;
@@ -40,15 +35,14 @@ import cn.thu.guohao.simplechat.adapter.ChatItemAdapter;
 import cn.thu.guohao.simplechat.adapter.ChatItemBean;
 import cn.thu.guohao.simplechat.R;
 import cn.thu.guohao.simplechat.data.Conversation;
+import cn.thu.guohao.simplechat.data.Delivery;
 import cn.thu.guohao.simplechat.data.Installation;
 import cn.thu.guohao.simplechat.data.Message;
 import cn.thu.guohao.simplechat.data.User;
 import cn.thu.guohao.simplechat.db.ChatsDAO;
-import cn.thu.guohao.simplechat.db.ConversationBean;
 import cn.thu.guohao.simplechat.db.MessageBean;
 import cn.thu.guohao.simplechat.db.MessageDAO;
 import cn.thu.guohao.simplechat.db.UserBean;
-import cn.thu.guohao.simplechat.receiver.MessageReceiver;
 import cn.thu.guohao.simplechat.util.InfoPack;
 import cn.thu.guohao.simplechat.util.PackProcessor;
 import cn.thu.guohao.simplechat.util.Utils;
@@ -108,8 +102,10 @@ public class ChatActivity extends ActionBarActivity {
             public void onSuccess(List<User> list) {
                 mFriend = list.get(0);
             }
+
             @Override
-            public void onError(int i, String s) {}
+            public void onError(int i, String s) {
+            }
         });
     }
 
@@ -120,6 +116,7 @@ public class ChatActivity extends ActionBarActivity {
             public void onSuccess(Conversation conversation) {
                 mCurrConversation = conversation;
             }
+
             @Override
             public void onFailure(int i, String s) {
                 mCurrConversation = null;
@@ -136,10 +133,8 @@ public class ChatActivity extends ActionBarActivity {
                 if (!list.isEmpty())
                     mFriendInstallation = list.get(0);
             }
-
             @Override
-            public void onError(int i, String s) {
-            }
+            public void onError(int i, String s) {}
         });
     }
 
@@ -233,6 +228,7 @@ public class ChatActivity extends ActionBarActivity {
     private void saveMessage(final String text, final ChatItemBean.TYPE type) {
         String speaker = mCurrUser.getUsername();
         message = new Message();
+        message.setType(0);
         message.setUsername(speaker);
         message.setContent(text);
         message.setConversation(mCurrConversation);
@@ -270,31 +266,39 @@ public class ChatActivity extends ActionBarActivity {
     }
 
     private void sendMessage() {
-        JSONObject json;
-        try {
-            json = new JSONObject(Utils.makeJsonString(
-                    InfoPack.STR_MESSAGE,
-                    message.getUsername(),
-                    message.getContent(),
-                    "null",
-                    message.getCreatedAt()
-            ));
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Send Message Failed..", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        String jsonString = Utils.makeJsonString(
+                InfoPack.STR_MESSAGE,
+                message.getUsername(),
+                message.getContent(),
+                "null",
+                message.getCreatedAt());
         if (mFriendInstallation == null) {
-            BmobRelation waitMessages = new BmobRelation();
-            waitMessages.add(message);
-            mFriend.setWaitMessages(waitMessages);
-            mFriend.update(this);
-            Log.i("lgh", "Saved in " + mFriendUsername + "'s wait list");
+            final Delivery delivery = new Delivery();
+            delivery.setJson(jsonString);
+            delivery.save(this, new SaveListener() {
+                @Override
+                public void onSuccess() {
+                    BmobRelation waitDelivery = new BmobRelation();
+                    waitDelivery.add(delivery);
+                    mFriend.setWaitDelivery(waitDelivery);
+                    mFriend.update(ChatActivity.this);
+                    Log.i("lgh", "Saved in " + mFriendUsername + "'s wait list");
+                }
+                @Override
+                public void onFailure(int i, String s) {}
+            });
         } else {
             BmobQuery<Installation> query = Installation.getQuery();
             query.addWhereEqualTo("username", mFriendUsername);
             mPushManager.setQuery(query);
-            mPushManager.pushMessage(json);
+            try {
+                JSONObject json = new JSONObject(jsonString);
+                mPushManager.pushMessage(json);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Send Message Failed..", Toast.LENGTH_SHORT).show();
+                return;
+            }
         }
     }
 

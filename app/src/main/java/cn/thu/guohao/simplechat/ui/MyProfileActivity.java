@@ -30,12 +30,17 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import cn.bmob.v3.BmobPushManager;
 import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.datatype.BmobFile;
+import cn.bmob.v3.datatype.BmobRelation;
+import cn.bmob.v3.listener.FindListener;
+import cn.bmob.v3.listener.SaveListener;
 import cn.bmob.v3.listener.UpdateListener;
 import cn.thu.guohao.simplechat.R;
+import cn.thu.guohao.simplechat.data.Delivery;
 import cn.thu.guohao.simplechat.data.Installation;
 import cn.thu.guohao.simplechat.data.User;
 import cn.thu.guohao.simplechat.db.UserBean;
@@ -50,7 +55,7 @@ public class MyProfileActivity extends ActionBarActivity {
     private TextView mNameTextView, mIDTextView, mGenderTextView;
     private ImageView mPhotoImageView;
 
-    private User mCurrUser;
+    private User mCurrUser, mFriend;
     private UserDAO mUserDAO;
     private BmobPushManager<Installation> mPushManager;
     private String[] genderArr;
@@ -166,32 +171,75 @@ public class MyProfileActivity extends ActionBarActivity {
 
     private void sendUpdateMessage() {
         ArrayList<UserBean> friends = mUserDAO.get();
-        for (UserBean friend : friends) {
+        for (final UserBean friend : friends) {
             if (friend.getUsername().equals("filehelper"))
                 continue;
-            // TODO check if installation can be found.
-            doSendMessage(friend.getUsername());
+            BmobQuery<Installation> query = new BmobQuery<>();
+            query.addWhereEqualTo("username", friend.getUsername());
+            query.findObjects(this, new FindListener<Installation>() {
+                @Override
+                public void onSuccess(List<Installation> list) {
+                    if (!list.isEmpty())
+                        doSendMessage(friend.getUsername(), true);
+                    else
+                        doSendMessage(friend.getUsername(), false);
+                }
+                @Override
+                public void onError(int i, String s) {}
+            });
+
         }
     }
 
-    private void doSendMessage(String username) {
-        BmobQuery<Installation> query = Installation.getQuery();
-        query.addWhereEqualTo("username", username);
+    private void doSendMessage(final String username, boolean hasInstallation) {
+        final String jsonString = Utils.makeJsonString(
+                InfoPack.STR_USER_UPDATE,
+                mCurrUser.getUsername(),
+                mCurrUser.getNickname(),
+                mCurrUser.getPhotoUri(),
+                gender2String(mCurrUser.getIsMale()));
+        if (hasInstallation) {
+            BmobQuery<Installation> query = Installation.getQuery();
+            query.addWhereEqualTo("username", username);
             mPushManager.setQuery(query);
             try {
-                JSONObject json = new JSONObject(Utils.makeJsonString(
-                        InfoPack.STR_USER_UPDATE,
-                        mCurrUser.getUsername(),
-                        mCurrUser.getNickname(),
-                        mCurrUser.getPhotoUri(),
-                        gender2String(mCurrUser.getIsMale())
-                ));
+                JSONObject json = new JSONObject(jsonString);
                 mPushManager.pushMessage(json);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+        } else {
+            BmobQuery<User> query = new BmobQuery<>();
+            query.addWhereEqualTo("username", username);
+            query.findObjects(this, new FindListener<User>() {
+                @Override
+                public void onSuccess(List<User> list) {
+                    if (!list.isEmpty()) {
+                        saveUpdateDelivery(jsonString);
+                    }
+                }
+                @Override
+                public void onError(int i, String s) {}
+            });
+        }
     }
 
+    private void saveUpdateDelivery(String jsonString) {
+        final Delivery delivery = new Delivery();
+        delivery.setJson(jsonString);
+        delivery.save(this, new SaveListener() {
+            @Override
+            public void onSuccess() {
+                BmobRelation waitDelivery = new BmobRelation();
+                waitDelivery.add(delivery);
+                mFriend.setWaitDelivery(waitDelivery);
+                mFriend.update(MyProfileActivity.this);
+                Log.i("lgh", "Saved in wait list");
+            }
+            @Override
+            public void onFailure(int i, String s) {}
+        });
+    }
     private String gender2String(boolean isMale) {
         String gender = getString(R.string.hint_female);
         if (isMale)

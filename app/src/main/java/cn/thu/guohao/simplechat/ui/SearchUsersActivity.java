@@ -25,6 +25,7 @@ import cn.thu.guohao.simplechat.adapter.ContactBean;
 import cn.thu.guohao.simplechat.data.User;
 import cn.thu.guohao.simplechat.db.UserBean;
 import cn.thu.guohao.simplechat.fragment.ContactsFragment;
+import cn.thu.guohao.simplechat.util.Utils;
 
 public class SearchUsersActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
 
@@ -61,6 +62,7 @@ public class SearchUsersActivity extends ActionBarActivity implements AdapterVie
         mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Utils.hideKeyboard(SearchUsersActivity.this);
                 if (mText.equals(mLastText)) return;
                 mLastText = mText;
                 mData.clear();

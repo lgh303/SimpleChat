@@ -230,11 +230,6 @@ public class MyProfileActivity extends ActionBarActivity {
         delivery.save(this, new SaveListener() {
             @Override
             public void onSuccess() {
-                BmobRelation waitDelivery = new BmobRelation();
-                waitDelivery.add(delivery);
-                mFriend.setWaitDelivery(waitDelivery);
-                mFriend.update(MyProfileActivity.this);
-                Log.i("lgh", "Saved in wait list");
             }
             @Override
             public void onFailure(int i, String s) {}

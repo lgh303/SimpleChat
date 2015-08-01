@@ -7,7 +7,16 @@ import cn.bmob.v3.BmobObject;
  * Delivery Json waits to send. Saved in server
  */
 public class Delivery extends BmobObject {
+    private String receiver;
     private String json;
+
+    public String getReceiver() {
+        return receiver;
+    }
+
+    public void setReceiver(String receiver) {
+        this.receiver = receiver;
+    }
 
     public String getJson() {
         return json;

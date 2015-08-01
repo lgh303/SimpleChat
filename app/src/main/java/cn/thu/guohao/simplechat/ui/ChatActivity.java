@@ -278,11 +278,6 @@ public class ChatActivity extends ActionBarActivity {
             delivery.save(this, new SaveListener() {
                 @Override
                 public void onSuccess() {
-                    BmobRelation waitDelivery = new BmobRelation();
-                    waitDelivery.add(delivery);
-                    mFriend.setWaitDelivery(waitDelivery);
-                    mFriend.update(ChatActivity.this);
-                    Log.i("lgh", "Saved in " + mFriendUsername + "'s wait list");
                 }
                 @Override
                 public void onFailure(int i, String s) {}

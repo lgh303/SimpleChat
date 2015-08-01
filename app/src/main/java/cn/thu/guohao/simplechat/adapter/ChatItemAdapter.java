@@ -1,11 +1,9 @@
 package cn.thu.guohao.simplechat.adapter;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -18,6 +16,7 @@ import cn.thu.guohao.simplechat.R;
 import cn.thu.guohao.simplechat.db.UserBean;
 import cn.thu.guohao.simplechat.ui.ChatActivity;
 import cn.thu.guohao.simplechat.util.BitmapLoader;
+import cn.thu.guohao.simplechat.util.Utils;
 
 /**
  * Created by Guohao on 2015/7/24.
@@ -124,7 +123,7 @@ public class ChatItemAdapter extends BaseAdapter
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
         if (scrollState == SCROLL_STATE_TOUCH_SCROLL) {
-            hideKeyboard();
+            Utils.hideKeyboard(mContext);
         }
     }
 
@@ -133,10 +132,6 @@ public class ChatItemAdapter extends BaseAdapter
 
     }
 
-    private void hideKeyboard(){
-        InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(mContext.findViewById(android.R.id.content).getWindowToken(), 0);
-    }
 
     class ViewHolder {
         TextView text;

@@ -59,6 +59,8 @@ public class PackProcessor {
                 mChatsDAO = new ChatsDAO(context, mCurrUser.getUsername());
                 updateLocalUser(context, pack);
                 Log.i("lgh", "Update Local user Success");
+            } else if (pack.getType() == InfoPack.TYPE.INVITE) {
+                Log.i("lgh", "Ready to process Invite pack");
             }
         }
     }

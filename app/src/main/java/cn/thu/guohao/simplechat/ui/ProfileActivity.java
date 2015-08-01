@@ -11,7 +11,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import cn.thu.guohao.simplechat.R;
 import cn.thu.guohao.simplechat.data.User;
 import cn.thu.guohao.simplechat.db.ChatsDAO;
@@ -19,6 +18,9 @@ import cn.thu.guohao.simplechat.db.ConversationBean;
 import cn.thu.guohao.simplechat.db.UserBean;
 import cn.thu.guohao.simplechat.db.UserDAO;
 import cn.thu.guohao.simplechat.util.BitmapLoader;
+import cn.thu.guohao.simplechat.util.DeliverySender;
+import cn.thu.guohao.simplechat.util.InfoPack;
+import cn.thu.guohao.simplechat.util.Utils;
 
 public class ProfileActivity extends ActionBarActivity {
 
@@ -32,6 +34,7 @@ public class ProfileActivity extends ActionBarActivity {
     private UserDAO mUserDAO;
     private ChatsDAO mChatsDAO;
     private UserBean mUser;
+
 
     private BitmapLoader loader;
 
@@ -99,6 +102,14 @@ public class ProfileActivity extends ActionBarActivity {
                     startActivity(intent);
                 } else {
                     Log.i("lgh", "Invite " + mUser.toString());
+                    String jsonString = Utils.makeJsonString(
+                            InfoPack.STR_INVITE,
+                            mCurrUser.getUsername(),
+                            "null", "null", "null"
+                    );
+                    new DeliverySender(ProfileActivity.this).send(
+                            mUser.getUsername(), jsonString
+                    );
                 }
             }
         });

@@ -107,7 +107,8 @@ public class ProfileActivity extends ActionBarActivity {
                             mCurrUser.getUsername(),
                             "null", "null", "null"
                     );
-                    new DeliverySender(ProfileActivity.this).send(
+                    DeliverySender.getInstance(ProfileActivity.this).send(
+                            InfoPack.TYPE.INVITE,
                             mUser.getUsername(), jsonString
                     );
                 }

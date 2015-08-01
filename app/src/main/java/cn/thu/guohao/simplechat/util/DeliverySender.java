@@ -11,10 +11,8 @@ import java.util.List;
 
 import cn.bmob.v3.BmobPushManager;
 import cn.bmob.v3.BmobQuery;
-import cn.bmob.v3.datatype.BmobRelation;
 import cn.bmob.v3.listener.FindListener;
 import cn.bmob.v3.listener.SaveListener;
-import cn.bmob.v3.listener.UpdateListener;
 import cn.thu.guohao.simplechat.data.Delivery;
 import cn.thu.guohao.simplechat.data.Installation;
 import cn.thu.guohao.simplechat.data.User;
@@ -25,76 +23,99 @@ import cn.thu.guohao.simplechat.data.User;
  */
 public class DeliverySender {
 
+    private static DeliverySender sender;
+    public static DeliverySender getInstance(Context context) {
+        if (sender == null) {
+            sender = new DeliverySender(context);
+            return sender;
+        }
+        sender.context = context;
+        //sender.mPushManager = new BmobPushManager<>(context);
+        return sender;
+    }
+
     private Context context;
-    private String mUsername, mJsonString;
     private BmobPushManager<Installation> mPushManager;
 
-    public DeliverySender(Context context) {
+    private DeliverySender(Context context) {
         this.context = context;
         mPushManager = new BmobPushManager<>(context);
     }
 
-    public void send(final String username, String jsonString) {
-        mUsername = username;
-        mJsonString = jsonString;
+    public void send(final InfoPack.TYPE type, final String username, final String jsonString) {
         BmobQuery<Installation> query = new BmobQuery<>();
         query.addWhereEqualTo("username", username);
         query.findObjects(context, new FindListener<Installation>() {
             @Override
             public void onSuccess(List<Installation> list) {
                 if (!list.isEmpty())
-                    doSend(true);
+                    doSend(true, type, username, jsonString);
                 else
-                    doSend(false);
+                    doSend(false, type, username, jsonString);
             }
             @Override
             public void onError(int i, String s) {}
         });
     }
 
-    private void doSend(boolean hasInstallation) {
+    private void doSend(boolean hasInstallation, final InfoPack.TYPE type, final String username, final String jsonString) {
         if (hasInstallation) {
             BmobQuery<Installation> query = Installation.getQuery();
-            query.addWhereEqualTo("username", mUsername);
+            query.addWhereEqualTo("username", username);
             mPushManager.setQuery(query);
             try {
-                JSONObject json = new JSONObject(mJsonString);
+                JSONObject json = new JSONObject(jsonString);
                 mPushManager.pushMessage(json);
-                Toast.makeText(context, "Message Sent..", Toast.LENGTH_SHORT).show();
+                postPushSuccess(type);
             } catch (JSONException e) {
-                Toast.makeText(context, "Send Message Failed..", Toast.LENGTH_SHORT).show();
+                postPushFail(type);
                 e.printStackTrace();
             }
         } else {
             BmobQuery<User> query = new BmobQuery<>();
-            query.addWhereEqualTo("username", mUsername);
+            query.addWhereEqualTo("username", username);
             query.findObjects(context, new FindListener<User>() {
                 @Override
                 public void onSuccess(List<User> list) {
                     if (!list.isEmpty()) {
-                        saveUpdateDelivery();
-                    }
+                        saveUpdateDelivery(type, username, jsonString);
+                    } else
+                        postPushFail(type);
                 }
                 @Override
-                public void onError(int i, String s) {}
+                public void onError(int i, String s) {
+                    postPushFail(type);
+                }
             });
         }
     }
 
-    private void saveUpdateDelivery() {
+    private void saveUpdateDelivery(final InfoPack.TYPE type, String username, String jsonString) {
         final Delivery delivery = new Delivery();
-        delivery.setReceiver(mUsername);
-        delivery.setJson(mJsonString);
+        delivery.setReceiver(username);
+        delivery.setJson(jsonString);
         delivery.save(context, new SaveListener() {
             @Override
             public void onSuccess() {
                 Log.i("lgh", "Saved in wait list");
-                Toast.makeText(context, "Message Sent..", Toast.LENGTH_SHORT).show();
+                postPushSuccess(type);
             }
+
             @Override
             public void onFailure(int i, String s) {
                 Log.i("lgh", "Save Failed " + s);
+                postPushFail(type);
             }
         });
+    }
+
+    private void postPushSuccess(InfoPack.TYPE type) {
+        if (type == InfoPack.TYPE.INVITE)
+            Toast.makeText(context, "Invitation Sent Successfully", Toast.LENGTH_SHORT).show();
+    }
+
+    private void postPushFail(InfoPack.TYPE type) {
+        if (type == InfoPack.TYPE.INVITE)
+            Toast.makeText(context, "Send Invitation Failed..", Toast.LENGTH_SHORT).show();
     }
 }

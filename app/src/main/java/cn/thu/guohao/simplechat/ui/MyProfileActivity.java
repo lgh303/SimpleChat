@@ -46,6 +46,7 @@ import cn.thu.guohao.simplechat.data.User;
 import cn.thu.guohao.simplechat.db.UserBean;
 import cn.thu.guohao.simplechat.db.UserDAO;
 import cn.thu.guohao.simplechat.util.BitmapLoader;
+import cn.thu.guohao.simplechat.util.DeliverySender;
 import cn.thu.guohao.simplechat.util.InfoPack;
 import cn.thu.guohao.simplechat.util.Utils;
 
@@ -174,67 +175,19 @@ public class MyProfileActivity extends ActionBarActivity {
         for (final UserBean friend : friends) {
             if (friend.getUsername().equals("filehelper"))
                 continue;
-            BmobQuery<Installation> query = new BmobQuery<>();
-            query.addWhereEqualTo("username", friend.getUsername());
-            query.findObjects(this, new FindListener<Installation>() {
-                @Override
-                public void onSuccess(List<Installation> list) {
-                    if (!list.isEmpty())
-                        doSendMessage(friend.getUsername(), true);
-                    else
-                        doSendMessage(friend.getUsername(), false);
-                }
-                @Override
-                public void onError(int i, String s) {}
-            });
-
+            String jsonString = Utils.makeJsonString(
+                    InfoPack.STR_USER_UPDATE,
+                    mCurrUser.getUsername(),
+                    mCurrUser.getNickname(),
+                    mCurrUser.getPhotoUri(),
+                    gender2String(mCurrUser.getIsMale()));
+            DeliverySender.getInstance(this).send(
+                    InfoPack.TYPE.USER_UPDATE,
+                    friend.getUsername(),
+                    jsonString);
         }
     }
 
-    private void doSendMessage(final String username, boolean hasInstallation) {
-        final String jsonString = Utils.makeJsonString(
-                InfoPack.STR_USER_UPDATE,
-                mCurrUser.getUsername(),
-                mCurrUser.getNickname(),
-                mCurrUser.getPhotoUri(),
-                gender2String(mCurrUser.getIsMale()));
-        if (hasInstallation) {
-            BmobQuery<Installation> query = Installation.getQuery();
-            query.addWhereEqualTo("username", username);
-            mPushManager.setQuery(query);
-            try {
-                JSONObject json = new JSONObject(jsonString);
-                mPushManager.pushMessage(json);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        } else {
-            BmobQuery<User> query = new BmobQuery<>();
-            query.addWhereEqualTo("username", username);
-            query.findObjects(this, new FindListener<User>() {
-                @Override
-                public void onSuccess(List<User> list) {
-                    if (!list.isEmpty()) {
-                        saveUpdateDelivery(jsonString);
-                    }
-                }
-                @Override
-                public void onError(int i, String s) {}
-            });
-        }
-    }
-
-    private void saveUpdateDelivery(String jsonString) {
-        final Delivery delivery = new Delivery();
-        delivery.setJson(jsonString);
-        delivery.save(this, new SaveListener() {
-            @Override
-            public void onSuccess() {
-            }
-            @Override
-            public void onFailure(int i, String s) {}
-        });
-    }
     private String gender2String(boolean isMale) {
         String gender = getString(R.string.hint_female);
         if (isMale)

@@ -43,6 +43,7 @@ import cn.thu.guohao.simplechat.db.ChatsDAO;
 import cn.thu.guohao.simplechat.db.MessageBean;
 import cn.thu.guohao.simplechat.db.MessageDAO;
 import cn.thu.guohao.simplechat.db.UserBean;
+import cn.thu.guohao.simplechat.util.DeliverySender;
 import cn.thu.guohao.simplechat.util.InfoPack;
 import cn.thu.guohao.simplechat.util.PackProcessor;
 import cn.thu.guohao.simplechat.util.Utils;
@@ -59,15 +60,12 @@ public class ChatActivity extends ActionBarActivity {
     private List<ChatItemBean> mData = new ArrayList<>();
 
     private String mFriendUsername, mTitle, mConvID, mFriendUri;
-    private User mCurrUser, mFriend;
+    private User mCurrUser;
     private Conversation mCurrConversation;
-    private Installation mFriendInstallation = null;
 
     private Message message;
     private MessageDAO mMessageDAO;
     private ChatsDAO mChatsDAO;
-
-    private BmobPushManager<Installation> mPushManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,35 +76,16 @@ public class ChatActivity extends ActionBarActivity {
         mConvID = getIntent().getStringExtra("conversationID");
         mTitle = getIntent().getStringExtra("title");
         mFriendUri = getIntent().getStringExtra("uri");
-        initFriend();
         initConversation();
-        initInstallation();
 
         mChatsDAO = new ChatsDAO(this, mCurrUser.getUsername());
         mMessageDAO = new MessageDAO(this, mCurrUser.getUsername());
         mMessageDAO.createMessageConvTable(mFriendUsername);
 
-        mPushManager = new BmobPushManager<>(this);
-
         setContentView(R.layout.activity_chat);
         initData();
         initView();
         initEvent();
-    }
-
-    private void initFriend() {
-        BmobQuery<User> query = new BmobQuery<>();
-        query.addWhereEqualTo("username", mFriendUsername);
-        query.findObjects(this, new FindListener<User>() {
-            @Override
-            public void onSuccess(List<User> list) {
-                mFriend = list.get(0);
-            }
-
-            @Override
-            public void onError(int i, String s) {
-            }
-        });
     }
 
     private void initConversation() {
@@ -121,20 +100,6 @@ public class ChatActivity extends ActionBarActivity {
             public void onFailure(int i, String s) {
                 mCurrConversation = null;
             }
-        });
-    }
-
-    private void initInstallation() {
-        BmobQuery<Installation> query = new BmobQuery<>();
-        query.addWhereEqualTo("username", mFriendUsername);
-        query.findObjects(this, new FindListener<Installation>() {
-            @Override
-            public void onSuccess(List<Installation> list) {
-                if (!list.isEmpty())
-                    mFriendInstallation = list.get(0);
-            }
-            @Override
-            public void onError(int i, String s) {}
         });
     }
 
@@ -255,46 +220,23 @@ public class ChatActivity extends ActionBarActivity {
             @Override
             public void onSuccess() {
                 if (type != ChatItemBean.TYPE.RIGHT) return;
-                if (message.getUsername().equals("filehelper")) return;
-                sendMessage();
+                if (mFriendUsername.equals("filehelper")) return;
+                String jsonString = Utils.makeJsonString(
+                        InfoPack.STR_MESSAGE,
+                        message.getUsername(),
+                        message.getContent(),
+                        "null",
+                        message.getCreatedAt());
+                DeliverySender.getInstance(ChatActivity.this).send(
+                        InfoPack.TYPE.MESSAGE,
+                        mFriendUsername,
+                        jsonString
+                );
             }
-
             @Override
             public void onFailure(int i, String s) {
             }
         });
-    }
-
-    private void sendMessage() {
-        String jsonString = Utils.makeJsonString(
-                InfoPack.STR_MESSAGE,
-                message.getUsername(),
-                message.getContent(),
-                "null",
-                message.getCreatedAt());
-        if (mFriendInstallation == null) {
-            final Delivery delivery = new Delivery();
-            delivery.setJson(jsonString);
-            delivery.save(this, new SaveListener() {
-                @Override
-                public void onSuccess() {
-                }
-                @Override
-                public void onFailure(int i, String s) {}
-            });
-        } else {
-            BmobQuery<Installation> query = Installation.getQuery();
-            query.addWhereEqualTo("username", mFriendUsername);
-            mPushManager.setQuery(query);
-            try {
-                JSONObject json = new JSONObject(jsonString);
-                mPushManager.pushMessage(json);
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Toast.makeText(this, "Send Message Failed..", Toast.LENGTH_SHORT).show();
-                return;
-            }
-        }
     }
 
     private void saveLocal(String text, final ChatItemBean.TYPE type, String update_time) {
@@ -331,9 +273,6 @@ public class ChatActivity extends ActionBarActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if(intent.getAction().equals(PackProcessor.FORWARD_ACTION)){
-                //String jsonString = intent.getStringExtra(
-                //        PackProcessor.FORWARD_MESSAGE);
-                //InfoPack pack = Utils.parseMessage(jsonString);
                 InfoPack pack = (InfoPack) intent.getSerializableExtra(
                         PackProcessor.FORWARD_MESSAGE
                 );

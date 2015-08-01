@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -64,7 +65,7 @@ public class ChatActivity extends ActionBarActivity {
     private List<ChatItemBean> mData = new ArrayList<>();
 
     private String mFriendUsername, mTitle, mConvID, mFriendUri;
-    private User mCurrUser;
+    private User mCurrUser, mFriend;
     private Conversation mCurrConversation;
     private Installation mFriendInstallation = null;
 
@@ -83,6 +84,7 @@ public class ChatActivity extends ActionBarActivity {
         mConvID = getIntent().getStringExtra("conversationID");
         mTitle = getIntent().getStringExtra("title");
         mFriendUri = getIntent().getStringExtra("uri");
+        initFriend();
         initConversation();
         initInstallation();
 
@@ -98,6 +100,19 @@ public class ChatActivity extends ActionBarActivity {
         initEvent();
     }
 
+    private void initFriend() {
+        BmobQuery<User> query = new BmobQuery<>();
+        query.addWhereEqualTo("username", mFriendUsername);
+        query.findObjects(this, new FindListener<User>() {
+            @Override
+            public void onSuccess(List<User> list) {
+                mFriend = list.get(0);
+            }
+            @Override
+            public void onError(int i, String s) {}
+        });
+    }
+
     private void initConversation() {
         BmobQuery<Conversation> query = new BmobQuery<>();
         query.getObject(this, mConvID, new GetListener<Conversation>() {
@@ -105,7 +120,6 @@ public class ChatActivity extends ActionBarActivity {
             public void onSuccess(Conversation conversation) {
                 mCurrConversation = conversation;
             }
-
             @Override
             public void onFailure(int i, String s) {
                 mCurrConversation = null;
@@ -248,30 +262,39 @@ public class ChatActivity extends ActionBarActivity {
                 if (message.getUsername().equals("filehelper")) return;
                 sendMessage();
             }
+
             @Override
-            public void onFailure(int i, String s) { }
+            public void onFailure(int i, String s) {
+            }
         });
     }
 
     private void sendMessage() {
+        JSONObject json;
+        try {
+            json = new JSONObject(Utils.makeJsonString(
+                    InfoPack.STR_MESSAGE,
+                    message.getUsername(),
+                    message.getContent(),
+                    "null",
+                    message.getCreatedAt()
+            ));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Send Message Failed..", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (mFriendInstallation == null) {
-            // TODO save it to user's wait list
+            BmobRelation waitMessages = new BmobRelation();
+            waitMessages.add(message);
+            mFriend.setWaitMessages(waitMessages);
+            mFriend.update(this);
+            Log.i("lgh", "Saved in " + mFriendUsername + "'s wait list");
         } else {
             BmobQuery<Installation> query = Installation.getQuery();
             query.addWhereEqualTo("username", mFriendUsername);
             mPushManager.setQuery(query);
-            try {
-                JSONObject json = new JSONObject(Utils.makeJsonString(
-                        InfoPack.STR_MESSAGE,
-                        message.getUsername(),
-                        message.getContent(),
-                        "null",
-                        message.getCreatedAt()
-                ));
-                mPushManager.pushMessage(json);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            mPushManager.pushMessage(json);
         }
     }
 

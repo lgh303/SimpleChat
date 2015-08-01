@@ -140,7 +140,8 @@ public class MainActivity extends ActionBarActivity
             case R.id.menu_group_chat:
                 break;
             case R.id.menu_add_friend:
-                Log.i("lgh", "add Friend");
+                Intent intent = new Intent(this, SearchUsersActivity.class);
+                startActivity(intent);
                 break;
             case R.id.menu_scan:
                 break;

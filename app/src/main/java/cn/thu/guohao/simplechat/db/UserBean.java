@@ -1,10 +1,12 @@
 package cn.thu.guohao.simplechat.db;
 
+import java.io.Serializable;
+
 /**
  * Created by Guohao on 2015/7/27.
  * User Model for user.db
  */
-public class UserBean {
+public class UserBean implements Serializable {
     private String username;
     private String nickname;
     private int sex;

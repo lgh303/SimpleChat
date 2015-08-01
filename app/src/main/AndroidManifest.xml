@@ -96,6 +96,10 @@
             android:name=".ui.EditActivity"
             android:label="@string/title_activity_edit" >
         </activity>
+        <activity
+            android:name=".ui.SearchUsersActivity"
+            android:label="@string/title_activity_search_users" >
+        </activity>
     </application>
 
 </manifest>

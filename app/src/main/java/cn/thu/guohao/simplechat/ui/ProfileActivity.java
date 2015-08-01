@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import cn.thu.guohao.simplechat.R;
+import cn.thu.guohao.simplechat.data.User;
 import cn.thu.guohao.simplechat.db.ChatsDAO;
 import cn.thu.guohao.simplechat.db.ConversationBean;
 import cn.thu.guohao.simplechat.db.UserBean;
@@ -26,25 +28,39 @@ public class ProfileActivity extends ActionBarActivity {
     private ImageView mSexImageView;
     private Button mMessageButton;
 
+    private User mCurrUser;
     private UserDAO mUserDAO;
     private ChatsDAO mChatsDAO;
     private UserBean mUser;
 
     private BitmapLoader loader;
 
+    private boolean isFriend;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        String currUser = getIntent().getStringExtra("currUser");
-        String username = getIntent().getStringExtra("username");
-        mUserDAO = new UserDAO(this, currUser);
-        mUser = mUserDAO.get(username);
-        mChatsDAO = new ChatsDAO(this, currUser);
+        mCurrUser = User.getCurrentUser(this, User.class);
+        mUserDAO = new UserDAO(this, mCurrUser.getUsername());
+        mChatsDAO = new ChatsDAO(this, mCurrUser.getUsername());
+        if (getIntent().hasExtra("search_user")) {
+            mUser = (UserBean) getIntent().getSerializableExtra("search_user");
+            isFriend = (mUserDAO.get(mUser.getUsername()) != null);
+        } else {
+            isFriend = true;
+            String username = getIntent().getStringExtra("username");
+            mUser = mUserDAO.get(username);
+        }
         loader = BitmapLoader.getInstance(this);
         initView();
         initEvent();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     private void initView() {
@@ -59,24 +75,31 @@ public class ProfileActivity extends ActionBarActivity {
             mSexImageView.setImageResource(R.drawable.profile_woman);
         else
             mSexImageView.setImageResource(R.drawable.profile_man);
+        if (!isFriend)
+            mMessageButton.setText(getString(R.string.invite));
         Bitmap bitmap = loader.getBitmapFromCache(
                 mUser.getUsername(), mUser.getPhotoUri(),
                 mPhotoImageView);
         if (bitmap != null)
             mPhotoImageView.setImageBitmap(bitmap);
+
     }
 
     private void initEvent() {
         mMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ConversationBean conv = mChatsDAO.getConversation(mUser.getUsername());
-                Intent intent = new Intent(ProfileActivity.this, ChatActivity.class);
-                intent.putExtra("friend_username", mUser.getUsername());
-                intent.putExtra("title", mUser.getNickname());
-                intent.putExtra("conversationID", conv.getId());
-                intent.putExtra("uri", mUser.getPhotoUri());
-                startActivity(intent);
+                if (isFriend) {
+                    ConversationBean conv = mChatsDAO.getConversation(mUser.getUsername());
+                    Intent intent = new Intent(ProfileActivity.this, ChatActivity.class);
+                    intent.putExtra("friend_username", mUser.getUsername());
+                    intent.putExtra("title", mUser.getNickname());
+                    intent.putExtra("conversationID", conv.getId());
+                    intent.putExtra("uri", mUser.getPhotoUri());
+                    startActivity(intent);
+                } else {
+                    Log.i("lgh", "Invite " + mUser.toString());
+                }
             }
         });
     }

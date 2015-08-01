@@ -218,6 +218,7 @@ public class ChatsFragment extends Fragment
         intent.putExtra("friend_username", mChatBeans.get(position).username);
         intent.putExtra("title", mChatBeans.get(position).title);
         intent.putExtra("conversationID", mChatBeans.get(position).convID);
+        intent.putExtra("uri", mChatBeans.get(position).uri);
         startActivity(intent);
     }
 

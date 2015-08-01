@@ -1,6 +1,7 @@
 package cn.thu.guohao.simplechat.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +15,9 @@ import android.widget.TextView;
 import java.util.List;
 
 import cn.thu.guohao.simplechat.R;
+import cn.thu.guohao.simplechat.db.UserBean;
 import cn.thu.guohao.simplechat.ui.ChatActivity;
+import cn.thu.guohao.simplechat.util.BitmapLoader;
 
 /**
  * Created by Guohao on 2015/7/24.
@@ -27,11 +30,17 @@ public class ChatItemAdapter extends BaseAdapter
     private List<ChatItemBean> mData;
     private ChatActivity mContext;
 
-    public ChatItemAdapter(ChatActivity context, List<ChatItemBean> data, ListView listview) {
+    private BitmapLoader loader;
+    private UserBean me, friend;
+
+    public ChatItemAdapter(ChatActivity context, List<ChatItemBean> data, ListView listview, UserBean me, UserBean friend) {
         mContext = context;
         mInflater = LayoutInflater.from(context);
         mData = data;
         listview.setOnScrollListener(this);
+        loader = BitmapLoader.getInstance(context);
+        this.me = me;
+        this.friend = friend;
     }
 
     @Override
@@ -94,9 +103,21 @@ public class ChatItemAdapter extends BaseAdapter
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        if (type < 2)
-            viewHolder.icon.setImageResource(R.mipmap.ic_launcher);
         viewHolder.text.setText(mData.get(position).text);
+        Bitmap bitmap = null;
+        if (type == 0) {
+            bitmap = loader.getBitmapFromCache(
+                    friend.getUsername(), friend.getPhotoUri(),
+                    viewHolder.icon);
+        } else if (type == 1) {
+            bitmap = loader.getBitmapFromCache(
+                    me.getUsername(), me.getPhotoUri(),
+                    viewHolder.icon);
+        }
+        if (type < 2 && bitmap != null)
+            viewHolder.icon.setImageBitmap(bitmap);
+        else if (type < 2)
+            viewHolder.icon.setImageResource(R.mipmap.ic_launcher);
         return convertView;
     }
 

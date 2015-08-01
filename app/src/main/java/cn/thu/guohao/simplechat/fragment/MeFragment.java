@@ -2,6 +2,7 @@ package cn.thu.guohao.simplechat.fragment;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -17,6 +19,7 @@ import android.widget.TextView;
 import cn.thu.guohao.simplechat.R;
 import cn.thu.guohao.simplechat.data.User;
 import cn.thu.guohao.simplechat.ui.MyProfileActivity;
+import cn.thu.guohao.simplechat.util.BitmapLoader;
 
 
 /**
@@ -29,6 +32,9 @@ public class MeFragment extends Fragment {
     private TextView mNicknameTextView, mUsernameTextView;
     private Button mLogoutButton;
     private LinearLayout mMeLayout;
+    private ImageView mMeImageView;
+
+    private BitmapLoader loader;
 
     private OnFragmentInteractionListener mListener;
 
@@ -50,6 +56,7 @@ public class MeFragment extends Fragment {
         mUsernameTextView = (TextView) view.findViewById(R.id.id_tv_frag_me_id);
         mMeLayout = (LinearLayout) view.findViewById(R.id.id_li_frag_me);
         mLogoutButton = (Button) view.findViewById(R.id.id_bt_frag_me_logout);
+        mMeImageView = (ImageView) view.findViewById(R.id.id_iv_frag_me);
         mLogoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -63,6 +70,7 @@ public class MeFragment extends Fragment {
                 startActivity(intent);
             }
         });
+        loader = BitmapLoader.getInstance(getActivity());
         return view;
     }
 
@@ -73,6 +81,13 @@ public class MeFragment extends Fragment {
         mNicknameTextView.setText(currUser.getNickname());
         mUsernameTextView.setText(getString(R.string.prefix_id) + " " +
                 currUser.getUsername());
+        Bitmap bitmap = loader.getBitmapFromCache(
+                currUser.getUsername(),
+                currUser.getPhotoUri(),
+                mMeImageView
+        );
+        if (bitmap != null)
+            mMeImageView.setImageBitmap(bitmap);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package cn.thu.guohao.simplechat.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import cn.thu.guohao.simplechat.R;
+import cn.thu.guohao.simplechat.util.BitmapLoader;
 
 /**
  * Created by Guohao on 2015/7/27.
@@ -23,11 +25,13 @@ public class ContactAdapter extends BaseAdapter
 
     private LayoutInflater mInflater;
     private List<ContactBean> mData;
+    private BitmapLoader loader;
 
     public ContactAdapter(Context context, List<ContactBean> data, ListView listView) {
         mInflater = LayoutInflater.from(context);
         mData = data;
         listView.setOnScrollListener(this);
+        loader = BitmapLoader.getInstance(context);
     }
 
     @Override
@@ -57,7 +61,14 @@ public class ContactAdapter extends BaseAdapter
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        viewHolder.icon.setImageResource(R.mipmap.ic_launcher);
+        Bitmap bitmap = loader.getBitmapFromCache(
+                mData.get(position).username,
+                mData.get(position).uri,
+                viewHolder.icon);
+        if (bitmap == null)
+            viewHolder.icon.setImageResource(R.mipmap.ic_launcher);
+        else
+            viewHolder.icon.setImageBitmap(bitmap);
         viewHolder.nickname.setText(mData.get(position).nickname);
         return convertView;
     }

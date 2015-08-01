@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,6 +40,7 @@ import cn.thu.guohao.simplechat.data.Installation;
 import cn.thu.guohao.simplechat.data.User;
 import cn.thu.guohao.simplechat.db.UserBean;
 import cn.thu.guohao.simplechat.db.UserDAO;
+import cn.thu.guohao.simplechat.util.BitmapLoader;
 import cn.thu.guohao.simplechat.util.InfoPack;
 import cn.thu.guohao.simplechat.util.Utils;
 
@@ -46,12 +48,14 @@ public class MyProfileActivity extends ActionBarActivity {
 
     private RelativeLayout mPhotoLayout, mNameLayout, mGenderLayout;
     private TextView mNameTextView, mIDTextView, mGenderTextView;
+    private ImageView mPhotoImageView;
 
     private User mCurrUser;
     private UserDAO mUserDAO;
     private BmobPushManager<Installation> mPushManager;
-
     private String[] genderArr;
+
+    private BitmapLoader loader;
 
     private static final int REQUEST_NICKNAME = 0;
     private static final int REQUEST_PHOTO = 1;
@@ -63,9 +67,25 @@ public class MyProfileActivity extends ActionBarActivity {
         mCurrUser = User.getCurrentUser(this, User.class);
         mUserDAO = new UserDAO(this, mCurrUser.getUsername());
         mPushManager = new BmobPushManager<>(this);
+        loader = BitmapLoader.getInstance(this);
         initView();
         initEvent();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mCurrUser = User.getCurrentUser(this, User.class);
+        mNameTextView.setText(mCurrUser.getNickname());
+        mIDTextView.setText(mCurrUser.getUsername());
+        mGenderTextView.setText(gender2String(mCurrUser.getIsMale()));
+        Bitmap bitmap = loader.getBitmapFromCache(
+                mCurrUser.getUsername(),
+                mCurrUser.getPhotoUri(),
+                mPhotoImageView
+        );
+        if (bitmap != null)
+            mPhotoImageView.setImageBitmap(bitmap);
     }
 
     private void initView() {
@@ -75,9 +95,7 @@ public class MyProfileActivity extends ActionBarActivity {
         mNameTextView = (TextView) findViewById(R.id.id_tv_my_name);
         mIDTextView = (TextView) findViewById(R.id.id_tv_my_id);
         mGenderTextView = (TextView) findViewById(R.id.id_tv_my_gender);
-        mNameTextView.setText(mCurrUser.getNickname());
-        mIDTextView.setText(mCurrUser.getUsername());
-        mGenderTextView.setText(gender2String(mCurrUser.getIsMale()));
+        mPhotoImageView = (ImageView) findViewById(R.id.id_iv_my_photo);
         genderArr = new String[] {
                 getString(R.string.hint_male),
                 getString(R.string.hint_female)
@@ -224,6 +242,7 @@ public class MyProfileActivity extends ActionBarActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        loader.removeBitmapFromCache(mCurrUser.getUsername());
         return getFilesDir() + "/" + saveFilename;
     }
 

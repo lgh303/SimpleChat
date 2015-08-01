@@ -77,7 +77,10 @@ public class ContactsFragment extends Fragment
             initDataViaCloud();
         else {
             for (UserBean user : list) {
-                mData.add(new ContactBean(user.getUsername(), user.getNickname()));
+                mData.add(new ContactBean(
+                        user.getUsername(),
+                        user.getNickname(),
+                        user.getPhotoUri()));
             }
             mAdapter = new ContactAdapter(getActivity(), mData, mListView);
             mListView.setAdapter(mAdapter);
@@ -92,7 +95,10 @@ public class ContactsFragment extends Fragment
             @Override
             public void onSuccess(List<User> list) {
                 for (User user : list) {
-                    mData.add(new ContactBean(user.getUsername(), user.getNickname()));
+                    mData.add(new ContactBean(
+                            user.getUsername(), user.getNickname(),
+                            user.getPhotoUri()
+                    ));
                     int sex = 0;
                     if (user.getIsMale()) sex = 1;
                     int type = 0;

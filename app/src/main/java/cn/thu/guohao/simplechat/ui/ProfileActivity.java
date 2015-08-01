@@ -1,6 +1,7 @@
 package cn.thu.guohao.simplechat.ui;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -15,17 +16,21 @@ import cn.thu.guohao.simplechat.db.ChatsDAO;
 import cn.thu.guohao.simplechat.db.ConversationBean;
 import cn.thu.guohao.simplechat.db.UserBean;
 import cn.thu.guohao.simplechat.db.UserDAO;
+import cn.thu.guohao.simplechat.util.BitmapLoader;
 
 public class ProfileActivity extends ActionBarActivity {
 
     private TextView mNicknameTextView;
     private TextView mUsernameTextView;
+    private ImageView mPhotoImageView;
     private ImageView mSexImageView;
     private Button mMessageButton;
 
     private UserDAO mUserDAO;
     private ChatsDAO mChatsDAO;
     private UserBean mUser;
+
+    private BitmapLoader loader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +42,7 @@ public class ProfileActivity extends ActionBarActivity {
         mUserDAO = new UserDAO(this, currUser);
         mUser = mUserDAO.get(username);
         mChatsDAO = new ChatsDAO(this, currUser);
+        loader = BitmapLoader.getInstance(this);
         initView();
         initEvent();
     }
@@ -44,6 +50,7 @@ public class ProfileActivity extends ActionBarActivity {
     private void initView() {
         mNicknameTextView = (TextView) findViewById(R.id.id_tv_profile_nickname);
         mUsernameTextView = (TextView) findViewById(R.id.id_tv_profile_username);
+        mPhotoImageView = (ImageView) findViewById(R.id.id_iv_profile_photo);
         mSexImageView = (ImageView) findViewById(R.id.id_iv_profile_sex);
         mMessageButton = (Button) findViewById(R.id.id_bt_profile_message);
         mNicknameTextView.setText(mUser.getNickname());
@@ -52,6 +59,11 @@ public class ProfileActivity extends ActionBarActivity {
             mSexImageView.setImageResource(R.drawable.profile_woman);
         else
             mSexImageView.setImageResource(R.drawable.profile_man);
+        Bitmap bitmap = loader.getBitmapFromCache(
+                mUser.getUsername(), mUser.getPhotoUri(),
+                mPhotoImageView);
+        if (bitmap != null)
+            mPhotoImageView.setImageBitmap(bitmap);
     }
 
     private void initEvent() {
@@ -63,6 +75,7 @@ public class ProfileActivity extends ActionBarActivity {
                 intent.putExtra("friend_username", mUser.getUsername());
                 intent.putExtra("title", mUser.getNickname());
                 intent.putExtra("conversationID", conv.getId());
+                intent.putExtra("uri", mUser.getPhotoUri());
                 startActivity(intent);
             }
         });

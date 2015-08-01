@@ -46,6 +46,7 @@ import cn.thu.guohao.simplechat.db.ChatsDAO;
 import cn.thu.guohao.simplechat.db.ConversationBean;
 import cn.thu.guohao.simplechat.db.MessageBean;
 import cn.thu.guohao.simplechat.db.MessageDAO;
+import cn.thu.guohao.simplechat.db.UserBean;
 import cn.thu.guohao.simplechat.receiver.MessageReceiver;
 import cn.thu.guohao.simplechat.util.InfoPack;
 import cn.thu.guohao.simplechat.util.Utils;
@@ -61,7 +62,7 @@ public class ChatActivity extends ActionBarActivity {
     private String mText = "";
     private List<ChatItemBean> mData = new ArrayList<>();
 
-    private String mFriendUsername, mTitle, mConvID;
+    private String mFriendUsername, mTitle, mConvID, mFriendUri;
     private User mCurrUser;
     private Conversation mCurrConversation;
     private Installation mFriendInstallation = null;
@@ -80,6 +81,7 @@ public class ChatActivity extends ActionBarActivity {
         mFriendUsername = getIntent().getStringExtra("friend_username");
         mConvID = getIntent().getStringExtra("conversationID");
         mTitle = getIntent().getStringExtra("title");
+        mFriendUri = getIntent().getStringExtra("uri");
         initConversation();
         initInstallation();
 
@@ -158,7 +160,11 @@ public class ChatActivity extends ActionBarActivity {
         mInputView = (ImageView) findViewById(R.id.id_iv_chat_input);
         mEditText = (EditText) findViewById(R.id.id_et_chat);
         mExtraView = (ImageView) findViewById(R.id.id_iv_chat_extras);
-        mAdapter = new ChatItemAdapter(this, mData, mListView);
+        mAdapter = new ChatItemAdapter(
+                this, mData, mListView,
+                new UserBean(mCurrUser.getUsername(), null, 0, 0, mCurrUser.getPhotoUri()),
+                new UserBean(mFriendUsername, null, 0, 0, mFriendUri)
+                );
         mListView.setAdapter(mAdapter);
         mListView.setSelection(mListView.getCount() - 1);
     }

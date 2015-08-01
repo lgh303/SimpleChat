@@ -7,8 +7,10 @@ package cn.thu.guohao.simplechat.adapter;
 public class ContactBean {
     public String username;
     public String nickname;
-    public ContactBean(String username, String nickname) {
+    public String uri;
+    public ContactBean(String username, String nickname, String uri) {
         this.username = username;
         this.nickname = nickname;
+        this.uri = uri;
     }
 }

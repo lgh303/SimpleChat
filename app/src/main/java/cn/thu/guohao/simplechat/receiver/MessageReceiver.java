@@ -14,6 +14,7 @@ import cn.thu.guohao.simplechat.db.MessageBean;
 import cn.thu.guohao.simplechat.db.MessageDAO;
 import cn.thu.guohao.simplechat.db.UserBean;
 import cn.thu.guohao.simplechat.db.UserDAO;
+import cn.thu.guohao.simplechat.util.BitmapLoader;
 import cn.thu.guohao.simplechat.util.InfoPack;
 import cn.thu.guohao.simplechat.util.Utils;
 
@@ -89,6 +90,8 @@ public class MessageReceiver extends BroadcastReceiver {
         user.setNickname(pack.getContent());
         if (!user.getPhotoUri().equals(pack.getUri())) {
             user.setPhotoUri(pack.getUri());
+            if (!BitmapLoader.hasNoCache())
+                BitmapLoader.getInstance(context).removeBitmapFromCache(user.getUsername());
             Log.i("lgh", "Received Photo Update Message");
         }
         int sex = 0;

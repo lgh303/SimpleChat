@@ -49,6 +49,13 @@ public class BitmapLoader {
         };
     }
 
+    public static boolean hasNoCache() {
+        return loader == null;
+    }
+
+    public void removeBitmapFromCache(String username) {
+        mCache.remove(username);
+    }
     public Bitmap getBitmapFromCache(String username, String uri, ImageView view) {
         Bitmap bitmap = mCache.get(username);
         if (bitmap != null) return bitmap;

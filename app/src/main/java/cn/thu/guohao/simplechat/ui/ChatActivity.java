@@ -199,18 +199,16 @@ public class ChatActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 if (mText.length() > 0) {
-                    String update_time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-                    addChat(mText, ChatItemBean.TYPE.RIGHT, update_time);
+                    addChat(mText, ChatItemBean.TYPE.RIGHT);
                     mEditText.setText("");
                 }
             }
         });
     }
 
-    private void addChat(String text, ChatItemBean.TYPE type, String update_time) {
+    private void addChat(String text, ChatItemBean.TYPE type) {
         addChatItem(text, type);
-        saveLocal(text, type, update_time);
-        saveMessageRemote(text, type, update_time);
+        saveMessage(text, type);
     }
 
     private void addChatItem(String text, ChatItemBean.TYPE type) {
@@ -218,10 +216,68 @@ public class ChatActivity extends ActionBarActivity {
         mAdapter.notifyDataSetChanged();
     }
 
+    private void saveMessage(final String text, final ChatItemBean.TYPE type) {
+        String speaker = mCurrUser.getUsername();
+        message = new Message();
+        message.setUsername(speaker);
+        message.setContent(text);
+        message.setConversation(mCurrConversation);
+        message.save(this, new SaveListener() {
+            @Override
+            public void onSuccess() {
+                updateConversationRemote(type);
+                saveLocal(text, type, message.getCreatedAt());
+            }
+
+            @Override
+            public void onFailure(int i, String s) {
+            }
+        });
+    }
+
+    private void updateConversationRemote(final ChatItemBean.TYPE type) {
+        final BmobRelation messages = new BmobRelation();
+        messages.add(message);
+        mCurrConversation.setMessages(messages);
+        mCurrConversation.setLatestMessage(message.getContent());
+        mCurrConversation.setUnread(0);
+        mCurrConversation.update(ChatActivity.this, new UpdateListener() {
+            @Override
+            public void onSuccess() {
+                if (type != ChatItemBean.TYPE.RIGHT) return;
+                if (message.getUsername().equals("filehelper")) return;
+                sendMessage();
+            }
+            @Override
+            public void onFailure(int i, String s) { }
+        });
+    }
+
+    private void sendMessage() {
+        if (mFriendInstallation == null) {
+            // TODO save it to user's wait list
+        } else {
+            BmobQuery<Installation> query = Installation.getQuery();
+            query.addWhereEqualTo("username", mFriendUsername);
+            mPushManager.setQuery(query);
+            try {
+                JSONObject json = new JSONObject(Utils.makeJsonString(
+                        InfoPack.STR_MESSAGE,
+                        message.getUsername(),
+                        message.getContent(),
+                        "null",
+                        message.getCreatedAt()
+                ));
+                mPushManager.pushMessage(json);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private void saveLocal(String text, final ChatItemBean.TYPE type, String update_time) {
         int posType = 0, mediaType = 0;
         String speaker = "Notification", uri = "null";
-
         if (type == ChatItemBean.TYPE.LEFT) {
             posType = 0;
             speaker = mFriendUsername;
@@ -247,68 +303,6 @@ public class ChatActivity extends ActionBarActivity {
                 0,
                 null
         );
-    }
-
-    private void saveMessageRemote(String text, final ChatItemBean.TYPE type, final String update_time) {
-        String speaker = "Notification";
-        if (type == ChatItemBean.TYPE.LEFT)
-            speaker = mFriendUsername;
-        else if (type == ChatItemBean.TYPE.RIGHT)
-            speaker = mCurrUser.getUsername();
-        message = new Message();
-        message.setUsername(speaker);
-        message.setContent(text);
-        message.setConversation(mCurrConversation);
-        message.save(this, new SaveListener() {
-            @Override
-            public void onSuccess() {
-                updateConversationRemote(type, update_time);
-            }
-
-            @Override
-            public void onFailure(int i, String s) {
-            }
-        });
-    }
-
-    private void updateConversationRemote(final ChatItemBean.TYPE type, final String update_time) {
-        final BmobRelation messages = new BmobRelation();
-        messages.add(message);
-        mCurrConversation.setMessages(messages);
-        mCurrConversation.setLatestMessage(message.getContent());
-        mCurrConversation.setUnread(0);
-        mCurrConversation.update(ChatActivity.this, new UpdateListener() {
-            @Override
-            public void onSuccess() {
-                if (type != ChatItemBean.TYPE.RIGHT) return;
-                if (message.getUsername().equals("filehelper")) return;
-                sendMessage(update_time);
-            }
-            @Override
-            public void onFailure(int i, String s) { }
-        });
-    }
-
-    private void sendMessage(final String update_time) {
-        if (mFriendInstallation == null) {
-            // TODO save it to user's wait list
-        } else {
-            BmobQuery<Installation> query = Installation.getQuery();
-            query.addWhereEqualTo("username", mFriendUsername);
-            mPushManager.setQuery(query);
-            try {
-                JSONObject json = new JSONObject(Utils.makeJsonString(
-                        InfoPack.STR_MESSAGE,
-                        mCurrUser.getUsername(),
-                        message.getContent(),
-                        "null",
-                        update_time
-                ));
-                mPushManager.pushMessage(json);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     private BroadcastReceiver receiver = new BroadcastReceiver() {

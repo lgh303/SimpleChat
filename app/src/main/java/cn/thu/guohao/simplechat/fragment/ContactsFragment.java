@@ -27,6 +27,7 @@ import cn.thu.guohao.simplechat.adapter.ContactBean;
 import cn.thu.guohao.simplechat.data.User;
 import cn.thu.guohao.simplechat.db.UserBean;
 import cn.thu.guohao.simplechat.db.UserDAO;
+import cn.thu.guohao.simplechat.ui.InvitationsActivity;
 import cn.thu.guohao.simplechat.ui.ProfileActivity;
 
 
@@ -75,10 +76,17 @@ public class ContactsFragment extends Fragment
         mCurrUser = User.getCurrentUser(getActivity(), User.class);
         mUserDAO = new UserDAO(getActivity(), mCurrUser.getUsername());
         initData();
+        mInvitationLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), InvitationsActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void initData() {
-        ArrayList<UserBean> list = mUserDAO.get(UserDAO.FRIENDS);
+        ArrayList<UserBean> list = mUserDAO.getFriends();
         if (list.isEmpty())
             initDataViaCloud();
         else {

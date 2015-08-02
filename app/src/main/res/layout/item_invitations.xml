@@ -26,8 +26,8 @@
             android:layout_height="wrap_content" />
 
         <ImageView
-            android:layout_marginLeft="15dp"
             android:id="@+id/id_iv_profile_sex"
+            android:layout_marginLeft="15dp"
             android:layout_toRightOf="@id/id_tv_profile_nickname"
             android:src="@drawable/profile_man"
             android:layout_width="24dp"
@@ -44,6 +44,7 @@
     </RelativeLayout>
 
     <Button
+        android:id="@+id/id_bt_profile_accept"
         android:text="@string/accept"
         android:textAllCaps="false"
         android:layout_marginRight="20dp"

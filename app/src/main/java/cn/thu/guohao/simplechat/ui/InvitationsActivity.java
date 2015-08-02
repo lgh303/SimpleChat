@@ -1,18 +1,53 @@
 package cn.thu.guohao.simplechat.ui;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ListView;
+
+import java.util.List;
 
 import cn.thu.guohao.simplechat.R;
+import cn.thu.guohao.simplechat.adapter.InvitationsAdapter;
+import cn.thu.guohao.simplechat.data.User;
+import cn.thu.guohao.simplechat.db.UserBean;
+import cn.thu.guohao.simplechat.db.UserDAO;
 
 public class InvitationsActivity extends ActionBarActivity {
+
+    private Button mInviteButton;
+    private ListView mListView;
+    private List<UserBean> mData;
+    private User mCurrUser;
+    private UserDAO mUserDAO;
+    private InvitationsAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_invitations);
+        mInviteButton = (Button) findViewById(R.id.id_bt_invitations_invite);
+        mListView = (ListView) findViewById(R.id.id_lv_invitations);
+        mCurrUser = User.getCurrentUser(this, User.class);
+        mUserDAO = new UserDAO(this, mCurrUser.getUsername());
+        mData = mUserDAO.getPending();
+        mAdapter = new InvitationsAdapter(this, mData);
+        mListView.setAdapter(mAdapter);
+        mInviteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(InvitationsActivity.this, SearchUsersActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
+
+    private void onAcceptInvitation() {
+
     }
 
     @Override

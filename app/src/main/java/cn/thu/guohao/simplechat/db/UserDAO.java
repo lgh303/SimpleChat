@@ -73,9 +73,17 @@ public class UserDAO {
         return user;
     }
 
-    public ArrayList<UserBean> get(Integer type) {
+    public ArrayList<UserBean> getFriends() {
+        return getWhere("type=0");
+    }
+
+    public ArrayList<UserBean> getPending() {
+        return getWhere("type!=0");
+    }
+
+    private ArrayList<UserBean> getWhere(String where) {
         SQLiteDatabase db = helper.getWritableDatabase();
-        String selectSQL = "select * from user where type=" + type;
+        String selectSQL = "select * from user where " + where;
         Cursor cursor = db.rawQuery(selectSQL, null);
         ArrayList<UserBean> list = new ArrayList<>();
         while (cursor.moveToNext()) {
@@ -92,7 +100,7 @@ public class UserDAO {
         return list;
     }
 
-    public ArrayList<UserBean> get() {
+    public ArrayList<UserBean> getAll() {
         SQLiteDatabase db = helper.getWritableDatabase();
         Cursor cursor = db.query("user", null, null, null, null, null, null, null);
         ArrayList<UserBean> list = new ArrayList<>();

@@ -171,7 +171,7 @@ public class MyProfileActivity extends ActionBarActivity {
     }
 
     private void sendUpdateMessage() {
-        ArrayList<UserBean> friends = mUserDAO.get();
+        ArrayList<UserBean> friends = mUserDAO.getFriends();
         for (final UserBean friend : friends) {
             if (friend.getUsername().equals("filehelper"))
                 continue;

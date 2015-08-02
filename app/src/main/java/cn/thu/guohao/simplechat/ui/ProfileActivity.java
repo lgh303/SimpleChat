@@ -107,6 +107,8 @@ public class ProfileActivity extends ActionBarActivity {
                             mCurrUser.getUsername(),
                             "null", "null", "null"
                     );
+                    mUser.setType(UserDAO.MY_IDOL);
+                    mUserDAO.insert(mUser);
                     DeliverySender.getInstance(ProfileActivity.this).send(
                             InfoPack.TYPE.INVITE,
                             mUser.getUsername(), jsonString

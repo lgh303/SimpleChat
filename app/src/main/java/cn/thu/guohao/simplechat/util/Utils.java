@@ -12,6 +12,8 @@ import org.json.JSONTokener;
 import java.util.ArrayList;
 
 import cn.thu.guohao.simplechat.adapter.ChatItemBean;
+import cn.thu.guohao.simplechat.data.User;
+import cn.thu.guohao.simplechat.db.UserBean;
 
 /**
  * Created by Guohao on 2015/7/29.
@@ -68,5 +70,16 @@ public class Utils {
     public static void hideKeyboard(Activity context){
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(context.findViewById(android.R.id.content).getWindowToken(), 0);
+    }
+
+    public static UserBean user2bean(User user) {
+        int sex = 0;
+        if (user.getIsMale()) sex = 1;
+        return new UserBean(
+                user.getUsername(),
+                user.getNickname(),
+                sex, 0,
+                user.getPhotoUri()
+        );
     }
 }

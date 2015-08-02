@@ -43,7 +43,7 @@ public class ContactsFragment extends Fragment
     private View mInvitationLayout;
     private TextView mRedPointTextView;
     private ListView mListView;
-    private List<ContactBean> mData = new ArrayList<>();
+    private List<ContactBean> mData;
     private User mCurrUser;
     private ContactAdapter mAdapter;
 
@@ -86,6 +86,7 @@ public class ContactsFragment extends Fragment
     }
 
     private void initData() {
+        mData = new ArrayList<>();
         ArrayList<UserBean> list = mUserDAO.getFriends();
         if (list.isEmpty())
             initDataViaCloud();

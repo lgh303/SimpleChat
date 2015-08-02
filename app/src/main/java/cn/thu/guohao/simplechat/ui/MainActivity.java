@@ -3,6 +3,7 @@ package cn.thu.guohao.simplechat.ui;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -19,15 +20,20 @@ import java.util.List;
 import cn.bmob.push.BmobPush;
 import cn.bmob.v3.BmobInstallation;
 import cn.bmob.v3.BmobQuery;
+import cn.bmob.v3.listener.DeleteListener;
 import cn.bmob.v3.listener.FindListener;
 import cn.bmob.v3.listener.SaveListener;
 import cn.bmob.v3.listener.UpdateListener;
+import cn.thu.guohao.simplechat.data.Delivery;
 import cn.thu.guohao.simplechat.data.Installation;
 import cn.thu.guohao.simplechat.data.User;
 import cn.thu.guohao.simplechat.fragment.ChatsFragment;
 import cn.thu.guohao.simplechat.fragment.ContactsFragment;
 import cn.thu.guohao.simplechat.fragment.DiscoverFragment;
 import cn.thu.guohao.simplechat.fragment.MeFragment;
+import cn.thu.guohao.simplechat.util.InfoPack;
+import cn.thu.guohao.simplechat.util.PackProcessor;
+import cn.thu.guohao.simplechat.util.Utils;
 import cn.thu.guohao.simplechat.view.PagerIcon;
 import cn.thu.guohao.simplechat.R;
 
@@ -60,6 +66,13 @@ public class MainActivity extends ActionBarActivity
         initInstallation();
         initView();
         initEvent();
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                receiveWaitingMessage();
+                return null;
+            }
+        }.execute();
     }
 
     private void initInstallation() {
@@ -79,6 +92,7 @@ public class MainActivity extends ActionBarActivity
                     mInstallation.update(MainActivity.this);
                 }
             }
+
             @Override
             public void onError(int i, String s) {
                 Log.i("lgh", "find failed");
@@ -125,6 +139,35 @@ public class MainActivity extends ActionBarActivity
             pi.setOnClickListener(this);
         }
         mViewPager.addOnPageChangeListener(this);
+    }
+
+    public void receiveWaitingMessage() {
+        BmobQuery<Delivery> query = new BmobQuery<>();
+        query.addWhereEqualTo("receiver", mCurrUser.getUsername());
+        query.findObjects(this, new FindListener<Delivery>() {
+            @Override
+            public void onSuccess(List<Delivery> list) {
+                if (list.isEmpty()) {
+                    Log.i("lgh", "No Waiting Delivery");
+                } else {
+                    for (Delivery delivery : list) {
+                        final InfoPack pack = Utils.parseMessage(delivery.getJson());
+                        PackProcessor.getInstance(MainActivity.this).processPack(pack);
+                        delivery.delete(MainActivity.this, new DeleteListener() {
+                            @Override
+                            public void onSuccess() {
+                                Log.i("lgh", "Delete Delivery from server: " + pack.toString());
+                            }
+                            @Override
+                            public void onFailure(int i, String s) {}
+                        });
+                    }
+                }
+            }
+            @Override
+            public void onError(int i, String s) {
+            }
+        });
     }
 
     @Override

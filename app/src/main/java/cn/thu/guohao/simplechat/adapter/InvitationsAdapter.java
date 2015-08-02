@@ -15,6 +15,7 @@ import java.util.List;
 
 import cn.thu.guohao.simplechat.R;
 import cn.thu.guohao.simplechat.db.UserBean;
+import cn.thu.guohao.simplechat.db.UserDAO;
 import cn.thu.guohao.simplechat.util.BitmapLoader;
 
 /**
@@ -22,14 +23,18 @@ import cn.thu.guohao.simplechat.util.BitmapLoader;
  * InvitationsActivity ListView Adapter
  */
 public class InvitationsAdapter extends BaseAdapter {
+    private Context mContext;
     private List<UserBean> mData;
     private LayoutInflater mInflater;
     private BitmapLoader loader;
+    private UserDAO mUserDAO;
 
-    public InvitationsAdapter(Context context, List<UserBean> data) {
+    public InvitationsAdapter(Context context, List<UserBean> data, String username) {
+        this.mContext = context;
         this.mData = data;
         mInflater = LayoutInflater.from(context);
         loader = BitmapLoader.getInstance(context);
+        mUserDAO = new UserDAO(context, username);
     }
 
     @Override
@@ -49,7 +54,7 @@ public class InvitationsAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder viewHolder;
+        final ViewHolder viewHolder;
         final UserBean user = mData.get(position);
         if (convertView == null) {
             viewHolder = new ViewHolder();
@@ -83,7 +88,15 @@ public class InvitationsAdapter extends BaseAdapter {
             viewHolder.gender.setImageResource(R.drawable.profile_man);
         else
             viewHolder.gender.setImageResource(R.drawable.profile_woman);
-        return null;
+        if (user.getType() == UserDAO.MY_ADMIRER) {
+            viewHolder.button.setText(mContext.getString(R.string.accept));
+            viewHolder.button.setBackgroundResource(R.drawable.selector_button_blue);
+        }
+        else {
+            viewHolder.button.setText(mContext.getString(R.string.pending));
+            viewHolder.button.setClickable(false);
+        }
+        return convertView;
     }
 
     class ViewHolder {

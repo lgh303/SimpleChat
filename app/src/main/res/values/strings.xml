@@ -29,6 +29,8 @@
     <string name="invite">Invite</string>
     <string name="friends_invitations">Friends Invitations</string>
     <string name="accept">Accept</string>
+    <string name="pending">Pending</string>
+    <string name="added">Added</string>
 
     <string name="action_search">Search</string>
     <string name="action_more">More</string>

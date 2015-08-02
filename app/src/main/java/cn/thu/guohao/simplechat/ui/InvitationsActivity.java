@@ -3,6 +3,7 @@ package cn.thu.guohao.simplechat.ui;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,7 +36,8 @@ public class InvitationsActivity extends ActionBarActivity {
         mCurrUser = User.getCurrentUser(this, User.class);
         mUserDAO = new UserDAO(this, mCurrUser.getUsername());
         mData = mUserDAO.getPending();
-        mAdapter = new InvitationsAdapter(this, mData);
+        Log.i("lgh", "Invitations Data.size = " + mData.size());
+        mAdapter = new InvitationsAdapter(this, mData, mCurrUser.getUsername());
         mListView.setAdapter(mAdapter);
         mInviteButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -44,10 +46,6 @@ public class InvitationsActivity extends ActionBarActivity {
                 startActivity(intent);
             }
         });
-    }
-
-    private void onAcceptInvitation() {
-
     }
 
     @Override

@@ -5,6 +5,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import java.util.List;
+
+import cn.bmob.v3.BmobQuery;
+import cn.bmob.v3.listener.FindListener;
 import cn.thu.guohao.simplechat.R;
 import cn.thu.guohao.simplechat.data.User;
 import cn.thu.guohao.simplechat.db.ChatsDAO;
@@ -43,6 +47,7 @@ public class PackProcessor {
     }
 
     public void processPack(InfoPack pack) {
+        Log.i("lgh", "Passing Pack: " + pack.toString());
         if (pack.getType() != InfoPack.TYPE.ERROR) {
             mCurrUser = User.getCurrentUser(context, User.class);
             if (mCurrUser == null) return;
@@ -58,9 +63,10 @@ public class PackProcessor {
                 mUserDAO = new UserDAO(context, mCurrUser.getUsername());
                 mChatsDAO = new ChatsDAO(context, mCurrUser.getUsername());
                 updateLocalUser(context, pack);
-                Log.i("lgh", "Update Local user Success");
             } else if (pack.getType() == InfoPack.TYPE.INVITE) {
                 Log.i("lgh", "Ready to process Invite pack");
+                mUserDAO = new UserDAO(context, mCurrUser.getUsername());
+                insertInviteUser(context, pack);
             }
         }
     }
@@ -104,7 +110,6 @@ public class PackProcessor {
             sex = 1;
         user.setSex(sex);
         mUserDAO.update(user);
-
         mChatsDAO.updateConversation(
                 pack.getSender(),
                 pack.getContent(),
@@ -113,5 +118,23 @@ public class PackProcessor {
                 null,
                 pack.getUri()
         );
+    }
+
+    private void insertInviteUser(Context context, InfoPack pack) {
+        BmobQuery<User> query = new BmobQuery<>();
+        query.addWhereEqualTo("username", pack.getSender());
+        query.findObjects(context, new FindListener<User>() {
+            @Override
+            public void onSuccess(List<User> list) {
+                if (!list.isEmpty()) {
+                    UserBean bean = Utils.user2bean(list.get(0));
+                    bean.setType(UserDAO.MY_ADMIRER);
+                    mUserDAO.insert(bean);
+                    Log.i("lgh", "Saved Who invites me");
+                }
+            }
+            @Override
+            public void onError(int i, String s) {}
+        });
     }
 }

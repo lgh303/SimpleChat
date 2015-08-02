@@ -31,7 +31,6 @@ public class MessageReceiver extends BroadcastReceiver {
             String jsonString = intent.getStringExtra(
                     PushConstants.EXTRA_PUSH_MESSAGE_STRING);
             InfoPack pack = Utils.parseMessage(jsonString);
-            Log.i("lgh", "InfoPack: " + pack.toString());
             PackProcessor.getInstance(context).processPack(pack);
         }
     }

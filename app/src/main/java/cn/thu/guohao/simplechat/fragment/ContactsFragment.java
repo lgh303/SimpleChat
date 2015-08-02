@@ -5,12 +5,15 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,8 +39,10 @@ import cn.thu.guohao.simplechat.ui.ProfileActivity;
 public class ContactsFragment extends Fragment
         implements AdapterView.OnItemClickListener{
 
+    private View mInvitationLayout;
+    private TextView mRedPointTextView;
     private ListView mListView;
-    private List<ContactBean> mData;
+    private List<ContactBean> mData = new ArrayList<>();
     private User mCurrUser;
     private ContactAdapter mAdapter;
 
@@ -59,6 +64,8 @@ public class ContactsFragment extends Fragment
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_contacts, container, false);
         mListView = (ListView) view.findViewById(R.id.id_lv_contacts);
+        mInvitationLayout = view.findViewById(R.id.id_rl_frag_contact_invite);
+        mRedPointTextView = (TextView) view.findViewById(R.id.id_tv_frag_contact_red_point);
         return view;
     }
 
@@ -71,8 +78,7 @@ public class ContactsFragment extends Fragment
     }
 
     private void initData() {
-        mData = new ArrayList<>();
-        ArrayList<UserBean> list = mUserDAO.get();
+        ArrayList<UserBean> list = mUserDAO.get(UserDAO.FRIENDS);
         if (list.isEmpty())
             initDataViaCloud();
         else {

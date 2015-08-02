@@ -12,6 +12,10 @@ import java.util.ArrayList;
  * user.db Database Access Object
  */
 public class UserDAO {
+    public static final int FRIENDS = 0;
+    public static final int MY_IDOL = 1;
+    public static final int MY_ADMIRER = 2;
+
     private UserDBHelper helper;
     private String DBName;
     public UserDAO(Context context, String prefix) {
@@ -67,6 +71,25 @@ public class UserDAO {
         cursor.close();
         db.close();
         return user;
+    }
+
+    public ArrayList<UserBean> get(Integer type) {
+        SQLiteDatabase db = helper.getWritableDatabase();
+        String selectSQL = "select * from user where type=" + type;
+        Cursor cursor = db.rawQuery(selectSQL, null);
+        ArrayList<UserBean> list = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            UserBean user = new UserBean();
+            user.setUsername(cursor.getString(cursor.getColumnIndex("username")));
+            user.setNickname(cursor.getString(cursor.getColumnIndex("nickname")));
+            user.setSex(cursor.getInt(cursor.getColumnIndex("sex")));
+            user.setType(cursor.getInt(cursor.getColumnIndex("type")));
+            user.setPhotoUri(cursor.getString(cursor.getColumnIndex("photo_uri")));
+            list.add(user);
+        }
+        cursor.close();
+        db.close();
+        return list;
     }
 
     public ArrayList<UserBean> get() {

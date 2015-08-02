@@ -52,6 +52,7 @@
         android:layout_margin="20dp"
         android:background="@drawable/selector_button_blue"
         android:layout_gravity="center"
+        android:textAllCaps="false"
         android:text="@string/hint_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

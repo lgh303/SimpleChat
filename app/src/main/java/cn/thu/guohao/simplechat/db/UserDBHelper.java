@@ -11,13 +11,15 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class UserDBHelper extends SQLiteOpenHelper {
 
     private static final int VERSION = 1;
-    private static final String USER_CREATE = "create table user(" +
+    private static final String SCHEMA = "(" +
             "_id integer primary key autoincrement," +
             "username text," +
             "nickname text," +
             "sex integer," +
             "type integer," +
             "photo_uri text)";
+    private static final String USER_CREATE = "create table user " + SCHEMA;
+
     private static final String USER_DROP = "drop table if exists user";
 
     public UserDBHelper(Context context, String DBName) {

@@ -2,4 +2,5 @@
 <resources>
     <color name="white">#fff</color>
     <color name="light_gray">#ddd</color>
+    <color name="light_purple">#ff665599</color>
 </resources>

@@ -27,6 +27,8 @@
 
     <string name="hint_search_users">Input ID or Nickname</string>
     <string name="invite">Invite</string>
+    <string name="friends_invitations">Friends Invitations</string>
+    <string name="accept">Accept</string>
 
     <string name="action_search">Search</string>
     <string name="action_more">More</string>
@@ -53,4 +55,5 @@
     <string name="title_activity_my_profile">MyProfileActivity</string>
     <string name="title_activity_edit">EditActivity</string>
     <string name="title_activity_search_users">SearchUsersActivity</string>
+    <string name="title_activity_invitations">InvitationsActivity</string>
 </resources>

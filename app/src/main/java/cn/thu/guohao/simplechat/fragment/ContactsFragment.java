@@ -75,7 +75,6 @@ public class ContactsFragment extends Fragment
         super.onActivityCreated(savedInstanceState);
         mCurrUser = User.getCurrentUser(getActivity(), User.class);
         mUserDAO = new UserDAO(getActivity(), mCurrUser.getUsername());
-        initData();
         mInvitationLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -83,6 +82,13 @@ public class ContactsFragment extends Fragment
                 startActivity(intent);
             }
         });
+        initData();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // TODO refresh data when contact list changes.
     }
 
     private void initData() {

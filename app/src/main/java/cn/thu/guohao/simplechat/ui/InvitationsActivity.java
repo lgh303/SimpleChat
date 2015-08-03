@@ -37,7 +37,7 @@ public class InvitationsActivity extends ActionBarActivity {
         mUserDAO = new UserDAO(this, mCurrUser.getUsername());
         mData = mUserDAO.getPending();
         Log.i("lgh", "Invitations Data.size = " + mData.size());
-        mAdapter = new InvitationsAdapter(this, mData, mCurrUser.getUsername());
+        mAdapter = new InvitationsAdapter(this, mData, mCurrUser);
         mListView.setAdapter(mAdapter);
         mInviteButton.setOnClickListener(new View.OnClickListener() {
             @Override

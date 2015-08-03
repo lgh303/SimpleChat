@@ -13,10 +13,22 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import cn.bmob.v3.Bmob;
+import cn.bmob.v3.BmobQuery;
+import cn.bmob.v3.listener.FindListener;
+import cn.bmob.v3.listener.SaveListener;
 import cn.thu.guohao.simplechat.R;
+import cn.thu.guohao.simplechat.data.Conversation;
+import cn.thu.guohao.simplechat.data.User;
+import cn.thu.guohao.simplechat.db.ChatsDAO;
+import cn.thu.guohao.simplechat.db.MessageDAO;
 import cn.thu.guohao.simplechat.db.UserBean;
 import cn.thu.guohao.simplechat.db.UserDAO;
 import cn.thu.guohao.simplechat.util.BitmapLoader;
+import cn.thu.guohao.simplechat.util.ConversationBuilder;
+import cn.thu.guohao.simplechat.util.DeliverySender;
+import cn.thu.guohao.simplechat.util.InfoPack;
+import cn.thu.guohao.simplechat.util.Utils;
 
 /**
  * Created by Guohao on 2015/8/2.
@@ -28,13 +40,21 @@ public class InvitationsAdapter extends BaseAdapter {
     private LayoutInflater mInflater;
     private BitmapLoader loader;
     private UserDAO mUserDAO;
+    private ConversationBuilder mConvBuilder;
+    private User mCurrUser;
 
-    public InvitationsAdapter(Context context, List<UserBean> data, String username) {
+    public InvitationsAdapter(Context context, List<UserBean> data, User user) {
         this.mContext = context;
         this.mData = data;
+        this.mCurrUser = user;
         mInflater = LayoutInflater.from(context);
         loader = BitmapLoader.getInstance(context);
-        mUserDAO = new UserDAO(context, username);
+        mUserDAO = new UserDAO(context, user.getUsername());
+        mConvBuilder = new ConversationBuilder(
+                context,
+                new ChatsDAO(context, user.getUsername()),
+                new MessageDAO(context, user.getUsername())
+        );
     }
 
     @Override
@@ -68,6 +88,13 @@ public class InvitationsAdapter extends BaseAdapter {
                 @Override
                 public void onClick(View v) {
                     Log.i("lgh", "onAcceptButton: " + user.toString());
+                    Button bt = (Button)v;
+                    bt.setText(mContext.getString(R.string.added));
+                    bt.setClickable(false);
+                    bt.setBackgroundResource(R.drawable.selector_gray_background);
+                    user.setType(UserDAO.FRIENDS);
+                    mUserDAO.update(user);
+                    initConversation(user.getUsername());
                 }
             });
             convertView.setTag(viewHolder);
@@ -105,5 +132,44 @@ public class InvitationsAdapter extends BaseAdapter {
         public TextView id;
         public ImageView gender;
         public Button button;
+    }
+
+    private void initConversation(final String friendUsername) {
+        BmobQuery<User> query = new BmobQuery<>();
+        query.addWhereEqualTo("username", friendUsername);
+        query.findObjects(mContext, new FindListener<User>() {
+            @Override
+            public void onSuccess(List<User> list) {
+                if (!list.isEmpty()) {
+                    User friend = list.get(0);
+                    final Conversation conv = new Conversation();
+                    mConvBuilder.setConversation(conv, mCurrUser, friend);
+                    conv.save(mContext, new SaveListener() {
+                        @Override
+                        public void onSuccess() {
+                            mConvBuilder.updateLocal(conv);
+                            sendAcceptReplay(friendUsername, conv.getObjectId(), conv.getCreatedAt());
+                        }
+                        @Override
+                        public void onFailure(int i, String s) {}
+                    });
+                }
+            }
+            @Override
+            public void onError(int i, String s) {}
+        });
+    }
+
+    private void sendAcceptReplay(String friendUsername, String convID, String time) {
+        String jsonString = Utils.makeJsonString(
+                InfoPack.STR_ACCEPT,
+                mCurrUser.getUsername(),
+                convID, null, time
+        );
+        DeliverySender.getInstance(mContext).send(
+                InfoPack.TYPE.ACCEPT,
+                friendUsername,
+                jsonString
+        );
     }
 }

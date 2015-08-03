@@ -52,6 +52,9 @@ public class Utils {
                 case InfoPack.STR_INVITE:
                     infoType = InfoPack.TYPE.INVITE;
                     break;
+                case InfoPack.STR_ACCEPT:
+                    infoType = InfoPack.TYPE.ACCEPT;
+                    break;
                 case InfoPack.STR_MOMENTS:
                     infoType = InfoPack.TYPE.MOMENTS;
                     break;

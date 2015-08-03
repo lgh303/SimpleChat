@@ -9,7 +9,9 @@ import java.util.List;
 
 import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.listener.FindListener;
+import cn.bmob.v3.listener.GetListener;
 import cn.thu.guohao.simplechat.R;
+import cn.thu.guohao.simplechat.data.Conversation;
 import cn.thu.guohao.simplechat.data.User;
 import cn.thu.guohao.simplechat.db.ChatsDAO;
 import cn.thu.guohao.simplechat.db.ConversationBean;
@@ -38,6 +40,7 @@ public class PackProcessor {
     private UserDAO mUserDAO;
     private MessageDAO mMessageDAO;
     private ChatsDAO mChatsDAO;
+    private ConversationBuilder convBuilder;
 
     public static final String FORWARD_ACTION = "cn.thu.guohao.simplechat.FORWARD_ACTION";
     public static final String FORWARD_MESSAGE = "cn.thu.guohao.simplechat.FORWARD_MESSAGE";
@@ -47,7 +50,7 @@ public class PackProcessor {
     }
 
     public void processPack(InfoPack pack) {
-        Log.i("lgh", "Passing Pack: " + pack.toString());
+        Log.i("lgh", "Processing Pack: " + pack.toString());
         if (pack.getType() != InfoPack.TYPE.ERROR) {
             mCurrUser = User.getCurrentUser(context, User.class);
             if (mCurrUser == null) return;
@@ -64,11 +67,49 @@ public class PackProcessor {
                 mChatsDAO = new ChatsDAO(context, mCurrUser.getUsername());
                 updateLocalUser(context, pack);
             } else if (pack.getType() == InfoPack.TYPE.INVITE) {
-                Log.i("lgh", "Ready to process Invite pack");
+                Log.i("lgh", "Process Invite pack");
                 mUserDAO = new UserDAO(context, mCurrUser.getUsername());
                 insertInviteUser(context, pack);
+            } else if (pack.getType() == InfoPack.TYPE.ACCEPT) {
+                Log.i("lgh", "Process Accept pack");
+                mUserDAO = new UserDAO(context, mCurrUser.getUsername());
+                UserBean bean = mUserDAO.get(pack.getSender());
+                bean.setType(UserDAO.FRIENDS);
+                mUserDAO.update(bean);
+                mChatsDAO = new ChatsDAO(context, mCurrUser.getUsername());
+                mMessageDAO = new MessageDAO(context, mCurrUser.getUsername());
+                initConversationLocal(bean, pack);
             }
         }
+    }
+
+    private void initConversationLocal(UserBean friend, InfoPack pack) {
+        mChatsDAO.insertConversation(new ConversationBean(
+                pack.getContent(),
+                friend.getNickname(),
+                friend.getUsername(),
+                0,
+                context.getString(R.string.chat_first_message),
+                pack.getUpdate_time(),
+                friend.getPhotoUri()));
+        mMessageDAO.createMessageConvTable(friend.getUsername());
+        mMessageDAO.insertMessageToConvTable(
+                friend.getUsername(),
+                new MessageBean(
+                        2, 0, "Notification",
+                        context.getString(R.string.chat_first_message),
+                        null, pack.getUpdate_time()
+                ),
+                true
+        );
+        mChatsDAO.updateConversation(
+                friend.getUsername(),
+                friend.getNickname(),
+                context.getString(R.string.chat_first_message),
+                pack.getUpdate_time(),
+                1,
+                friend.getPhotoUri()
+        );
     }
 
     private void saveLocalUnread(InfoPack pack) {

@@ -7,7 +7,7 @@ import java.io.Serializable;
  * Information Package
  */
 public class InfoPack implements Serializable {
-    public enum TYPE {ERROR, MESSAGE, INVITE, MOMENTS, USER_UPDATE}
+    public enum TYPE {ERROR, MESSAGE, INVITE, ACCEPT, MOMENTS, USER_UPDATE}
     private TYPE type;
     private String sender;
     private String content;
@@ -17,6 +17,7 @@ public class InfoPack implements Serializable {
     public static final String STR_MESSAGE = "message";
     public static final String STR_USER_UPDATE = "user_update";
     public static final String STR_INVITE = "invite";
+    public static final String STR_ACCEPT = "accept";
     public static final String STR_MOMENTS = "moments";
     public static final String STR_ERROR = "error";
 

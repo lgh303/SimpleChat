@@ -40,7 +40,7 @@ public class PackProcessor {
     private UserDAO mUserDAO;
     private MessageDAO mMessageDAO;
     private ChatsDAO mChatsDAO;
-    private ConversationBuilder convBuilder;
+    private ConversationBuilder mConvBuilder;
 
     public static final String FORWARD_ACTION = "cn.thu.guohao.simplechat.FORWARD_ACTION";
     public static final String FORWARD_MESSAGE = "cn.thu.guohao.simplechat.FORWARD_MESSAGE";
@@ -78,9 +78,25 @@ public class PackProcessor {
                 mUserDAO.update(bean);
                 mChatsDAO = new ChatsDAO(context, mCurrUser.getUsername());
                 mMessageDAO = new MessageDAO(context, mCurrUser.getUsername());
+                mConvBuilder = new ConversationBuilder(context, mChatsDAO, mMessageDAO);
                 initConversationLocal(bean, pack);
+                updateFriendsCloud(pack.getSender());
             }
         }
+    }
+
+    private void updateFriendsCloud(String friendUsername) {
+        BmobQuery<User> query = new BmobQuery<>();
+        query.addWhereEqualTo("username", friendUsername);
+        query.findObjects(context, new FindListener<User>() {
+            @Override
+            public void onSuccess(List<User> list) {
+                if (!list.isEmpty())
+                    mConvBuilder.updateFriendsCloud(mCurrUser, list.get(0));
+            }
+            @Override
+            public void onError(int i, String s) {}
+        });
     }
 
     private void initConversationLocal(UserBean friend, InfoPack pack) {

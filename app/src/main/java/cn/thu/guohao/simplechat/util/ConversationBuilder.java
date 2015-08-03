@@ -1,8 +1,11 @@
 package cn.thu.guohao.simplechat.util;
 
 import android.content.Context;
+import android.util.Log;
 
+import cn.bmob.v3.datatype.BmobRelation;
 import cn.bmob.v3.listener.SaveListener;
+import cn.bmob.v3.listener.UpdateListener;
 import cn.thu.guohao.simplechat.R;
 import cn.thu.guohao.simplechat.data.Conversation;
 import cn.thu.guohao.simplechat.data.User;
@@ -67,5 +70,22 @@ public class ConversationBuilder {
                 1,
                 conv.getbUri()
         );
+    }
+
+    public void updateFriendsCloud(User user, User friend) {
+        BmobRelation friends = new BmobRelation();
+        friends.add(friend);
+        user.setFriends(friends);
+        user.update(context, new UpdateListener() {
+            @Override
+            public void onSuccess() {
+                Log.i("lgh", "Update Friends Cloud");
+            }
+
+            @Override
+            public void onFailure(int i, String s) {
+
+            }
+        });
     }
 }

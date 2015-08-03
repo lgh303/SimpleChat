@@ -141,14 +141,19 @@ public class InvitationsAdapter extends BaseAdapter {
             @Override
             public void onSuccess(List<User> list) {
                 if (!list.isEmpty()) {
-                    User friend = list.get(0);
+                    final User friend = list.get(0);
                     final Conversation conv = new Conversation();
                     mConvBuilder.setConversation(conv, mCurrUser, friend);
                     conv.save(mContext, new SaveListener() {
                         @Override
                         public void onSuccess() {
                             mConvBuilder.updateLocal(conv);
-                            sendAcceptReplay(friendUsername, conv.getObjectId(), conv.getCreatedAt());
+                            sendAcceptReplay(
+                                    friendUsername,
+                                    conv.getObjectId(),
+                                    conv.getCreatedAt()
+                            );
+                            mConvBuilder.updateFriendsCloud(mCurrUser, friend);
                         }
                         @Override
                         public void onFailure(int i, String s) {}

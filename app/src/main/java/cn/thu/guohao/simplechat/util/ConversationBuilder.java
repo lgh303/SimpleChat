@@ -76,16 +76,13 @@ public class ConversationBuilder {
         BmobRelation friends = new BmobRelation();
         friends.add(friend);
         user.setFriends(friends);
-        user.update(context, new UpdateListener() {
-            @Override
-            public void onSuccess() {
-                Log.i("lgh", "Update Friends Cloud");
-            }
+        user.update(context);
+    }
 
-            @Override
-            public void onFailure(int i, String s) {
-
-            }
-        });
+    public void updateConversationCloud(User user, Conversation conv) {
+        BmobRelation conversations = new BmobRelation();
+        conversations.add(conv);
+        user.setConversations(conversations);
+        user.update(context);
     }
 }

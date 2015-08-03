@@ -154,6 +154,7 @@ public class InvitationsAdapter extends BaseAdapter {
                                     conv.getCreatedAt()
                             );
                             mConvBuilder.updateFriendsCloud(mCurrUser, friend);
+                            mConvBuilder.updateConversationCloud(mCurrUser, conv);
                         }
                         @Override
                         public void onFailure(int i, String s) {}

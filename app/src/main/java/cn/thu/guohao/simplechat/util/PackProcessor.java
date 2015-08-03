@@ -80,25 +80,40 @@ public class PackProcessor {
                 mMessageDAO = new MessageDAO(context, mCurrUser.getUsername());
                 mConvBuilder = new ConversationBuilder(context, mChatsDAO, mMessageDAO);
                 initConversationLocal(bean, pack);
-                updateFriendsCloud(pack.getSender());
+                updateFriendsCloud(pack);
             }
         }
     }
 
-    private void updateFriendsCloud(String friendUsername) {
+    private void updateFriendsCloud(final InfoPack pack) {
         BmobQuery<User> query = new BmobQuery<>();
-        query.addWhereEqualTo("username", friendUsername);
+        query.addWhereEqualTo("username", pack.getSender());
         query.findObjects(context, new FindListener<User>() {
             @Override
             public void onSuccess(List<User> list) {
-                if (!list.isEmpty())
+                if (!list.isEmpty()) {
                     mConvBuilder.updateFriendsCloud(mCurrUser, list.get(0));
+                    updateConversationCloud(pack.getContent());
+                }
             }
             @Override
             public void onError(int i, String s) {}
         });
     }
 
+    private void updateConversationCloud(String convID) {
+        BmobQuery<Conversation> query = new BmobQuery<>();
+        query.getObject(context, convID, new GetListener<Conversation>() {
+            @Override
+            public void onSuccess(Conversation conversation) {
+                mConvBuilder.updateConversationCloud(mCurrUser, conversation);
+            }
+
+            @Override
+            public void onFailure(int i, String s) {}
+        });
+
+    }
     private void initConversationLocal(UserBean friend, InfoPack pack) {
         mChatsDAO.insertConversation(new ConversationBean(
                 pack.getContent(),

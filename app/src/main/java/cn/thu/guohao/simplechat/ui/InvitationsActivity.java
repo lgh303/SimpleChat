@@ -48,7 +48,7 @@ public class InvitationsActivity extends ActionBarActivity {
     protected void onResume() {
         super.onResume();
         mData = mUserDAO.getPending();
-        mAdapter = new InvitationsAdapter(this, mData, mCurrUser);
+        mAdapter = new InvitationsAdapter(this, mData, mListView, mCurrUser);
         mListView.setAdapter(mAdapter);
     }
 

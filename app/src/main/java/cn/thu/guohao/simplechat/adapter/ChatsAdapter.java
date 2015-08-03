@@ -24,12 +24,14 @@ public class ChatsAdapter extends BaseAdapter
         implements AbsListView.OnScrollListener {
     private List<ChatBean> mListBean;
     private LayoutInflater mInflater;
+    private ListView mListView;
 
     private BitmapLoader loader;
 
     public ChatsAdapter(Context context, List<ChatBean> beans, ListView listView) {
         mListBean = beans;
         mInflater = LayoutInflater.from(context);
+        mListView = listView;
         listView.setOnScrollListener(this);
         loader = BitmapLoader.getInstance(context);
     }
@@ -71,10 +73,11 @@ public class ChatsAdapter extends BaseAdapter
         } else {
             viewHolder.unread.setVisibility(View.INVISIBLE);
         }
+        viewHolder.icon.setTag(mListBean.get(position).username);
         Bitmap bitmap = loader.getBitmapFromCache(
                 mListBean.get(position).username,
                 mListBean.get(position).uri,
-                viewHolder.icon);
+                mListView);
         if (bitmap == null)
             viewHolder.icon.setImageResource(R.mipmap.ic_launcher);
         else

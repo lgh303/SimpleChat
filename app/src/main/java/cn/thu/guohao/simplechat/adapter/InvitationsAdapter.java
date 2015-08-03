@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.List;
@@ -38,15 +39,17 @@ public class InvitationsAdapter extends BaseAdapter {
     private Context mContext;
     private List<UserBean> mData;
     private LayoutInflater mInflater;
+    private ListView mListView;
     private BitmapLoader loader;
     private UserDAO mUserDAO;
     private ConversationBuilder mConvBuilder;
     private User mCurrUser;
 
-    public InvitationsAdapter(Context context, List<UserBean> data, User user) {
+    public InvitationsAdapter(Context context, List<UserBean> data, ListView listview, User user) {
         this.mContext = context;
         this.mData = data;
         this.mCurrUser = user;
+        this.mListView = listview;
         mInflater = LayoutInflater.from(context);
         loader = BitmapLoader.getInstance(context);
         mUserDAO = new UserDAO(context, user.getUsername());
@@ -87,7 +90,6 @@ public class InvitationsAdapter extends BaseAdapter {
             viewHolder.button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.i("lgh", "onAcceptButton: " + user.toString());
                     Button bt = (Button)v;
                     bt.setText(mContext.getString(R.string.added));
                     bt.setClickable(false);
@@ -103,10 +105,11 @@ public class InvitationsAdapter extends BaseAdapter {
         }
         viewHolder.nickname.setText(user.getNickname());
         viewHolder.id.setText(user.getUsername());
+        viewHolder.icon.setTag(user.getUsername());
         Bitmap bitmap = loader.getBitmapFromCache(
                 user.getUsername(),
                 user.getPhotoUri(),
-                viewHolder.icon);
+                mListView);
         if (bitmap == null)
             viewHolder.icon.setImageResource(R.mipmap.ic_launcher);
         else

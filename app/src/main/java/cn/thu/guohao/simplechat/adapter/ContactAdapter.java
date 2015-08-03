@@ -2,6 +2,7 @@ package cn.thu.guohao.simplechat.adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,10 +27,12 @@ public class ContactAdapter extends BaseAdapter
     private LayoutInflater mInflater;
     private List<ContactBean> mData;
     private BitmapLoader loader;
+    private ListView mListView;
 
     public ContactAdapter(Context context, List<ContactBean> data, ListView listView) {
         mInflater = LayoutInflater.from(context);
         mData = data;
+        mListView = listView;
         listView.setOnScrollListener(this);
         loader = BitmapLoader.getInstance(context);
     }
@@ -61,10 +64,11 @@ public class ContactAdapter extends BaseAdapter
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
+        viewHolder.icon.setTag(mData.get(position).username);
         Bitmap bitmap = loader.getBitmapFromCache(
                 mData.get(position).username,
                 mData.get(position).uri,
-                viewHolder.icon);
+                mListView);
         if (bitmap == null)
             viewHolder.icon.setImageResource(R.mipmap.ic_launcher);
         else

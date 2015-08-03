@@ -6,7 +6,9 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.util.LruCache;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.ListView;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -56,7 +58,14 @@ public class BitmapLoader {
     public void removeBitmapFromCache(String username) {
         mCache.remove(username);
     }
+    public Bitmap getBitmapFromCache(String username, String uri, ListView view) {
+        return _getBitmapFromCache(username, uri, view);
+    }
     public Bitmap getBitmapFromCache(String username, String uri, ImageView view) {
+        return _getBitmapFromCache(username, uri, view);
+    }
+
+    private Bitmap _getBitmapFromCache(String username, String uri, View view) {
         Bitmap bitmap = mCache.get(username);
         if (bitmap != null) return bitmap;
         String filepath = mImgDir + username + ".png";
@@ -72,8 +81,8 @@ public class BitmapLoader {
 
     class DownloadTask extends AsyncTask<String, Void, Bitmap> {
         private String username;
-        private ImageView view;
-        public DownloadTask(String username, ImageView view) {
+        private View view;
+        public DownloadTask(String username, View view) {
             this.username = username;
             this.view = view;
         }
@@ -83,9 +92,14 @@ public class BitmapLoader {
         }
         @Override
         protected void onPostExecute(Bitmap bitmap) {
-            Log.i("lgh", "Download Image from Server: " + username + ".png");
+            Log.i("lgh", "Download Image: " + username + ".png");
             super.onPostExecute(bitmap);
-            view.setImageBitmap(bitmap);
+            ImageView imageView;
+            if (view instanceof ListView)
+                imageView = (ImageView) view.findViewWithTag(username);
+            else
+                imageView = (ImageView) view;
+            imageView.setImageBitmap(bitmap);
             saveUserBitmap(username, bitmap);
         }
     }

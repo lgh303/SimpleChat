@@ -30,6 +30,7 @@ import cn.thu.guohao.simplechat.db.MessageBean;
 import cn.thu.guohao.simplechat.db.MessageDAO;
 import cn.thu.guohao.simplechat.db.UserBean;
 import cn.thu.guohao.simplechat.db.UserDAO;
+import cn.thu.guohao.simplechat.util.ConversationBuilder;
 
 
 public class RegisterActivity extends ActionBarActivity {
@@ -50,6 +51,7 @@ public class RegisterActivity extends ActionBarActivity {
     private UserDAO mUserDAO;
     private ChatsDAO mChatsDAO;
     private MessageDAO mMessageDAO;
+    private ConversationBuilder mConvBuilder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,8 +118,15 @@ public class RegisterActivity extends ActionBarActivity {
         query.findObjects(this, new FindListener<User>() {
             @Override
             public void onSuccess(List<User> list) {
-                if (list.isEmpty())
-                    register();
+                if (list.isEmpty()) {
+                    new AsyncTask<Void, Void, Void>() {
+                        @Override
+                        protected Void doInBackground(Void... params) {
+                            register();
+                            return null;
+                        }
+                    }.execute();
+                }
                 else {
                     Toast.makeText(RegisterActivity.this, "Chat ID Exists", Toast.LENGTH_SHORT).show();
                     restoreUI();
@@ -157,6 +166,10 @@ public class RegisterActivity extends ActionBarActivity {
                         sex, type, "null"));
                 mChatsDAO = new ChatsDAO(RegisterActivity.this, user.getUsername());
                 mMessageDAO = new MessageDAO(RegisterActivity.this, user.getUsername());
+                mConvBuilder = new ConversationBuilder(
+                        RegisterActivity.this,
+                        mChatsDAO,
+                        mMessageDAO);
                 initSpecialUsers();
             }
 
@@ -185,23 +198,24 @@ public class RegisterActivity extends ActionBarActivity {
             }
 
             @Override
-            public void onError(int i, String s) { }
+            public void onError(int i, String s) {
+            }
         });
     }
 
     private void initSpecialConversations() {
         mConv1 = new Conversation();
-        setConversation(mConv1, user, user);
+        mConvBuilder.setConversation(mConv1, user, user);
         mConv1.save(this, new SaveListener() {
             @Override
             public void onSuccess() {
-                updateLocal(mConv1);
+                mConvBuilder.updateLocal(mConv1);
                 mConv2 = new Conversation();
-                setConversation(mConv2, user, filehelper);
+                mConvBuilder.setConversation(mConv2, user, filehelper);
                 mConv2.save(RegisterActivity.this, new SaveListener() {
                     @Override
                     public void onSuccess() {
-                        updateLocal(mConv2);
+                        mConvBuilder.updateLocal(mConv2);
                         addSpecialUsers();
                     }
                     @Override
@@ -211,48 +225,6 @@ public class RegisterActivity extends ActionBarActivity {
             @Override
             public void onFailure(int i, String s) { }
         });
-    }
-
-    private void setConversation(Conversation mConv, User aUser, User bUser) {
-        mConv.setaUser(aUser);
-        mConv.setaUsername(aUser.getUsername());
-        mConv.setaNickname(aUser.getNickname());
-        mConv.setaUri(aUser.getPhotoUri());
-        mConv.setbUser(bUser);
-        mConv.setbUsername(bUser.getUsername());
-        mConv.setbNickname(bUser.getNickname());
-        mConv.setbUri(bUser.getPhotoUri());
-        mConv.setUnread(1);
-        mConv.setLatestMessage(getString(R.string.chat_first_message));
-    }
-
-    private void updateLocal(Conversation mConv) {
-        mChatsDAO.insertConversation(new ConversationBean(
-                mConv.getObjectId(),
-                mConv.getbNickname(),
-                mConv.getbUsername(),
-                0,
-                mConv.getLatestMessage(),
-                mConv.getCreatedAt(),
-                mConv.getbUri()));
-        mMessageDAO.createMessageConvTable(mConv.getbUsername());
-        mMessageDAO.insertMessageToConvTable(
-                mConv.getbUsername(),
-                new MessageBean(
-                        2, 0, "Notification",
-                        getString(R.string.chat_first_message),
-                        null, mConv.getUpdatedAt()
-                ),
-                true
-        );
-        mChatsDAO.updateConversation(
-                mConv.getbUsername(),
-                mConv.getbNickname(),
-                getString(R.string.chat_first_message),
-                mConv.getCreatedAt(),
-                1,
-                mConv.getbUri()
-        );
     }
 
     private void addSpecialUsers() {

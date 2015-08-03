@@ -35,10 +35,6 @@ public class InvitationsActivity extends ActionBarActivity {
         mListView = (ListView) findViewById(R.id.id_lv_invitations);
         mCurrUser = User.getCurrentUser(this, User.class);
         mUserDAO = new UserDAO(this, mCurrUser.getUsername());
-        mData = mUserDAO.getPending();
-        Log.i("lgh", "Invitations Data.size = " + mData.size());
-        mAdapter = new InvitationsAdapter(this, mData, mCurrUser);
-        mListView.setAdapter(mAdapter);
         mInviteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -46,6 +42,14 @@ public class InvitationsActivity extends ActionBarActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mData = mUserDAO.getPending();
+        mAdapter = new InvitationsAdapter(this, mData, mCurrUser);
+        mListView.setAdapter(mAdapter);
     }
 
     @Override

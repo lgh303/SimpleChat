@@ -113,6 +113,7 @@ public class ProfileActivity extends ActionBarActivity {
                             InfoPack.TYPE.INVITE,
                             mUser.getUsername(), jsonString
                     );
+                    finish();
                 }
             }
         });

@@ -4,20 +4,28 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <TextView
-        android:id="@+id/id_tv_chats_unread"
-        android:text="0"
+    <FrameLayout
         android:layout_gravity="center"
-        android:textSize="18sp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <ImageView
-        android:id="@+id/id_iv_chats"
-        android:layout_gravity="center"
-        android:src="@mipmap/ic_launcher"
-        android:padding="5dp"
-        android:layout_width="48dp"
-        android:layout_height="48dp" />
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/id_iv_chats"
+            android:layout_gravity="center"
+            android:src="@mipmap/ic_launcher"
+            android:padding="5dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp" />
+        <TextView
+            android:id="@+id/id_tv_chats_unread"
+            android:text="0"
+            android:textColor="@android:color/white"
+            android:layout_gravity="right"
+            android:gravity="center"
+            android:background="@drawable/red_point"
+            android:textSize="12sp"
+            android:layout_width="20dp"
+            android:layout_height="20dp" />
+    </FrameLayout>
 
     <LinearLayout
         android:layout_gravity="center"

@@ -41,7 +41,7 @@ public class ContactsFragment extends Fragment
         implements AdapterView.OnItemClickListener{
 
     private View mInvitationLayout;
-    private TextView mRedPointTextView;
+    private TextView mRedPointTextView, mBlueBoxTextView;
     private ListView mListView;
     private List<ContactBean> mData;
     private User mCurrUser;
@@ -66,6 +66,7 @@ public class ContactsFragment extends Fragment
         View view = inflater.inflate(R.layout.fragment_contacts, container, false);
         mListView = (ListView) view.findViewById(R.id.id_lv_contacts);
         mInvitationLayout = view.findViewById(R.id.id_rl_frag_contact_invite);
+        mBlueBoxTextView = (TextView) view.findViewById(R.id.id_tv_frag_contact_blue_box);
         mRedPointTextView = (TextView) view.findViewById(R.id.id_tv_frag_contact_red_point);
         return view;
     }
@@ -82,13 +83,24 @@ public class ContactsFragment extends Fragment
                 startActivity(intent);
             }
         });
-        initData();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        // TODO refresh data when contact list changes.
+        initData();
+        int idolCount = mUserDAO.getMyIdolCount();
+        int admirerCount = mUserDAO.getMyAdmirerCount();
+        if (idolCount + admirerCount > 0) {
+            mBlueBoxTextView.setText(idolCount + admirerCount + "");
+            mBlueBoxTextView.setVisibility(View.VISIBLE);
+        } else
+            mBlueBoxTextView.setVisibility(View.INVISIBLE);
+        if (admirerCount > 0) {
+            mRedPointTextView.setText(admirerCount + "");
+            mRedPointTextView.setVisibility(View.VISIBLE);
+        } else
+            mRedPointTextView.setVisibility(View.INVISIBLE);
     }
 
     private void initData() {

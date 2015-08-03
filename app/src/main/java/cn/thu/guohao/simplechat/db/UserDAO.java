@@ -100,6 +100,27 @@ public class UserDAO {
         return list;
     }
 
+    public int getMyIdolCount() {
+        return getWhereCount("type=1");
+    }
+
+    public int getMyAdmirerCount() {
+        return getWhereCount("type=2");
+    }
+
+    private int getWhereCount(String where) {
+        SQLiteDatabase db = helper.getWritableDatabase();
+        String selectSQL = "select * from user where " + where;
+        Cursor cursor = db.rawQuery(selectSQL, null);
+        int count = 0;
+        while (cursor.moveToNext()) {
+            count = count + 1;
+        }
+        cursor.close();
+        db.close();
+        return count;
+    }
+
     public ArrayList<UserBean> getAll() {
         SQLiteDatabase db = helper.getWritableDatabase();
         Cursor cursor = db.query("user", null, null, null, null, null, null, null);

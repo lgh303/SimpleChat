@@ -64,7 +64,13 @@ public class ChatsAdapter extends BaseAdapter
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        viewHolder.unread.setText("" + mListBean.get(position).unread);
+        int unread = mListBean.get(position).unread;
+        if (unread > 0) {
+            viewHolder.unread.setText("" + unread);
+            viewHolder.unread.setVisibility(View.VISIBLE);
+        } else {
+            viewHolder.unread.setVisibility(View.INVISIBLE);
+        }
         Bitmap bitmap = loader.getBitmapFromCache(
                 mListBean.get(position).username,
                 mListBean.get(position).uri,

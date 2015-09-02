@@ -1,18 +1,12 @@
 package cn.thu.guohao.simplechat.ui;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,32 +15,18 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bmob.BmobProFile;
-import com.bmob.btp.callback.UploadListener;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.List;
 
 import cn.bmob.v3.BmobPushManager;
-import cn.bmob.v3.BmobQuery;
-import cn.bmob.v3.datatype.BmobFile;
-import cn.bmob.v3.datatype.BmobRelation;
-import cn.bmob.v3.listener.FindListener;
-import cn.bmob.v3.listener.SaveListener;
 import cn.bmob.v3.listener.UpdateListener;
 import cn.thu.guohao.simplechat.R;
-import cn.thu.guohao.simplechat.data.Delivery;
 import cn.thu.guohao.simplechat.data.Installation;
 import cn.thu.guohao.simplechat.data.User;
 import cn.thu.guohao.simplechat.db.UserBean;
 import cn.thu.guohao.simplechat.db.UserDAO;
 import cn.thu.guohao.simplechat.util.BitmapLoader;
 import cn.thu.guohao.simplechat.util.DeliverySender;
+import cn.thu.guohao.simplechat.util.ImageSaver;
 import cn.thu.guohao.simplechat.util.InfoPack;
 import cn.thu.guohao.simplechat.util.Utils;
 
@@ -205,66 +185,22 @@ public class MyProfileActivity extends ActionBarActivity {
                     mCurrUser.getPhotoUri()
             );
         } else if (requestCode == REQUEST_PHOTO && resultCode == RESULT_OK) {
-            updatePhoto(data.getData());
+            loader.removeBitmapFromCache(mCurrUser.getUsername());
+            ImageSaver imageSaver = new ImageSaver(
+                    this,
+                    mCurrUser.getUsername(),
+                    new ImageSaver.OnUploadedListener() {
+                        @Override
+                        public void onImageUploaded(String URL) {
+                            updateUserRemote(
+                                    mCurrUser.getNickname(),
+                                    gender2String(mCurrUser.getIsMale()),
+                                    URL
+                            );
+                        }
+                    });
+            imageSaver.saveAndUpload(data.getData());
         }
-    }
-
-    private void updatePhoto(Uri data) {
-        String[] filePathColumn = {MediaStore.Images.Media.DATA};
-        Cursor cursor = getContentResolver().query(
-                data, filePathColumn, null, null, null);
-        cursor.moveToFirst();
-        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-        String filePath = cursor.getString(columnIndex);
-        cursor.close();
-        Log.i("lgh", "photo filepath: " + filePath);
-        String scaled = getScaledPhoto(filePath);
-        Log.i("lgh", "Scaled Filepath: " + scaled);
-        uploadPhotoRemote(scaled);
-    }
-
-    private String getScaledPhoto(String filePath) {
-        Bitmap b = BitmapFactory.decodeFile(filePath);
-        Bitmap bitmap = Bitmap.createScaledBitmap(b, 128, 128, true);
-        String saveFilename = mCurrUser.getUsername() + ".png";
-        FileOutputStream outputStream;
-        try {
-            outputStream = openFileOutput(saveFilename, Context.MODE_PRIVATE);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-            outputStream.flush();
-            outputStream.close();
-            b.recycle();
-            bitmap.recycle();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        loader.removeBitmapFromCache(mCurrUser.getUsername());
-        return getFilesDir() + "/" + saveFilename;
-    }
-
-    private void uploadPhotoRemote(String filePath) {
-        BmobProFile.getInstance(MyProfileActivity.this).upload(filePath, new UploadListener() {
-            @Override
-            public void onSuccess(String filename, String url, BmobFile bmobFile) {
-                String URL =BmobProFile.getInstance(MyProfileActivity.this).signURL(
-                        filename,
-                        url,
-                        "a4e4a49c9a03cebfed9b617935b2c29c",
-                        0,null);
-                Log.i("lgh", mCurrUser.getUsername() + "URL: " + URL);
-                updateUserRemote(
-                        mCurrUser.getNickname(),
-                        gender2String(mCurrUser.getIsMale()),
-                        URL
-                );
-            }
-            @Override
-            public void onProgress(int i) {}
-            @Override
-            public void onError(int i, String s) {
-                Toast.makeText(MyProfileActivity.this, "Upload Failed", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     @Override

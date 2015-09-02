@@ -43,7 +43,7 @@ public class BitmapLoader {
         mOptions = new BitmapFactory.Options();
         mOptions.inPreferredConfig = Bitmap.Config.ARGB_8888;
         int maxMemory = (int) Runtime.getRuntime().maxMemory();
-        mCache = new LruCache<String, Bitmap>(maxMemory / 4) {
+        mCache = new LruCache<String, Bitmap>(maxMemory / 16) {
             @Override
             protected int sizeOf(String key, Bitmap value) {
                 return value.getByteCount();

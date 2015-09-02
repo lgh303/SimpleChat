@@ -204,12 +204,14 @@ public class MainActivity extends ActionBarActivity
         saveLatestUser();
         String username = mCurrUser.getUsername();
         String nickname = mCurrUser.getNickname();
+        String photoUri = mCurrUser.getPhotoUri();
         User.logOut(this);
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         intent.putExtra("username", username);
         intent.putExtra("nickname", nickname);
+        intent.putExtra("photoUri", photoUri);
         startActivity(intent);
     }
 
@@ -219,6 +221,7 @@ public class MainActivity extends ActionBarActivity
         editor.putString("username", mCurrUser.getUsername());
         editor.putString("objectID", mCurrUser.getObjectId());
         editor.putString("nickname", mCurrUser.getNickname());
+        editor.putString("photoUri", mCurrUser.getPhotoUri());
         editor.apply();
     }
 

@@ -1,6 +1,7 @@
 package cn.thu.guohao.simplechat.ui;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,10 +19,12 @@ import android.widget.Toast;
 import cn.bmob.v3.listener.SaveListener;
 import cn.thu.guohao.simplechat.R;
 import cn.thu.guohao.simplechat.data.User;
+import cn.thu.guohao.simplechat.util.BitmapLoader;
 
 
 public class LoginActivity extends ActionBarActivity {
 
+    private ImageView mLoginImageView;
     private TextView mRegisterTextView;
     private TextView mSwitchTextView;
     private Button mLoginButton;
@@ -28,6 +32,8 @@ public class LoginActivity extends ActionBarActivity {
     private EditText mPasswordEditText;
     private String username;
     private String nickname;
+    private String photoUri;
+    private BitmapLoader loader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,11 +41,14 @@ public class LoginActivity extends ActionBarActivity {
         setContentView(R.layout.activity_login);
         username = getIntent().getStringExtra("username");
         nickname = getIntent().getStringExtra("nickname");
+        photoUri = getIntent().getStringExtra("photoUri");
+        loader = BitmapLoader.getInstance(this);
         initView();
         initEvent();
     }
 
     private void initView() {
+        mLoginImageView = (ImageView) findViewById(R.id.id_iv_login);
         mRegisterTextView = (TextView) findViewById(R.id.id_tv_register);
         mSwitchTextView = (TextView) findViewById(R.id.id_tv_login_switch);
         mLoginButton = (Button) findViewById(R.id.id_bt_login);
@@ -47,6 +56,13 @@ public class LoginActivity extends ActionBarActivity {
         mPasswordEditText = (EditText) findViewById(R.id.id_et_login_password);
         TextView mUsernameTextView = (TextView) findViewById(R.id.id_tv_login_username);
         mUsernameTextView.setText(nickname);
+        Bitmap bitmap = loader.getBitmapFromCache(
+                username,
+                photoUri,
+                mLoginImageView
+        );
+        if (bitmap != null)
+            mLoginImageView.setImageBitmap(bitmap);
     }
 
     private void initEvent() {

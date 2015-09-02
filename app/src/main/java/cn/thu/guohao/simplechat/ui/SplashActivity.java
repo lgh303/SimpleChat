@@ -29,6 +29,7 @@ public class SplashActivity extends Activity {
         final String objectID = pref.getString("objectID", null);
         final String username = pref.getString("username", null);
         final String nickname = pref.getString("nickname", null);
+        final String photoUri = pref.getString("photoUri", null);
 
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -43,9 +44,9 @@ public class SplashActivity extends Activity {
                         intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                         intent.putExtra("username", username);
                         intent.putExtra("nickname", nickname);
+                        intent.putExtra("photoUri", photoUri);
                         startActivity(intent);
                     }
-
                 } else {
                     Intent intent = new Intent(SplashActivity.this, MainActivity.class);
                     startActivity(intent);
